@@ -1,0 +1,6 @@
+task_id,task,baseline_model,baseline_score,agent_score,score_improvement,baseline_errors,agent_decision,executor_status
+BASE_001,O-O RDF calculation,pending,pending,10,pending,pending,accept,selected execution supported
+BASE_002,Temperature time series,pending,pending,10,pending,pending,accept,executed successfully
+BASE_003,Density calculation,pending,pending,10,pending,pending,accept,executed successfully
+BASE_004,MSD and diffusion,pending,pending,10,pending,pending,accept,selected execution supported
+BASE_005,PBC trajectory preprocessing,pending,pending,10,pending,pending,accept,selected execution supported
