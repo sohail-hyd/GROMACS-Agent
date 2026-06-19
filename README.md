@@ -95,3 +95,14 @@ The reference MDAgent focuses on LAMMPS script generation for thermodynamic prop
 ## Citation
 
 If you use this repository, please cite the associated manuscript after publication.
+
+
+## CodeExecutorAgent
+
+CodeExecutorAgent supports safe execution of selected validated GROMACS workflows. The executor verifies required files, runs only allow-listed GROMACS commands, captures stdout/stderr, checks expected output files, and saves an execution report.
+
+Supported selected execution tasks include temperature extraction, density extraction, O-O RDF calculation, MSD with nojump preprocessing, and PBC nojump preprocessing.
+
+Validated executor tests are stored in results/executor_tests/.
+
+Example validated result: temperature extraction status success, average temperature 299.75 K, generated output temperature_executor.xvg.
