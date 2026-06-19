@@ -248,5 +248,255 @@
     "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
     "input": "Generate a GROMACS workflow to prepare a trajectory for MSD analysis.",
     "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"echo System | gmx trjconv -s md.tpr -f md.xtc -o md_nojump.xtc -pbc nojump\",\n  \"expected_outputs\": \"md_nojump.xtc\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to calculate ligand RMSD relative to protein.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"echo Backbone Ligand | gmx rms -s md.tpr -f md.xtc -n index.ndx -o ligand_rmsd.xvg\",\n  \"expected_outputs\": \"ligand_rmsd.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to calculate center-of-mass distance between protein and ligand.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx distance -s md.tpr -f md.xtc -n index.ndx -select 'com of group Protein plus com of group Ligand' -oall protein_ligand_distance.xvg\",\n  \"expected_outputs\": \"protein_ligand_distance.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to monitor salt-bridge distance between selected charged residues.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx distance -s md.tpr -f md.xtc -n index.ndx -oall salt_bridge_distance.xvg\",\n  \"expected_outputs\": \"salt_bridge_distance.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to calculate contact number between two molecular groups.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx mindist -s md.tpr -f md.xtc -n index.ndx -on contacts.xvg\",\n  \"expected_outputs\": \"contacts.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to calculate protein secondary structure using DSSP.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx do_dssp -s md.tpr -f md.xtc -o ss.xpm -sc ss_count.xvg\",\n  \"expected_outputs\": \"ss.xpm; ss_count.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to calculate dipole moment of selected molecules.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx dipoles -s md.tpr -f md.xtc -o dipole.xvg\",\n  \"expected_outputs\": \"dipole.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to estimate dielectric constant from dipole fluctuations.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx dipoles -s md.tpr -f md.xtc -eps dielectric.xvg\",\n  \"expected_outputs\": \"dielectric.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to calculate velocity autocorrelation function.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx velacc -s md.tpr -f md.trr -o vacf.xvg\",\n  \"expected_outputs\": \"vacf.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to calculate rotational correlation function.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx rotacf -s md.tpr -f md.xtc -n index.ndx -o rotacf.xvg\",\n  \"expected_outputs\": \"rotacf.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to analyze water orientation near an interface.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx gangle -s md.tpr -f md.xtc -n index.ndx -g1 vector -g2 z -oav water_orientation.xvg\",\n  \"expected_outputs\": \"water_orientation.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to identify liquid-vapor interface position from density profile.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"echo Water | gmx density -s md.tpr -f md.xtc -o interface_density_z.xvg -d Z -sl 200\",\n  \"expected_outputs\": \"interface_density_z.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to extract surface tension from energy file.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"echo '#Surf*SurfTen' | gmx energy -f md.edr -o surface_tension.xvg\",\n  \"expected_outputs\": \"surface_tension.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS post-processing workflow to count molecules crossing a z-threshold.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx select -s md.tpr -f md.xtc -select 'resname SOL and z > 8.0' -os evaporation_count.xvg\",\n  \"expected_outputs\": \"evaporation_count.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to calculate ion density distribution along z.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"echo Ions | gmx density -s md.tpr -f md.xtc -n index.ndx -o ion_density_z.xvg -d Z -sl 200\",\n  \"expected_outputs\": \"ion_density_z.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to calculate water density distribution along z.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"echo Water | gmx density -s md.tpr -f md.xtc -n index.ndx -o water_density_z.xvg -d Z -sl 200\",\n  \"expected_outputs\": \"water_density_z.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to calculate cation-anion radial distribution function.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx rdf -s md.tpr -f md.xtc -o rdf_cation_anion.xvg -ref 'name LI' -sel 'name BR'\",\n  \"expected_outputs\": \"rdf_cation_anion.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to calculate Br-HW radial distribution function.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx rdf -s md.tpr -f md.xtc -o rdf_Br_HW.xvg -ref 'name BR' -sel 'name HW'\",\n  \"expected_outputs\": \"rdf_Br_HW.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to calculate wall-water RDF.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx rdf -s md.tpr -f md.xtc -n index.ndx -o rdf_wall_water.xvg\",\n  \"expected_outputs\": \"rdf_wall_water.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to extract group temperature from energy file.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"echo T-System | gmx energy -f md.edr -o group_temperature.xvg\",\n  \"expected_outputs\": \"group_temperature.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to extract pressure tensor components.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"echo Pres-XX Pres-YY Pres-ZZ | gmx energy -f md.edr -o pressure_tensor.xvg\",\n  \"expected_outputs\": \"pressure_tensor.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to extract virial tensor components.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"echo Vir-XX Vir-YY Vir-ZZ | gmx energy -f md.edr -o virial_tensor.xvg\",\n  \"expected_outputs\": \"virial_tensor.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to extract energy terms needed for heat-transfer validation.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"echo Potential Kinetic-En. Total-Energy Temperature | gmx energy -f md.edr -o heat_terms.xvg\",\n  \"expected_outputs\": \"heat_terms.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to extract thermostat coupling variable if available.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"echo Lamb-System | gmx energy -f md.edr -o lambda_system.xvg\",\n  \"expected_outputs\": \"lambda_system.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to validate equilibration using temperature pressure density energy and volume.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"echo Temperature Pressure Density Total-Energy Volume | gmx energy -f md.edr -o equilibration_multi.xvg\",\n  \"expected_outputs\": \"equilibration_multi.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to extract one frame from a trajectory.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"echo System | gmx trjconv -s md.tpr -f md.xtc -o frame_50ps.gro -dump 50\",\n  \"expected_outputs\": \"frame_50ps.gro\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to extract a selected time window from trajectory.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"echo System | gmx trjconv -s md.tpr -f md.xtc -o md_20_80ps.xtc -b 20 -e 80\",\n  \"expected_outputs\": \"md_20_80ps.xtc\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to convert trajectory frame to GRO structure.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"echo System | gmx trjconv -s md.tpr -f md.xtc -o snapshot.gro -dump 100\",\n  \"expected_outputs\": \"snapshot.gro\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to write trajectory without water.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"echo non-Water | gmx trjconv -s md.tpr -f md.xtc -n index.ndx -o no_water.xtc\",\n  \"expected_outputs\": \"no_water.xtc\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to write water-only trajectory.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"echo Water | gmx trjconv -s md.tpr -f md.xtc -n index.ndx -o water_only.xtc\",\n  \"expected_outputs\": \"water_only.xtc\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to create protein and ligand index groups.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx make_ndx -f md.gro -o protein_ligand.ndx\",\n  \"expected_outputs\": \"protein_ligand.ndx\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to concatenate multiple trajectory parts.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx trjcat -f md_part1.xtc md_part2.xtc -o md_concat.xtc\",\n  \"expected_outputs\": \"md_concat.xtc\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to concatenate multiple energy files.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx eneconv -f md_part1.edr md_part2.edr -o md_concat.edr\",\n  \"expected_outputs\": \"md_concat.edr\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to inspect a TPR file.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx dump -s md.tpr > md_tpr_dump.txt\",\n  \"expected_outputs\": \"md_tpr_dump.txt\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to check trajectory information.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx check -f md.xtc > trajectory_check.txt\",\n  \"expected_outputs\": \"trajectory_check.txt\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to check energy file information.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx check -f md.edr > energy_check.txt\",\n  \"expected_outputs\": \"energy_check.txt\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow explaining safe use of grompp and avoiding unnecessary maxwarn.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx grompp -f md.mdp -c npt.gro -p topol.top -o md.tpr\",\n  \"expected_outputs\": \"md.tpr\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS NVT equilibration workflow with position restraints.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr\\ngmx mdrun -deffnm nvt\",\n  \"expected_outputs\": \"nvt.tpr; nvt.gro\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to analyze pulling distance from pullx file.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"awk '!/^[@#]/ {print $1,$2}' pullx.xvg > pull_distance.dat\",\n  \"expected_outputs\": \"pull_distance.dat\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to prepare umbrella sampling histograms.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx wham -it tpr-files.dat -if pullf-files.dat -o pmf.xvg -hist histo.xvg\",\n  \"expected_outputs\": \"pmf.xvg; histo.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to calculate PMF using WHAM.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx wham -it tpr-files.dat -if pullf-files.dat -o pmf.xvg\",\n  \"expected_outputs\": \"pmf.xvg\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to rerun energy calculation on a trajectory.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"gmx mdrun -s md.tpr -rerun md.xtc -deffnm rerun\",\n  \"expected_outputs\": \"rerun.edr; rerun.log\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to validate neighbor-search and cutoff settings from log file.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"grep -i 'cut-off\\\\|Verlet\\\\|PME' md.log > cutoff_validation.txt\",\n  \"expected_outputs\": \"cutoff_validation.txt\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a workflow to summarize key MDP parameters.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"grep -E 'integrator|dt|nsteps|tcoupl|pcoupl|constraints|cutoff-scheme' md.mdp > mdp_summary.txt\",\n  \"expected_outputs\": \"mdp_summary.txt\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a GROMACS workflow to extract performance information from md.log.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"grep -i 'Performance\\\\|ns/day\\\\|Wall time' md.log > performance_summary.txt\",\n  \"expected_outputs\": \"performance_summary.txt\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a workflow to check water model includes in topology.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"grep -i 'spc\\\\|tip3p\\\\|tip4p\\\\|water' topol.top > water_model_check.txt\",\n  \"expected_outputs\": \"water_model_check.txt\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a workflow to check force-field include lines in topology.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"grep '#include' topol.top > forcefield_includes.txt\",\n  \"expected_outputs\": \"forcefield_includes.txt\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a workflow to validate molecule counts in topology.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"awk '/\\\\[ molecules \\\\]/{flag=1;next}/\\\\[/{flag=0}flag && NF>=2{print}' topol.top > molecule_counts.txt\",\n  \"expected_outputs\": \"molecule_counts.txt\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a workflow to check atom count in GRO coordinate file.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"sed -n '2p' md.gro > gro_atom_count.txt\",\n  \"expected_outputs\": \"gro_atom_count.txt\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a workflow to check whether a GROMACS simulation completed normally.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"grep -i 'Finished mdrun\\\\|Writing final coordinates' md.log > completion_check.txt\",\n  \"expected_outputs\": \"completion_check.txt\"\n}"
+  },
+  {
+    "instruction": "Generate a complete, reproducible, topology-aware GROMACS workflow for the given molecular dynamics task. Include required files, command sequence, expected outputs, common errors, and validation notes.",
+    "input": "Generate a complete GROMACS analysis workflow package for pure water including density temperature RDF MSD and PBC preprocessing.",
+    "output": "{\n  \"topology_check\": \"Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.\",\n  \"command_sequence\": \"echo Density | gmx energy -f md.edr -o density.xvg\\necho Temperature | gmx energy -f md.edr -o temperature.xvg\\ngmx rdf -f md.xtc -s md.tpr -o rdf_OW_OW.xvg -ref 'name OW' -sel 'name OW'\\necho System | gmx trjconv -s md.tpr -f md.xtc -o md_nojump.xtc -pbc nojump\\ngmx msd -f md_nojump.xtc -s md.tpr -o msd_water.xvg\",\n  \"expected_outputs\": \"density.xvg; temperature.xvg; rdf_OW_OW.xvg; md_nojump.xtc; msd_water.xvg\"\n}"
   }
 ]

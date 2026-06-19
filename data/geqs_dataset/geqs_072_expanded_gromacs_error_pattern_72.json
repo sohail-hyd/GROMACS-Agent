@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_072",
+  "task_name": "expanded_gromacs_error_pattern_72",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 6,
+  "error_pattern": "expanded_gromacs_error_pattern_72",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow with error pattern expanded_gromacs_error_pattern_72.",
+    "generated_workflow_issue": "Curated GROMACS evaluator case 72: workflow contains an error or weakness in command order, file requirement, selection reproducibility, validation note, or physical interpretation."
+  },
+  "output": {
+    "score": 6,
+    "decision": "revise",
+    "detected_errors": [
+      "Curated GROMACS evaluator case 72: workflow contains an error or weakness in command order, file requirement, selection reproducibility, validation note, or physical interpretation."
+    ],
+    "correction_suggestions": [
+      "Check required files before commands.",
+      "Use correct GROMACS command order.",
+      "Use reproducible non-interactive selections.",
+      "Add expected output files.",
+      "Add physical validation and short-trajectory limitation notes."
+    ]
+  }
+}

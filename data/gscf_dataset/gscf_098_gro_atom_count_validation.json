@@ -1,0 +1,29 @@
+{
+  "id": "GSCF_098",
+  "task_name": "gro_atom_count_validation",
+  "dataset": "GSCF",
+  "status": "curated_workflow_template_not_all_executed",
+  "user_task": "Generate a workflow to check atom count in GRO coordinate file.",
+  "required_input_files": [
+    "topol.top",
+    "coordinate file such as .gro",
+    "trajectory file such as .xtc when required",
+    "run input file such as .tpr when required",
+    "energy file such as .edr when required",
+    "index file such as .ndx when custom selections are required"
+  ],
+  "workflow": {
+    "topology_check": "Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.",
+    "command_sequence": "sed -n '2p' md.gro > gro_atom_count.txt",
+    "expected_outputs": "gro_atom_count.txt"
+  },
+  "common_errors": [
+    "missing topology file",
+    "wrong molecule count",
+    "wrong atom or group selection",
+    "invalid GROMACS option",
+    "wrong trajectory preprocessing",
+    "missing short-trajectory warning"
+  ],
+  "validation_note": "Check successful command execution and physical meaning of output. Short trajectories are workflow-validation tests unless production-scale sampling is used."
+}
