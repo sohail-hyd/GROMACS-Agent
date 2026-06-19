@@ -1,0 +1,6 @@
+task_id,task,baseline_score,gromacs_agent_score,score_improvement,main_baseline_error
+BASE_001,O-O RDF calculation,5,10,5,Topology-coordinate mismatch and inconsistent water-box preparation
+BASE_002,Temperature time-series extraction,8,10,2,Weak validation and assumed time offsets
+BASE_003,Density calculation,6,10,4,Incorrect water molecule counting and inconsistent topology preparation
+BASE_004,MSD and diffusion workflow,7,10,3,Mixed PBC handling and unclear MSD fitting workflow
+BASE_005,PBC trajectory preprocessing,7,10,3,Hard-coded index groups and unclear final trajectory purpose
