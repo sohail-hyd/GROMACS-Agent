@@ -1,0 +1,127 @@
+[
+  {
+    "id": "GSCF_002",
+    "task_type": "rdf_analysis",
+    "software": "GROMACS",
+    "system": "pure_water",
+    "instruction": "Generate a GROMACS post-processing workflow to calculate the oxygen-oxygen radial distribution function of pure water at 300 K.",
+    "input": {
+      "trajectory": "md.xtc",
+      "structure": "md.tpr",
+      "selection": "water oxygen atoms",
+      "analysis": "oxygen-oxygen RDF"
+    },
+    "expected_workflow": [
+      "Use an existing production trajectory",
+      "Select water oxygen atoms using name OW",
+      "Run gmx rdf with OW as both reference and selection",
+      "Save the output as rdf_OW_OW.xvg",
+      "Extract the first RDF peak position and peak height"
+    ],
+    "expected_command": "gmx rdf -f md.xtc -s md.tpr -o rdf_OW_OW.xvg -ref \"name OW\" -sel \"name OW\"",
+    "validated_result": {
+      "first_peak_position_nm": 0.278,
+      "first_peak_height": 2.867877,
+      "output_file": "rdf_OW_OW.xvg",
+      "status": "workflow_validated_short_test"
+    },
+    "common_errors_and_fixes": [
+      {
+        "error": "rdf_OW_OW.xvg not found",
+        "fix": "Run the analysis command inside the folder where rdf_OW_OW.xvg is saved, or provide the full file path."
+      },
+      {
+        "error": "md.xtc not found",
+        "fix": "Ensure production MD was run with nstxout-compressed greater than 0."
+      },
+      {
+        "error": "Selection name OW not recognized",
+        "fix": "Check atom names in the structure file or create an index group for water oxygen atoms."
+      }
+    ]
+  },
+  {
+    "id": "GSCF_006",
+    "task_type": "rdf_analysis",
+    "system": "pure water",
+    "temperature_K": 300,
+    "pressure_bar": 1,
+    "user_task": "Generate a GROMACS post-processing workflow to calculate the oxygen-hydrogen radial distribution function of pure water at 300 K.",
+    "required_inputs": [
+      "md.tpr",
+      "md.xtc",
+      "topol.top"
+    ],
+    "expected_gromacs_commands": [
+      "gmx rdf -f md.xtc -s md.tpr -o rdf_OW_HW.xvg -ref \"name OW\" -sel \"name HW\""
+    ],
+    "important_rules": [
+      "Do not skip topology preparation if a full workflow is requested.",
+      "Use clear command order.",
+      "Use physically reasonable NVT/NPT settings.",
+      "For NPT equilibration, prefer C-rescale barostat.",
+      "Use clear atom-name selection for oxygen and hydrogen atoms.",
+      "Explain whether the RDF includes intramolecular or intermolecular O-H correlations.",
+      "If trajectory length is short, state that the RDF is only workflow validation."
+    ],
+    "expected_outputs": [
+      "rdf_OW_HW.xvg"
+    ],
+    "common_errors": [
+      "Using wrong atom names for water oxygen or hydrogen.",
+      "Missing md.tpr or md.xtc.",
+      "Using unclear interactive group selection.",
+      "Not explaining intramolecular versus intermolecular O-H RDF interpretation.",
+      "Reporting a short-trajectory RDF as final publication-quality data."
+    ],
+    "validation_note": "The workflow is valid if gmx rdf produces rdf_OW_HW.xvg using oxygen as reference and hydrogen as selection. Short trajectories should be treated as workflow validation only."
+  },
+  {
+    "id": "GSCF_001",
+    "task_type": "density_calculation",
+    "software": "GROMACS",
+    "system": "pure_water",
+    "instruction": "Generate a complete GROMACS workflow to calculate the density of pure water at 300 K and 1 bar.",
+    "input": {
+      "box_size": "3 nm x 3 nm x 3 nm",
+      "temperature": "300 K",
+      "pressure": "1 bar",
+      "ensemble_sequence": [
+        "energy_minimization",
+        "NVT",
+        "NPT",
+        "production_MD"
+      ],
+      "analysis": "density extraction from energy file"
+    },
+    "expected_workflow": [
+      "Generate water box using gmx solvate",
+      "Count water molecules and create topology",
+      "Prepare minim.mdp",
+      "Run grompp and mdrun for energy minimization",
+      "Prepare nvt.mdp",
+      "Run NVT equilibration",
+      "Prepare npt.mdp using C-rescale barostat",
+      "Run NPT equilibration",
+      "Prepare md.mdp",
+      "Run production MD",
+      "Extract density using gmx energy",
+      "Calculate average density from density.xvg"
+    ],
+    "validated_result": {
+      "average_density_kg_m3": 968.755,
+      "production_time": "100 ps",
+      "status": "workflow_validated_short_test"
+    },
+    "common_errors_and_fixes": [
+      {
+        "error": "topol.top does not exist when using gmx solvate -p",
+        "fix": "Create topology manually after generating the water box and counting water molecules."
+      },
+      {
+        "error": "Too many warnings due to Berendsen barostat",
+        "fix": "Use C-rescale barostat for NPT equilibration."
+      }
+    ]
+  }
+]

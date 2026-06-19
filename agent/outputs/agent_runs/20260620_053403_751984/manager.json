@@ -1,0 +1,5 @@
+{
+  "role": "Manager",
+  "interpreted_task": "Generate a complete GROMACS workflow to calculate density of pure water at 280 K and 1 bar.",
+  "goal": "Generate a reproducible GROMACS workflow with validation."
+}
