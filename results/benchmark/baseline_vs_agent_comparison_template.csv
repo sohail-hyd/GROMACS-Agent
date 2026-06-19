@@ -1,0 +1,6 @@
+task_id,task,baseline_llm_score,gromacs_agent_score,improvement,executor_status,note
+BASE_001,O-O RDF calculation,pending,10,pending,selected execution supported,Add baseline LLM score after testing
+BASE_002,Temperature time-series extraction,pending,10,pending,executed successfully,Add baseline LLM score after testing
+BASE_003,Density calculation,pending,10,pending,executed successfully,Add baseline LLM score after testing
+BASE_004,MSD and diffusion workflow,pending,10,pending,selected execution supported,Add baseline LLM score after testing
+BASE_005,PBC trajectory preprocessing,pending,10,pending,selected execution supported,Add baseline LLM score after testing
