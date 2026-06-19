@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_020",
+  "task_name": "topology_not_updated_after_solvation",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 5,
+  "error_pattern": "topology_not_updated_after_solvation",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: topology_not_updated_after_solvation.",
+    "generated_workflow_issue": "Topology molecule count not updated after solvation."
+  },
+  "output": {
+    "score": 5,
+    "decision": "revise",
+    "detected_errors": [
+      "Topology molecule count not updated after solvation."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

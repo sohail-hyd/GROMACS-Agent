@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_011",
+  "task_name": "missing_validation_note",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 8,
+  "error_pattern": "missing_validation_note",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: missing_validation_note.",
+    "generated_workflow_issue": "Workflow has commands but lacks scientific validation note."
+  },
+  "output": {
+    "score": 8,
+    "decision": "accept",
+    "detected_errors": [
+      "Workflow has commands but lacks scientific validation note."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_030",
+  "task_name": "box_volume_missing_term",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 7,
+  "error_pattern": "box_volume_missing_term",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: box_volume_missing_term.",
+    "generated_workflow_issue": "Volume workflow does not specify Volume energy term."
+  },
+  "output": {
+    "score": 7,
+    "decision": "revise",
+    "detected_errors": [
+      "Volume workflow does not specify Volume energy term."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

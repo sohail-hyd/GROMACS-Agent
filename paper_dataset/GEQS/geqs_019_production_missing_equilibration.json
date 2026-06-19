@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_019",
+  "task_name": "production_missing_equilibration",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 5,
+  "error_pattern": "production_missing_equilibration",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: production_missing_equilibration.",
+    "generated_workflow_issue": "Production MD starts without EM/NVT/NPT preparation."
+  },
+  "output": {
+    "score": 5,
+    "decision": "revise",
+    "detected_errors": [
+      "Production MD starts without EM/NVT/NPT preparation."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

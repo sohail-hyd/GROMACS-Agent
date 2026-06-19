@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_050",
+  "task_name": "mixed_system_wrong_selection",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 6,
+  "error_pattern": "mixed_system_wrong_selection",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: mixed_system_wrong_selection.",
+    "generated_workflow_issue": "Workflow uses whole System when a component-specific selection is needed."
+  },
+  "output": {
+    "score": 6,
+    "decision": "revise",
+    "detected_errors": [
+      "Workflow uses whole System when a component-specific selection is needed."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

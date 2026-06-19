@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_034",
+  "task_name": "angle_no_index",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 7,
+  "error_pattern": "angle_no_index",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: angle_no_index.",
+    "generated_workflow_issue": "Angle workflow lacks index group definition."
+  },
+  "output": {
+    "score": 7,
+    "decision": "revise",
+    "detected_errors": [
+      "Angle workflow lacks index group definition."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_038",
+  "task_name": "missing_short_trajectory_warning",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 7,
+  "error_pattern": "missing_short_trajectory_warning",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: missing_short_trajectory_warning.",
+    "generated_workflow_issue": "Workflow lacks short-trajectory limitation warning."
+  },
+  "output": {
+    "score": 7,
+    "decision": "revise",
+    "detected_errors": [
+      "Workflow lacks short-trajectory limitation warning."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

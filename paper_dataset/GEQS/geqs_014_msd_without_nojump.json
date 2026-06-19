@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_014",
+  "task_name": "msd_without_nojump",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 6,
+  "error_pattern": "msd_without_nojump",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: msd_without_nojump.",
+    "generated_workflow_issue": "MSD workflow lacks PBC nojump preprocessing."
+  },
+  "output": {
+    "score": 6,
+    "decision": "revise",
+    "detected_errors": [
+      "MSD workflow lacks PBC nojump preprocessing."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

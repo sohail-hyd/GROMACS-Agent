@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_048",
+  "task_name": "no_reproducibility_note",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 7,
+  "error_pattern": "no_reproducibility_note",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: no_reproducibility_note.",
+    "generated_workflow_issue": "Workflow lacks reproducibility details such as versions, files, and command order."
+  },
+  "output": {
+    "score": 7,
+    "decision": "revise",
+    "detected_errors": [
+      "Workflow lacks reproducibility details such as versions, files, and command order."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

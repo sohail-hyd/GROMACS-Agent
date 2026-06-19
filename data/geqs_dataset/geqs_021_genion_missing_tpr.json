@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_021",
+  "task_name": "genion_missing_tpr",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 5,
+  "error_pattern": "genion_missing_tpr",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: genion_missing_tpr.",
+    "generated_workflow_issue": "Ion addition lacks ions.tpr preparation by grompp."
+  },
+  "output": {
+    "score": 5,
+    "decision": "revise",
+    "detected_errors": [
+      "Ion addition lacks ions.tpr preparation by grompp."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

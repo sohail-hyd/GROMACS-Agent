@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_036",
+  "task_name": "interactive_selection_not_reproducible",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 6,
+  "error_pattern": "interactive_selection_not_reproducible",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: interactive_selection_not_reproducible.",
+    "generated_workflow_issue": "Workflow relies on undocumented manual selections."
+  },
+  "output": {
+    "score": 6,
+    "decision": "revise",
+    "detected_errors": [
+      "Workflow relies on undocumented manual selections."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

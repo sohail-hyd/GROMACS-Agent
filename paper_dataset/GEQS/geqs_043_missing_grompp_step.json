@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_043",
+  "task_name": "missing_grompp_step",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 5,
+  "error_pattern": "missing_grompp_step",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: missing_grompp_step.",
+    "generated_workflow_issue": "Simulation workflow omits grompp before mdrun."
+  },
+  "output": {
+    "score": 5,
+    "decision": "revise",
+    "detected_errors": [
+      "Simulation workflow omits grompp before mdrun."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

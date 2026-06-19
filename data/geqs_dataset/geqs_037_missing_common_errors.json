@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_037",
+  "task_name": "missing_common_errors",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 8,
+  "error_pattern": "missing_common_errors",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: missing_common_errors.",
+    "generated_workflow_issue": "Workflow lacks common errors and fixes."
+  },
+  "output": {
+    "score": 8,
+    "decision": "accept",
+    "detected_errors": [
+      "Workflow lacks common errors and fixes."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

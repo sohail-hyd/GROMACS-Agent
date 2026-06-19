@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_042",
+  "task_name": "wrong_xtc_for_visualization",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 7,
+  "error_pattern": "wrong_xtc_for_visualization",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: wrong_xtc_for_visualization.",
+    "generated_workflow_issue": "Visualization workflow uses nojump trajectory when centered trajectory is more appropriate."
+  },
+  "output": {
+    "score": 7,
+    "decision": "revise",
+    "detected_errors": [
+      "Visualization workflow uses nojump trajectory when centered trajectory is more appropriate."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

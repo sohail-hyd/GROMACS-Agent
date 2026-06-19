@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_013",
+  "task_name": "wrong_rdf_group",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 6,
+  "error_pattern": "wrong_rdf_group",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: wrong_rdf_group.",
+    "generated_workflow_issue": "RDF uses unclear or wrong atom group selection."
+  },
+  "output": {
+    "score": 6,
+    "decision": "revise",
+    "detected_errors": [
+      "RDF uses unclear or wrong atom group selection."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

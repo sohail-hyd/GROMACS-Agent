@@ -1,0 +1,28 @@
+{
+  "id": "GSCF_030",
+  "task_name": "number_density_profile",
+  "dataset": "GSCF",
+  "status": "curated_workflow_template_not_all_executed",
+  "user_task": "Generate a GROMACS workflow to calculate number density profile along z direction.",
+  "required_input_files": [
+    "topol.top",
+    "coordinate file such as .gro",
+    "trajectory file such as .xtc when required",
+    "run input file such as .tpr when required",
+    "energy file such as .edr when required"
+  ],
+  "workflow": {
+    "topology_check": "Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.",
+    "command_sequence": "echo System | gmx density -f md.xtc -s md.tpr -o number_density_z.xvg -d Z -sl 100 -dens number",
+    "expected_outputs": "number_density_z.xvg"
+  },
+  "common_errors": [
+    "missing topology file",
+    "wrong molecule count after solvation",
+    "wrong atom or group selection",
+    "invalid GROMACS option",
+    "missing validation note",
+    "short trajectory used without warning"
+  ],
+  "validation_note": "Generated outputs must be checked for successful execution and physical meaning. Short trajectories should be treated as workflow-validation tests unless production-scale sampling is used."
+}

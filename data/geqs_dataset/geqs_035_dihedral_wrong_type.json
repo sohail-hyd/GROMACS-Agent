@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_035",
+  "task_name": "dihedral_wrong_type",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 6,
+  "error_pattern": "dihedral_wrong_type",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: dihedral_wrong_type.",
+    "generated_workflow_issue": "Dihedral analysis does not specify dihedral type."
+  },
+  "output": {
+    "score": 6,
+    "decision": "revise",
+    "detected_errors": [
+      "Dihedral analysis does not specify dihedral type."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

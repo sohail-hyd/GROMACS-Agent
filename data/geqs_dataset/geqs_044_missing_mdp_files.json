@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_044",
+  "task_name": "missing_mdp_files",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 5,
+  "error_pattern": "missing_mdp_files",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: missing_mdp_files.",
+    "generated_workflow_issue": "Simulation workflow omits required MDP settings/files."
+  },
+  "output": {
+    "score": 5,
+    "decision": "revise",
+    "detected_errors": [
+      "Simulation workflow omits required MDP settings/files."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

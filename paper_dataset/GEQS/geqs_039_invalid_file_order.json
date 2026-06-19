@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_039",
+  "task_name": "invalid_file_order",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 5,
+  "error_pattern": "invalid_file_order",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: invalid_file_order.",
+    "generated_workflow_issue": "Workflow uses files before they are generated."
+  },
+  "output": {
+    "score": 5,
+    "decision": "revise",
+    "detected_errors": [
+      "Workflow uses files before they are generated."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

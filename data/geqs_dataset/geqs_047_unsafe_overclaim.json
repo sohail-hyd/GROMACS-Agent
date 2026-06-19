@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_047",
+  "task_name": "unsafe_overclaim",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 6,
+  "error_pattern": "unsafe_overclaim",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: unsafe_overclaim.",
+    "generated_workflow_issue": "Workflow claims production-quality result from short test trajectory."
+  },
+  "output": {
+    "score": 6,
+    "decision": "revise",
+    "detected_errors": [
+      "Workflow claims production-quality result from short test trajectory."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

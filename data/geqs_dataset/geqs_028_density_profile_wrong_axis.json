@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_028",
+  "task_name": "density_profile_wrong_axis",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 6,
+  "error_pattern": "density_profile_wrong_axis",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: density_profile_wrong_axis.",
+    "generated_workflow_issue": "Density profile workflow uses wrong or unspecified spatial direction."
+  },
+  "output": {
+    "score": 6,
+    "decision": "revise",
+    "detected_errors": [
+      "Density profile workflow uses wrong or unspecified spatial direction."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

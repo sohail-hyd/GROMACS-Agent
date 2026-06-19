@@ -1,0 +1,28 @@
+{
+  "id": "GSCF_044",
+  "task_name": "nvt_equilibration_workflow",
+  "dataset": "GSCF",
+  "status": "curated_workflow_template_not_all_executed",
+  "user_task": "Generate a GROMACS workflow for NVT equilibration.",
+  "required_input_files": [
+    "topol.top",
+    "coordinate file such as .gro",
+    "trajectory file such as .xtc when required",
+    "run input file such as .tpr when required",
+    "energy file such as .edr when required"
+  ],
+  "workflow": {
+    "topology_check": "Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.",
+    "command_sequence": "gmx grompp -f nvt.mdp -c em.gro -p topol.top -o nvt.tpr\ngmx mdrun -deffnm nvt",
+    "expected_outputs": "nvt.tpr; nvt.gro; nvt.edr; nvt.log"
+  },
+  "common_errors": [
+    "missing topology file",
+    "wrong molecule count after solvation",
+    "wrong atom or group selection",
+    "invalid GROMACS option",
+    "missing validation note",
+    "short trajectory used without warning"
+  ],
+  "validation_note": "Generated outputs must be checked for successful execution and physical meaning. Short trajectories should be treated as workflow-validation tests unless production-scale sampling is used."
+}

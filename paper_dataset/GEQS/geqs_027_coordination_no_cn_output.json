@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_027",
+  "task_name": "coordination_no_cn_output",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 6,
+  "error_pattern": "coordination_no_cn_output",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: coordination_no_cn_output.",
+    "generated_workflow_issue": "Coordination-number workflow calculates RDF but omits -cn output."
+  },
+  "output": {
+    "score": 6,
+    "decision": "revise",
+    "detected_errors": [
+      "Coordination-number workflow calculates RDF but omits -cn output."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}

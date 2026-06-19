@@ -33,8 +33,8 @@ User task
 
 ## Current benchmark status
 
-- GSCF records: 10
-- GEQS records: 10
+- GSCF records: 50
+- GEQS records: 50
 - MDAgent-style demo tasks: 5
 - Accepted demo tasks: 5 / 5
 - Final demo score: 10 / 10 for all five demo tasks

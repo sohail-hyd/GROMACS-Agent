@@ -1,0 +1,26 @@
+{
+  "id": "GEQS_016",
+  "task_name": "temperature_without_equilibration_check",
+  "dataset": "GEQS",
+  "status": "curated_evaluator_template",
+  "expert_score": 7,
+  "error_pattern": "temperature_without_equilibration_check",
+  "input": {
+    "user_task": "Evaluate a GROMACS workflow containing the error pattern: temperature_without_equilibration_check.",
+    "generated_workflow_issue": "Temperature workflow lacks equilibration/target-temperature validation."
+  },
+  "output": {
+    "score": 7,
+    "decision": "revise",
+    "detected_errors": [
+      "Temperature workflow lacks equilibration/target-temperature validation."
+    ],
+    "correction_suggestions": [
+      "Add topology and file-preparation checks.",
+      "Use correct GROMACS command order.",
+      "Use reproducible atom/group selections.",
+      "Add expected output files.",
+      "Add scientific validation note."
+    ]
+  }
+}
