@@ -1,0 +1,14 @@
+Current progress:
+1. Created three validated GROMACS workflow records in GSCF-Dataset:
+   - GSCF_001: pure water density at 300 K
+   - GSCF_002: oxygen-oxygen RDF of pure water
+   - GSCF_003: MSD-based diffusion workflow
+
+2. Created three evaluator records in GEQS-Dataset:
+   - GEQS_001: missing topology file error
+   - GEQS_002: Berendsen barostat warning
+   - GEQS_003: invalid gmx msd option
+
+3. Created first Worker and Evaluator prompt templates.
+
+4. Created local rule-based evaluator prototype to test error-detection logic before connecting an LLM.

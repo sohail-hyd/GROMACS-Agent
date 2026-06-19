@@ -1,0 +1,352 @@
+Corrected Complete GROMACS Workflow: Pure Water Trajectory Preprocessing at 300 K
+
+Dataset ID: GSCF_009
+Task type: Trajectory preprocessing
+System: Pure water
+Goal: Correct periodic boundary conditions, make water molecules whole, center the system, and produce a cleaned trajectory for later analysis without overwriting the original trajectory.
+
+1. Required input files
+
+The following files must be present in the working directory:
+
+md.tpr
+md.xtc
+md.gro
+topol.top
+
+Check them first:
+
+ls md.tpr md.xtc md.gro topol.top
+
+Optional integrity checks:
+
+gmx check -f md.xtc
+gmx check -s md.tpr
+
+Purpose of each file:
+
+md.tpr      Binary run-input file matching the production simulation
+md.xtc      Original production trajectory
+md.gro      Final coordinate file from production MD
+topol.top   Topology used to generate md.tpr
+
+Important rule:
+
+Do not overwrite md.xtc.
+Always write corrected trajectories to new output files.
+2. Required MDP files or MDP settings
+
+No new MDP file is required for this trajectory preprocessing task because gmx trjconv only changes the trajectory representation. It does not run a new simulation.
+
+However, the file md.tpr must match the original trajectory md.xtc.
+
+If md.tpr is missing, regenerate it only from the original production setup using the same topology and coordinates:
+
+gmx grompp -f md.mdp -c npt.gro -p topol.top -o md.tpr
+
+A typical production md.mdp for pure water at 300 K and 1 bar may contain:
+
+integrator              = md
+dt                      = 0.002
+nsteps                  = 50000
+
+nstxout-compressed      = 500
+nstenergy               = 500
+nstlog                  = 500
+
+cutoff-scheme           = Verlet
+coulombtype             = PME
+rcoulomb                = 1.0
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 1.0
+ref_t                   = 300
+
+pcoupl                  = C-rescale
+pcoupltype              = isotropic
+tau_p                   = 5.0
+ref_p                   = 1.0
+compressibility         = 4.5e-5
+
+constraints             = h-bonds
+constraint_algorithm    = lincs
+pbc                     = xyz
+
+With dt = 0.002 ps and nsteps = 50000, the production time is only:
+
+0.002 ps × 50000 = 100 ps
+
+Therefore, this length is acceptable mainly for workflow validation. Longer trajectories are required for reliable quantitative MSD, diffusion, RDF convergence, density statistics, and hydrogen-bond analysis.
+
+3. Topology preparation steps for a pure water system
+
+Although this task focuses on trajectory preprocessing, a complete workflow should not skip topology preparation.
+
+For a pure water-only system, gmx pdb2gmx is usually unnecessary unless starting from a special coordinate file requiring force-field processing. A clearer pure-water route is to build the box using a water-model-compatible topology.
+
+Example using SPC/E water:
+
+Create topol.top:
+
+cat > topol.top << 'EOF'
+#include "oplsaa.ff/forcefield.itp"
+#include "oplsaa.ff/spce.itp"
+
+[ system ]
+Pure SPC/E water
+
+[ molecules ]
+; Compound        #mols
+EOF
+
+Generate a pure water box:
+
+gmx solvate -cs spc216.gro -box 3.0 3.0 3.0 -o water_solv.gro -p topol.top
+
+Then prepare and run minimization, NVT, NPT, and production MD:
+
+gmx grompp -f minim.mdp -c water_solv.gro -p topol.top -o em.tpr
+gmx mdrun -deffnm em
+
+gmx grompp -f nvt.mdp -c em.gro -p topol.top -o nvt.tpr
+gmx mdrun -deffnm nvt
+
+gmx grompp -f npt.mdp -c nvt.gro -p topol.top -o npt.tpr
+gmx mdrun -deffnm npt
+
+gmx grompp -f md.mdp -c npt.gro -p topol.top -o md.tpr
+gmx mdrun -deffnm md
+
+After production MD, the preprocessing workflow uses:
+
+md.tpr
+md.xtc
+md.gro
+topol.top
+
+Important consistency note:
+
+The solvent coordinate file, water model, force field, and topology must match.
+For example, do not mix SPC/E coordinates with an incompatible water topology.
+4. GROMACS trajectory preprocessing command sequence
+Step 1: Remove large periodic jumps
+printf "System\n" | gmx trjconv -s md.tpr -f md.xtc -o md_nojump.xtc -pbc nojump
+
+Purpose:
+
+-pbc nojump removes large discontinuous jumps caused by molecules crossing periodic boundaries.
+
+Input:
+
+md.xtc
+
+Output:
+
+md_nojump.xtc
+
+This step preserves the original trajectory because the output is written to a new file.
+
+Step 2: Make water molecules whole
+printf "System\n" | gmx trjconv -s md.tpr -f md_nojump.xtc -o md_whole.xtc -pbc mol
+
+Purpose:
+
+-pbc mol reconstructs molecules so that atoms belonging to the same molecule remain together.
+
+Input:
+
+md_nojump.xtc
+
+Output:
+
+md_whole.xtc
+
+This is important because water molecules may appear split across periodic boundaries in the raw trajectory.
+
+Step 3: Center the homogeneous pure water system
+
+For a homogeneous pure water system, selecting System for both centering and output is acceptable:
+
+printf "System\nSystem\n" | gmx trjconv -s md.tpr -f md_whole.xtc -o md_center.xtc -center -pbc mol
+
+Purpose:
+
+-center centers the selected group in the simulation box.
+-pbc mol keeps molecules whole after centering.
+
+Group selection explanation:
+
+First selection: group to center
+Second selection: group to write to the output trajectory
+
+For pure water:
+
+Center group: System
+Output group: System
+
+Output:
+
+md_center.xtc
+
+Optional version for compact visualization:
+
+printf "System\nSystem\n" | gmx trjconv -s md.tpr -f md_whole.xtc -o md_center_compact.xtc -center -pbc mol -ur compact
+
+For a solute-water system, do not blindly center the whole System. Usually, the solute should be centered and the full system should be written:
+
+printf "Protein\nSystem\n" | gmx trjconv -s md.tpr -f md_whole.xtc -o md_center.xtc -center -pbc mol
+
+or, if the solute group is named Solute:
+
+printf "Solute\nSystem\n" | gmx trjconv -s md.tpr -f md_whole.xtc -o md_center.xtc -center -pbc mol
+5. Reproducible visual-inspection commands
+
+Check the cleaned trajectory:
+
+gmx check -f md_center.xtc
+
+Extract the first frame for visual inspection using a fully non-interactive command:
+
+printf "System\n" | gmx trjconv -s md.tpr -f md_center.xtc -o check_frame.gro -dump 0
+
+Open the corrected trajectory in VMD:
+
+vmd md.gro md_center.xtc
+
+or inspect only the extracted frame:
+
+vmd check_frame.gro
+
+Check that:
+
+Water molecules are whole.
+The system remains inside the periodic box.
+There are no sudden jumps.
+The trajectory looks physically continuous.
+The original md.xtc was not overwritten.
+6. Expected output files
+
+The workflow should produce:
+
+md_nojump.xtc
+md_whole.xtc
+md_center.xtc
+check_frame.gro
+
+Main output for visualization and many structural analyses:
+
+md_center.xtc
+
+Important MSD/diffusion warning:
+
+md_center.xtc is useful for visualization and many structural analyses such as RDF,
+density profiles, and hydrogen-bond checks.
+
+However, for MSD and diffusion analysis, md_nojump.xtc or another properly unwrapped
+trajectory is usually more appropriate than a centered trajectory, because centering
+can alter translational motion.
+
+Example structural analysis using the centered trajectory:
+
+gmx rdf -s md.tpr -f md_center.xtc -o rdf_OW_OW.xvg -ref OW -sel OW
+
+Example MSD analysis using the nojump trajectory:
+
+printf "System\n" | gmx msd -s md.tpr -f md_nojump.xtc -o msd_water.xvg
+
+Do not use invalid MSD options such as:
+
+-type no
+7. Common possible errors and fixes
+Error 1: Overwriting the original trajectory
+
+Wrong:
+
+gmx trjconv -s md.tpr -f md.xtc -o md.xtc -pbc nojump
+
+Fix:
+
+printf "System\n" | gmx trjconv -s md.tpr -f md.xtc -o md_nojump.xtc -pbc nojump
+
+Always write to a new file.
+
+Error 2: Wrong group selection during centering
+
+Problem:
+
+The wrong group is selected for centering or output.
+
+Fix for pure water:
+
+printf "System\nSystem\n" | gmx trjconv -s md.tpr -f md_whole.xtc -o md_center.xtc -center -pbc mol
+
+Fix for solute-water systems:
+
+printf "Solute\nSystem\n" | gmx trjconv -s md.tpr -f md_whole.xtc -o md_center.xtc -center -pbc mol
+Error 3: Assuming the same centering command works for every system
+
+Problem:
+
+Centering System is acceptable for homogeneous pure water, but it is not always correct
+for systems containing a protein, polymer, nanoparticle, membrane, or other solute.
+
+Fix:
+
+For pure water: center System.
+For solute-water systems: center the solute and output System.
+Error 4: Broken molecules still appear after correction
+
+Possible cause:
+
+The PBC correction order was wrong.
+
+Fix:
+
+Use this order:
+
+printf "System\n" | gmx trjconv -s md.tpr -f md.xtc -o md_nojump.xtc -pbc nojump
+printf "System\n" | gmx trjconv -s md.tpr -f md_nojump.xtc -o md_whole.xtc -pbc mol
+printf "System\nSystem\n" | gmx trjconv -s md.tpr -f md_whole.xtc -o md_center.xtc -center -pbc mol
+Error 5: Using a mismatched .tpr file
+
+Problem:
+
+The cleaned trajectory is analyzed using a different or incompatible md.tpr file.
+
+Fix:
+
+Use the same md.tpr that corresponds to the original production trajectory:
+
+gmx rdf -s md.tpr -f md_center.xtc -o rdf.xvg
+Error 6: Using the centered trajectory for diffusion without caution
+
+Problem:
+
+md_center.xtc may be unsuitable for MSD or diffusion because centering can modify
+the translational motion needed for diffusion analysis.
+
+Fix:
+
+Use md_nojump.xtc or another properly unwrapped trajectory for MSD:
+
+printf "System\n" | gmx msd -s md.tpr -f md_nojump.xtc -o msd_water.xvg
+Error 7: Not visually checking the corrected trajectory
+
+Problem:
+
+Analysis is performed immediately without checking whether the corrected trajectory
+is physically reasonable.
+
+Fix:
+
+printf "System\n" | gmx trjconv -s md.tpr -f md_center.xtc -o check_frame.gro -dump 0
+vmd check_frame.gro
+
+or:
+
+vmd md.gro md_center.xtc
+8. Final validation note
+
+This workflow is valid if md_nojump.xtc, md_whole.xtc, and md_center.xtc are produced successfully without overwriting md.xtc; the corrected trajectory should be visually inspected using check_frame.gro or a trajectory viewer before downstream RDF, density, hydrogen-bond, or MSD/diffusion analysis.

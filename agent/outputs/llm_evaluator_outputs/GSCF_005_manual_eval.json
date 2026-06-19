@@ -1,0 +1,23 @@
+{
+"score": 8,
+"decision": "accept_or_revise",
+"detected_errors": [
+"Topology preparation is incomplete because the workflow assumes `gmx solvate -p topol.top` creates a complete topology from nothing. In practice, a valid `topol.top` with force-field and water-model includes should be prepared before using `-p topol.top`.",
+"The workflow does not explicitly show the contents of `topol.top`, such as force-field include, water model include, `[ system ]`, and `[ molecules ]` sections.",
+"The optional command `echo SOL | gmx density ...` may fail if `SOL` is not an available index group name in the generated index file; default GROMACS groups often use `Water` or `System`.",
+"A 1 ns production run is acceptable for workflow validation, but may still be short for a smooth publication-quality density profile; this is mentioned, but stronger guidance on longer sampling and block averaging would improve reliability."
+],
+"correction_suggestions": [
+"Add an explicit minimal `topol.top` template before solvation, including force-field and water-model includes, for example SPC/E or TIP3P.",
+"After `gmx solvate`, instruct the user to verify that the `[ molecules ]` section contains the correct number of `SOL` molecules.",
+"Use a safer group-selection instruction such as checking available groups first with `gmx make_ndx -f md.tpr -o index.ndx`, then selecting `System` or `Water` by confirmed group name or number.",
+"For final quantitative reporting, recommend several nanoseconds or more of equilibrated production trajectory and optionally block-average the density profile."
+],
+"rubric": {
+"syntax_correctness": 1.5,
+"workflow_sequence": 2,
+"parameter_rationality": 1.5,
+"analysis_correctness": 1.5,
+"completeness_reproducibility": 1.5
+}
+}

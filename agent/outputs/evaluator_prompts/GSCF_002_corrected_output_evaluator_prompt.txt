@@ -1,0 +1,650 @@
+You are a GROMACS workflow evaluator.
+
+Evaluate the generated workflow using a 10-point score.
+
+Scoring rubric:
+1. Syntax correctness: 0-2
+2. Workflow sequence: 0-2
+3. Parameter rationality: 0-2
+4. Analysis correctness: 0-2
+5. Completeness and reproducibility: 0-2
+
+Check for:
+- Missing topology file
+- Wrong command order
+- Invalid GROMACS options
+- Weak or unsafe MDP settings
+- Missing analysis command
+- Missing validation note
+- Use of short trajectory without warning
+- Use of Berendsen barostat where C-rescale is better
+- Incorrect interactive selection handling
+
+Return only JSON in this format:
+{
+  "score": 0,
+  "decision": "accept_or_revise",
+  "detected_errors": [],
+  "correction_suggestions": [],
+  "rubric": {
+    "syntax_correctness": 0,
+    "workflow_sequence": 0,
+    "parameter_rationality": 0,
+    "analysis_correctness": 0,
+    "completeness_reproducibility": 0
+  }
+}
+
+Workflow to evaluate:
+Corrected GROMACS Workflow: O–O RDF of Pure Water at 300 K
+Task
+
+Calculate the oxygen–oxygen radial distribution function, O–O RDF, of pure water at 300 K using GROMACS.
+
+The target RDF is:
+
+OW–OW RDF
+
+For SPC/E water, the oxygen atom name is usually:
+
+OW
+1. Required input files
+Option A — If MD simulation is already completed
+
+You need:
+
+md.tpr        # production run input file
+md.xtc        # production trajectory
+md.gro        # final structure
+topol.top     # topology file
+md.edr        # energy file for validation
+
+Then go directly to the RDF analysis section.
+
+Option B — Fully reproducible workflow from the beginning
+
+Required files to create:
+
+topol.top
+minim.mdp
+nvt.mdp
+npt.mdp
+md.mdp
+
+Water coordinates will be taken from the built-in GROMACS file:
+
+spc216.gro
+2. Topology preparation
+
+Create the topology file:
+
+nano topol.top
+
+Paste:
+
+#include "oplsaa.ff/forcefield.itp"
+#include "oplsaa.ff/spce.itp"
+
+[ system ]
+Pure SPC/E water box at 300 K
+
+[ molecules ]
+; Compound        #mols
+
+Do not manually add the number of water molecules.
+gmx solvate -p topol.top will automatically add the correct number of SOL molecules.
+
+3. Create pure water box
+
+Create a cubic water box:
+
+gmx solvate -cs spc216.gro -o water_box.gro -p topol.top -box 3.0 3.0 3.0
+
+Expected output:
+
+water_box.gro
+topol.top
+
+Check that the topology was updated:
+
+tail topol.top
+
+You should see something like:
+
+[ molecules ]
+; Compound        #mols
+SOL              XXXX
+
+where XXXX is the number of water molecules.
+
+4. MDP files
+4.1 Energy minimization file: minim.mdp
+
+Create:
+
+nano minim.mdp
+
+Paste:
+
+integrator      = steep
+emtol           = 1000.0
+emstep          = 0.01
+nsteps          = 50000
+
+nstlist         = 10
+cutoff-scheme   = Verlet
+coulombtype     = PME
+rcoulomb        = 1.0
+vdwtype         = Cut-off
+rvdw            = 1.0
+pbc             = xyz
+4.2 NVT equilibration file: nvt.mdp
+
+Create:
+
+nano nvt.mdp
+
+Paste:
+
+integrator              = md
+dt                      = 0.002
+nsteps                  = 50000       ; 100 ps
+
+nstxout-compressed      = 500
+nstenergy               = 500
+nstlog                  = 500
+
+continuation            = no
+constraint_algorithm    = lincs
+constraints             = h-bonds
+lincs_iter              = 1
+lincs_order             = 4
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+vdwtype                 = Cut-off
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau-t                   = 1.0
+ref-t                   = 300
+
+pcoupl                  = no
+
+pbc                     = xyz
+
+gen-vel                 = yes
+gen-temp                = 300
+gen-seed                = -1
+4.3 NPT equilibration file: npt.mdp
+
+Create:
+
+nano npt.mdp
+
+Paste:
+
+integrator              = md
+dt                      = 0.002
+nsteps                  = 250000      ; 500 ps
+
+nstxout-compressed      = 500
+nstenergy               = 500
+nstlog                  = 500
+
+continuation            = yes
+constraint_algorithm    = lincs
+constraints             = h-bonds
+lincs_iter              = 1
+lincs_order             = 4
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+vdwtype                 = Cut-off
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau-t                   = 1.0
+ref-t                   = 300
+
+pcoupl                  = C-rescale
+pcoupltype              = isotropic
+tau-p                   = 5.0
+ref-p                   = 1.0
+compressibility         = 4.5e-5
+
+pbc                     = xyz
+
+gen-vel                 = no
+
+C-rescale is used for NPT equilibration because it is more suitable than Berendsen for pressure coupling.
+
+4.4 Production MD file: md.mdp
+
+This is the basic production run for RDF calculation.
+
+Create:
+
+nano md.mdp
+
+Paste:
+
+integrator              = md
+dt                      = 0.002
+nsteps                  = 500000      ; 1 ns
+
+nstxout-compressed      = 500
+nstenergy               = 500
+nstlog                  = 500
+
+continuation            = yes
+constraint_algorithm    = lincs
+constraints             = h-bonds
+lincs_iter              = 1
+lincs_order             = 4
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+vdwtype                 = Cut-off
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau-t                   = 1.0
+ref-t                   = 300
+
+pcoupl                  = C-rescale
+pcoupltype              = isotropic
+tau-p                   = 5.0
+ref-p                   = 1.0
+compressibility         = 4.5e-5
+
+pbc                     = xyz
+
+gen-vel                 = no
+
+A 1 ns production trajectory is acceptable only for workflow validation or basic RDF testing.
+For publication-quality RDF analysis, use a longer trajectory, preferably:
+
+5–20 ns
+
+and check RDF convergence by block averaging.
+
+5. GROMACS command sequence
+5.1 Energy minimization
+gmx grompp -f minim.mdp -c water_box.gro -p topol.top -o em.tpr
+gmx mdrun -deffnm em
+
+Expected output:
+
+em.tpr
+em.gro
+em.edr
+em.log
+5.2 NVT equilibration at 300 K
+gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
+gmx mdrun -deffnm nvt
+
+Expected output:
+
+nvt.tpr
+nvt.gro
+nvt.xtc
+nvt.edr
+nvt.log
+nvt.cpt
+5.3 NPT equilibration at 300 K and 1 bar
+gmx grompp -f npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
+gmx mdrun -deffnm npt
+
+Expected output:
+
+npt.tpr
+npt.gro
+npt.xtc
+npt.edr
+npt.log
+npt.cpt
+5.4 Production MD
+gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
+gmx mdrun -deffnm md
+
+Expected output:
+
+md.tpr
+md.gro
+md.xtc
+md.edr
+md.log
+md.cpt
+6. Optional cleaner production choice: NVT production after NPT
+
+For a cleaner fixed-volume structural RDF, you may run production in NVT after completing NPT equilibration. This keeps the equilibrated density from NPT but removes barostat effects during structural sampling.
+
+Create:
+
+nano md_nvt.mdp
+
+Paste:
+
+integrator              = md
+dt                      = 0.002
+nsteps                  = 500000      ; 1 ns
+
+nstxout-compressed      = 500
+nstenergy               = 500
+nstlog                  = 500
+
+continuation            = yes
+constraint_algorithm    = lincs
+constraints             = h-bonds
+lincs_iter              = 1
+lincs_order             = 4
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+vdwtype                 = Cut-off
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau-t                   = 1.0
+ref-t                   = 300
+
+pcoupl                  = no
+
+pbc                     = xyz
+
+gen-vel                 = no
+
+Run:
+
+gmx grompp -f md_nvt.mdp -c npt.gro -t npt.cpt -p topol.top -o md_nvt.tpr
+gmx mdrun -deffnm md_nvt
+
+Then use md_nvt.xtc and md_nvt.tpr for RDF:
+
+gmx rdf -f md_nvt.xtc -s md_nvt.tpr -o rdf_OW_OW_NVT.xvg -ref "name OW" -sel "name OW" -bin 0.002 -rmax 1.2
+
+This optional NVT production is recommended when the main goal is structural RDF analysis.
+
+7. O–O RDF calculation
+
+For the normal production trajectory:
+
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_OW.xvg -ref "name OW" -sel "name OW" -bin 0.002 -rmax 1.2
+
+Expected output:
+
+rdf_OW_OW.xvg
+
+This file contains the RDF data:
+
+r / nm      g_OO(r)
+
+The first major O–O RDF peak of liquid water should appear near:
+
+0.27–0.28 nm
+8. Optional: remove early production time
+
+If the first part of the production trajectory may still be relaxing, remove the first 100 ps:
+
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_OW_after100ps.xvg -ref "name OW" -sel "name OW" -bin 0.002 -rmax 1.2 -b 100
+
+Expected output:
+
+rdf_OW_OW_after100ps.xvg
+
+For longer trajectories, you can remove more early time if required, for example:
+
+-b 500
+9. Convert RDF file for plotting
+
+To convert .xvg to a simple .dat file:
+
+grep -v "^[@#]" rdf_OW_OW.xvg > rdf_OW_OW.dat
+
+Expected output:
+
+rdf_OW_OW.dat
+
+You can plot this file in Origin, Excel, Python, or Grace.
+
+To view directly with Grace:
+
+xmgrace rdf_OW_OW.xvg
+10. Reproducible validation commands
+
+Use non-interactive gmx energy commands.
+
+10.1 Temperature validation
+echo "Temperature" | gmx energy -f md.edr -o temperature.xvg
+
+Expected result:
+
+Average temperature close to 300 K
+10.2 Pressure validation
+echo "Pressure" | gmx energy -f md.edr -o pressure.xvg
+
+Expected result:
+
+Average pressure close to 1 bar
+
+Large pressure fluctuations are normal for a small water box.
+
+10.3 Density validation
+echo "Density" | gmx energy -f md.edr -o density.xvg
+
+Expected result:
+
+Density close to liquid water density near 300 K
+
+For SPC/E water, the density should be physically reasonable and close to:
+
+~1000 kg/m³
+
+Small deviations are normal because of finite box size, equilibration length, force field choice, and production length.
+
+If the echo command does not work because your GROMACS version uses numbered menu selections, run:
+
+gmx energy -f md.edr -o temperature.xvg
+
+Then manually type the number corresponding to:
+
+Temperature
+
+and press Enter.
+
+Do the same for:
+
+Pressure
+Density
+11. Optional RDF convergence check by block averaging
+
+For publication-quality RDF, divide a longer trajectory into blocks and compare RDF curves.
+
+Example for a 10 ns trajectory:
+
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_OW_0_2ns.xvg -ref "name OW" -sel "name OW" -b 0 -e 2000 -bin 0.002 -rmax 1.2
+
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_OW_2_4ns.xvg -ref "name OW" -sel "name OW" -b 2000 -e 4000 -bin 0.002 -rmax 1.2
+
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_OW_4_6ns.xvg -ref "name OW" -sel "name OW" -b 4000 -e 6000 -bin 0.002 -rmax 1.2
+
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_OW_6_8ns.xvg -ref "name OW" -sel "name OW" -b 6000 -e 8000 -bin 0.002 -rmax 1.2
+
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_OW_8_10ns.xvg -ref "name OW" -sel "name OW" -b 8000 -e 10000 -bin 0.002 -rmax 1.2
+
+If the peak position and peak height are similar in all blocks, the RDF is more reliable.
+
+12. Expected final output files
+
+Important simulation files:
+
+water_box.gro
+topol.top
+em.gro
+nvt.gro
+npt.gro
+md.tpr
+md.xtc
+md.gro
+md.edr
+md.log
+
+Important RDF files:
+
+rdf_OW_OW.xvg
+rdf_OW_OW.dat
+rdf_OW_OW_after100ps.xvg
+
+Validation files:
+
+temperature.xvg
+pressure.xvg
+density.xvg
+
+Optional NVT-production RDF files:
+
+md_nvt.tpr
+md_nvt.xtc
+rdf_OW_OW_NVT.xvg
+13. Common possible errors and fixes
+Error 1: Atom name OW not found
+
+Problem:
+
+Selection 'name OW' does not match any atoms
+
+Cause:
+Your water model may use a different oxygen atom name, such as:
+
+OH2
+O
+OW1
+
+Fix:
+
+Check atom names:
+
+grep SOL water_box.gro | head
+
+or:
+
+grep OW water_box.gro | head
+
+If the oxygen atom name is OH2, use:
+
+gmx rdf -f md.xtc -s md.tpr -o rdf_OO.xvg -ref "name OH2" -sel "name OH2" -bin 0.002 -rmax 1.2
+Error 2: Topology molecule count missing
+
+Problem:
+
+No molecules were defined in the system
+
+Cause:
+topol.top was not updated by gmx solvate.
+
+Fix:
+
+Run solvation with the -p option:
+
+gmx solvate -cs spc216.gro -o water_box.gro -p topol.top -box 3.0 3.0 3.0
+
+Then check:
+
+tail topol.top
+
+You should see:
+
+SOL              XXXX
+Error 3: Pressure coupling used during NVT
+
+Problem:
+Pressure coupling is active in the NVT file.
+
+Fix:
+In nvt.mdp, use:
+
+pcoupl = no
+
+Pressure coupling should only be used during NPT or NPT production.
+
+Error 4: RDF curve is noisy
+
+Cause:
+
+Trajectory is too short
+Box is too small
+Equilibration is incomplete
+
+Fix:
+
+Use a longer trajectory:
+
+5–20 ns
+
+Remove early production time:
+
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_OW_after500ps.xvg -ref "name OW" -sel "name OW" -b 500 -bin 0.002 -rmax 1.2
+
+Also use block averaging to check RDF convergence.
+
+Error 5: md.xtc or md.tpr missing
+
+Problem:
+
+File input/output error
+
+Fix:
+
+Check whether production MD finished successfully:
+
+ls md.tpr md.xtc md.gro md.log
+
+Check the end of the log file:
+
+tail md.log
+
+If the run failed, fix the error shown in md.log and rerun production.
+
+Error 6: gmx energy echo selection does not work
+
+Problem:
+This command fails:
+
+echo "Temperature" | gmx energy -f md.edr -o temperature.xvg
+
+Cause:
+Some GROMACS versions require numeric selection.
+
+Fix:
+
+Run manually:
+
+gmx energy -f md.edr -o temperature.xvg
+
+Then type the number corresponding to Temperature, press Enter, and then press Enter again to finish.
+
+Repeat for:
+
+Pressure
+Density
+Final validation note
+
+The corrected workflow is valid if the simulation remains stable near 300 K, the density is physically reasonable near liquid water density, and the calculated O–O RDF first peak appears near 0.27–0.28 nm. A 1 ns or shorter production run should be treated only as workflow validation/basic RDF, not publication-quality sampling; for final results, use a longer 5–20 ns trajectory, preferably with RDF block averaging and optionally NVT production after NPT equilibration for cleaner fixed-volume structural analysis.
+

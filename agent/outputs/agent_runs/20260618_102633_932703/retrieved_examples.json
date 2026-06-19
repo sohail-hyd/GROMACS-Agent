@@ -1,0 +1,131 @@
+[
+  {
+    "id": "GSCF_009",
+    "task_type": "trajectory_preprocessing",
+    "system": "pure water",
+    "temperature_K": 300,
+    "pressure_bar": 1,
+    "user_task": "Generate a GROMACS workflow to preprocess a pure water trajectory at 300 K by correcting periodic boundary conditions, making molecules whole, centering the system, and producing a cleaned trajectory for later analysis.",
+    "required_inputs": [
+      "md.tpr",
+      "md.xtc",
+      "md.gro",
+      "topol.top"
+    ],
+    "expected_gromacs_commands": [
+      "echo System | gmx trjconv -s md.tpr -f md.xtc -o md_nojump.xtc -pbc nojump",
+      "echo System | gmx trjconv -s md.tpr -f md_nojump.xtc -o md_whole.xtc -pbc mol",
+      "echo System System | gmx trjconv -s md.tpr -f md_whole.xtc -o md_center.xtc -center -pbc mol"
+    ],
+    "important_rules": [
+      "Do not skip topology preparation if a full workflow is requested.",
+      "Use clear command order.",
+      "Explain group selection for gmx trjconv.",
+      "Explain the purpose of -pbc nojump, -pbc mol, and -center.",
+      "Do not overwrite the original trajectory.",
+      "State that PBC correction should be checked visually before analysis.",
+      "If the system is homogeneous water, centering System is acceptable, but for solute systems, center the solute instead."
+    ],
+    "expected_outputs": [
+      "md_nojump.xtc",
+      "md_whole.xtc",
+      "md_center.xtc"
+    ],
+    "common_errors": [
+      "Overwriting md.xtc instead of writing a new cleaned trajectory.",
+      "Using wrong group selections for centering.",
+      "Assuming the same centering command works for solute-water systems.",
+      "Not checking the corrected trajectory visually.",
+      "Using cleaned trajectory without matching md.tpr when required."
+    ],
+    "validation_note": "The workflow is valid if corrected trajectory files are produced without overwriting the original trajectory. The cleaned trajectory should be inspected visually before downstream RDF, MSD, density, or hydrogen-bond analysis."
+  },
+  {
+    "id": "GSCF_002",
+    "task_type": "rdf_analysis",
+    "software": "GROMACS",
+    "system": "pure_water",
+    "instruction": "Generate a GROMACS post-processing workflow to calculate the oxygen-oxygen radial distribution function of pure water at 300 K.",
+    "input": {
+      "trajectory": "md.xtc",
+      "structure": "md.tpr",
+      "selection": "water oxygen atoms",
+      "analysis": "oxygen-oxygen RDF"
+    },
+    "expected_workflow": [
+      "Use an existing production trajectory",
+      "Select water oxygen atoms using name OW",
+      "Run gmx rdf with OW as both reference and selection",
+      "Save the output as rdf_OW_OW.xvg",
+      "Extract the first RDF peak position and peak height"
+    ],
+    "expected_command": "gmx rdf -f md.xtc -s md.tpr -o rdf_OW_OW.xvg -ref \"name OW\" -sel \"name OW\"",
+    "validated_result": {
+      "first_peak_position_nm": 0.278,
+      "first_peak_height": 2.867877,
+      "output_file": "rdf_OW_OW.xvg",
+      "status": "workflow_validated_short_test"
+    },
+    "common_errors_and_fixes": [
+      {
+        "error": "rdf_OW_OW.xvg not found",
+        "fix": "Run the analysis command inside the folder where rdf_OW_OW.xvg is saved, or provide the full file path."
+      },
+      {
+        "error": "md.xtc not found",
+        "fix": "Ensure production MD was run with nstxout-compressed greater than 0."
+      },
+      {
+        "error": "Selection name OW not recognized",
+        "fix": "Check atom names in the structure file or create an index group for water oxygen atoms."
+      }
+    ]
+  },
+  {
+    "id": "GSCF_003",
+    "task_type": "diffusion_coefficient",
+    "software": "GROMACS",
+    "system": "pure_water",
+    "instruction": "Generate a GROMACS post-processing workflow to calculate the self-diffusion coefficient of pure water at 300 K using mean square displacement analysis.",
+    "input": {
+      "trajectory": "md.xtc",
+      "structure": "md.tpr",
+      "selection": "System",
+      "analysis": "mean square displacement"
+    },
+    "expected_workflow": [
+      "Use an existing production trajectory",
+      "Run gmx msd using the production trajectory and structure file",
+      "Select the system or water group for MSD analysis",
+      "Save the MSD curve as msd_water.xvg",
+      "Fit the linear region of the MSD curve",
+      "Calculate the diffusion coefficient using D = slope / 6",
+      "State that short trajectories provide only workflow-level validation"
+    ],
+    "expected_command": "gmx msd -f md.xtc -s md.tpr -o msd_water.xvg",
+    "validated_result": {
+      "output_file": "msd_water.xvg",
+      "trajectory_length": "100 ps",
+      "status": "workflow_validated_short_test",
+      "msd_slope_nm2_ps": 0.0242545,
+      "approx_diffusion_coefficient_nm2_ps": 0.00404242,
+      "approx_diffusion_coefficient_m2_s": 4.04242e-09,
+      "fit_range_ps": "20-100 ps",
+      "validation_note": "Approximate short-trajectory workflow-validation value, not final publication-quality diffusion coefficient."
+    },
+    "common_errors_and_fixes": [
+      {
+        "error": "Invalid option: -type no",
+        "fix": "Remove -type no. Use gmx msd -f md.xtc -s md.tpr -o msd_water.xvg for normal 3D MSD."
+      },
+      {
+        "error": "Interactive selection does not finish",
+        "fix": "Select the required group, then press Ctrl-D to end the selection input."
+      },
+      {
+        "error": "Diffusion coefficient is unreliable from short trajectory",
+        "fix": "Use a longer production trajectory and fit the linear MSD region."
+      }
+    ]
+  }
+]

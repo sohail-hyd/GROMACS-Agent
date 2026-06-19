@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1450" viewBox="0 0 1800 1450">
+<rect width="100%" height="100%" fill="white"/>
+
+<text x="900" y="45" text-anchor="middle" font-family="Arial" font-size="34" font-weight="bold">
+Representative GROMACS simulation and calculation results
+</text>
+
+<!-- Panel a -->
+<text x="60" y="105" font-family="Arial" font-size="32" font-weight="bold">(a)</text>
+<image href="fig3_panels/fig3a_water_snapshot.png" x="80" y="120" width="760" height="520" preserveAspectRatio="xMidYMid meet"/>
+<text x="460" y="675" text-anchor="middle" font-family="Arial" font-size="24">Pure water simulation box</text>
+
+<!-- Panel b -->
+<text x="930" y="105" font-family="Arial" font-size="32" font-weight="bold">(b)</text>
+<image href="fig3_panels/fig3b_density_time_series.svg" x="950" y="120" width="760" height="520" preserveAspectRatio="xMidYMid meet"/>
+<text x="1330" y="675" text-anchor="middle" font-family="Arial" font-size="24">Density time series</text>
+
+<!-- Panel c -->
+<text x="60" y="750" font-family="Arial" font-size="32" font-weight="bold">(c)</text>
+<image href="fig3_panels/fig3c_oo_rdf.svg" x="80" y="765" width="520" height="410" preserveAspectRatio="xMidYMid meet"/>
+<text x="340" y="1205" text-anchor="middle" font-family="Arial" font-size="23">O–O radial distribution function</text>
+
+<!-- Panel d -->
+<text x="640" y="750" font-family="Arial" font-size="32" font-weight="bold">(d)</text>
+<image href="fig3_panels/fig3d_msd.svg" x="660" y="765" width="520" height="410" preserveAspectRatio="xMidYMid meet"/>
+<text x="920" y="1205" text-anchor="middle" font-family="Arial" font-size="23">Mean-square displacement</text>
+
+<!-- Panel e -->
+<text x="1220" y="750" font-family="Arial" font-size="32" font-weight="bold">(e)</text>
+<image href="fig3_panels/fig3e_temperature_time_series.svg" x="1240" y="765" width="520" height="410" preserveAspectRatio="xMidYMid meet"/>
+<text x="1500" y="1205" text-anchor="middle" font-family="Arial" font-size="23">Temperature time series</text>
+
+<!-- Key result box -->
+<rect x="180" y="1270" width="1440" height="120" fill="#f7f7f7" stroke="#777777" stroke-width="1.5"/>
+<text x="900" y="1310" text-anchor="middle" font-family="Arial" font-size="24" font-weight="bold">
+Key workflow-validation outputs
+</text>
+<text x="900" y="1350" text-anchor="middle" font-family="Arial" font-size="22">
+Average density = 968.755 kg m⁻³; O–O RDF first peak: r = 0.278 nm, g(r) = 2.868; diffusion estimate from short MSD test ≈ 4.04 × 10⁻⁹ m² s⁻¹.
+</text>
+<text x="900" y="1382" text-anchor="middle" font-family="Arial" font-size="20">
+Short-trajectory calculations are treated as workflow-validation outputs, not final production-scale physical-property estimates.
+</text>
+
+</svg>

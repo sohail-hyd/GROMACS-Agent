@@ -1,0 +1,704 @@
+You are a GROMACS workflow evaluator.
+
+Evaluate the generated workflow using a 10-point score.
+
+Scoring rubric:
+1. Syntax correctness: 0-2
+2. Workflow sequence: 0-2
+3. Parameter rationality: 0-2
+4. Analysis correctness: 0-2
+5. Completeness and reproducibility: 0-2
+
+Check for:
+- Missing topology file
+- Wrong command order
+- Invalid GROMACS options
+- Weak or unsafe MDP settings
+- Missing analysis command
+- Missing validation note
+- Use of short trajectory without warning
+- Use of Berendsen barostat where C-rescale is better
+- Incorrect interactive selection handling
+
+Return only JSON in this format:
+{
+  "score": 0,
+  "decision": "accept_or_revise",
+  "detected_errors": [],
+  "correction_suggestions": [],
+  "rubric": {
+    "syntax_correctness": 0,
+    "workflow_sequence": 0,
+    "parameter_rationality": 0,
+    "analysis_correctness": 0,
+    "completeness_reproducibility": 0
+  }
+}
+
+Workflow to evaluate:
+# Complete GROMACS Workflow: Mass Density Profile of Pure Water Along z Direction at 300 K
+
+## Task
+
+Calculate the **mass density profile of pure water along the z direction** at **300 K** using GROMACS post-processing.
+
+Dataset ID: **GSCF_005**
+System: **Pure water**
+Analysis target: **Mass density profile along z**
+Expected main output: **density_profile_z.xvg**
+
+---
+
+## 1. Required Input Files
+
+For the complete workflow, the following files are required:
+
+### Initial structure and topology preparation
+
+```bash
+water.gro
+```
+
+or any valid initial water configuration file, such as:
+
+```bash
+water.pdb
+```
+
+### Simulation and analysis files
+
+After running the simulation, the required files for density-profile analysis are:
+
+```bash
+md.tpr
+md.xtc
+topol.top
+```
+
+Meaning of each file:
+
+```bash
+md.tpr      # Binary run input file containing topology, parameters, and system information
+md.xtc      # Compressed trajectory file from production MD
+topol.top   # Topology file describing water molecules and force-field parameters
+```
+
+---
+
+## 2. Topology Preparation Steps
+
+Do not skip topology preparation. A valid topology is required before any MD simulation or post-processing analysis.
+
+For pure water, a simple reproducible system can be prepared using a standard GROMACS water model, such as **SPC/E** or **TIP3P**.
+
+Example using GROMACS force field and water box generation:
+
+```bash
+gmx solvate -cs spc216.gro -o water_box.gro -box 3.0 3.0 3.0 -p topol.top
+```
+
+This creates:
+
+```bash
+water_box.gro   # Pure water simulation box
+topol.top       # Topology file with number of water molecules
+```
+
+Check that `topol.top` contains a correct molecule count, for example:
+
+```text
+[ molecules ]
+SOL   895
+```
+
+The exact number may differ depending on box size.
+
+---
+
+## 3. MDP Files or MDP Settings
+
+Use physically reasonable simulation settings for pure water at **300 K** and **1 bar**.
+
+The workflow should contain four stages:
+
+```bash
+Energy minimization
+NVT equilibration
+NPT equilibration
+Production MD
+```
+
+---
+
+# 3.1 Energy Minimization: minim.mdp
+
+```ini
+integrator      = steep
+emtol           = 1000.0
+emstep          = 0.01
+nsteps          = 50000
+
+nstlist         = 10
+cutoff-scheme   = Verlet
+rlist           = 1.0
+coulombtype     = PME
+rcoulomb        = 1.0
+rvdw            = 1.0
+
+pbc             = xyz
+```
+
+---
+
+# 3.2 NVT Equilibration: nvt.mdp
+
+```ini
+integrator              = md
+dt                      = 0.002
+nsteps                  = 50000        ; 100 ps
+
+nstxout-compressed      = 500
+nstenergy               = 500
+nstlog                  = 500
+
+continuation            = no
+constraint_algorithm    = lincs
+constraints             = h-bonds
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 0.5
+ref_t                   = 300
+
+pcoupl                  = no
+
+pbc                     = xyz
+gen_vel                 = yes
+gen_temp                = 300
+gen_seed                = -1
+```
+
+---
+
+# 3.3 NPT Equilibration: npt.mdp
+
+Use the **C-rescale barostat**, which is preferred here over the Berendsen barostat for better physical pressure equilibration.
+
+```ini
+integrator              = md
+dt                      = 0.002
+nsteps                  = 250000       ; 500 ps
+
+nstxout-compressed      = 500
+nstenergy               = 500
+nstlog                  = 500
+
+continuation            = yes
+constraint_algorithm    = lincs
+constraints             = h-bonds
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 0.5
+ref_t                   = 300
+
+pcoupl                  = C-rescale
+pcoupltype              = isotropic
+tau_p                   = 2.0
+ref_p                   = 1.0
+compressibility         = 4.5e-5
+
+pbc                     = xyz
+gen_vel                 = no
+```
+
+---
+
+# 3.4 Production MD: md.mdp
+
+For a workflow-validation run, a short production simulation can be used.
+For publication-quality density profiles, use a longer trajectory, for example several nanoseconds or more.
+
+```ini
+integrator              = md
+dt                      = 0.002
+nsteps                  = 500000       ; 1 ns
+
+nstxout-compressed      = 500
+nstenergy               = 500
+nstlog                  = 500
+
+continuation            = yes
+constraint_algorithm    = lincs
+constraints             = h-bonds
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 0.5
+ref_t                   = 300
+
+pcoupl                  = C-rescale
+pcoupltype              = isotropic
+tau_p                   = 2.0
+ref_p                   = 1.0
+compressibility         = 4.5e-5
+
+pbc                     = xyz
+gen_vel                 = no
+```
+
+---
+
+## 4. Complete GROMACS Command Sequence
+
+### Step 1: Prepare the pure water box
+
+```bash
+gmx solvate -cs spc216.gro -o water_box.gro -box 3.0 3.0 3.0 -p topol.top
+```
+
+Expected files:
+
+```bash
+water_box.gro
+topol.top
+```
+
+---
+
+### Step 2: Energy minimization
+
+```bash
+gmx grompp -f minim.mdp -c water_box.gro -p topol.top -o em.tpr
+gmx mdrun -deffnm em
+```
+
+Expected files:
+
+```bash
+em.gro
+em.edr
+em.log
+em.tpr
+```
+
+---
+
+### Step 3: NVT equilibration at 300 K
+
+```bash
+gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
+gmx mdrun -deffnm nvt
+```
+
+Expected files:
+
+```bash
+nvt.gro
+nvt.edr
+nvt.log
+nvt.tpr
+nvt.xtc
+```
+
+---
+
+### Step 4: NPT equilibration at 300 K and 1 bar
+
+```bash
+gmx grompp -f npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
+gmx mdrun -deffnm npt
+```
+
+Expected files:
+
+```bash
+npt.gro
+npt.edr
+npt.log
+npt.tpr
+npt.cpt
+npt.xtc
+```
+
+---
+
+### Step 5: Production MD
+
+```bash
+gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
+gmx mdrun -deffnm md
+```
+
+Expected files:
+
+```bash
+md.tpr
+md.xtc
+md.gro
+md.edr
+md.log
+md.cpt
+```
+
+The files required for density-profile post-processing are:
+
+```bash
+md.tpr
+md.xtc
+topol.top
+```
+
+---
+
+## 5. Post-Processing: Mass Density Profile Along z Direction
+
+Use `gmx density` to calculate the mass density profile along the **z direction**.
+
+Required command:
+
+```bash
+echo System | gmx density -f md.xtc -s md.tpr -o density_profile_z.xvg -d Z -sl 100
+```
+
+This command means:
+
+```bash
+-f md.xtc                  # Input trajectory
+-s md.tpr                  # Input run file containing topology and mass information
+-o density_profile_z.xvg   # Output density profile file
+-d Z                       # Calculate density along z direction
+-sl 100                    # Divide the z direction into 100 slabs/bins
+```
+
+The `System` group is selected because the system contains only pure water.
+If the system contains other components, such as ions, solutes, walls, or gas molecules, do not blindly choose `System`. In that case, create or select a water-only group, for example `Water`, `SOL`, or an index group containing only water atoms.
+
+For a pure water system, the following is acceptable:
+
+```bash
+echo System | gmx density -f md.xtc -s md.tpr -o density_profile_z.xvg -d Z -sl 100
+```
+
+For a water-only group named `SOL`, the command may be:
+
+```bash
+echo SOL | gmx density -f md.xtc -s md.tpr -o density_profile_z.xvg -d Z -sl 100
+```
+
+If needed, create an index file:
+
+```bash
+gmx make_ndx -f md.tpr -o index.ndx
+```
+
+Then run:
+
+```bash
+echo SOL | gmx density -f md.xtc -s md.tpr -n index.ndx -o density_profile_z.xvg -d Z -sl 100
+```
+
+---
+
+## 6. Explanation of Bin Number and Slab Resolution
+
+The option:
+
+```bash
+-sl 100
+```
+
+divides the simulation box along the z direction into **100 slabs**.
+
+For example, if the box length in z is:
+
+```text
+Lz = 3.0 nm
+```
+
+then the slab thickness is approximately:
+
+```text
+3.0 nm / 100 = 0.03 nm per slab
+```
+
+A larger number of slabs gives higher spatial resolution but noisier density data.
+A smaller number of slabs gives smoother density data but lower spatial resolution.
+
+Recommended values:
+
+```bash
+-sl 50      # smoother, lower resolution
+-sl 100     # balanced choice
+-sl 200     # higher resolution, noisier profile
+```
+
+For this workflow, use:
+
+```bash
+-sl 100
+```
+
+---
+
+## 7. Expected Output Files
+
+Main expected output:
+
+```bash
+density_profile_z.xvg
+```
+
+Other useful files from the full workflow:
+
+```bash
+water_box.gro
+topol.top
+em.tpr
+em.gro
+nvt.tpr
+nvt.gro
+npt.tpr
+npt.gro
+md.tpr
+md.xtc
+md.gro
+md.edr
+md.log
+density_profile_z.xvg
+```
+
+The output file `density_profile_z.xvg` contains the mass density profile as a function of z position.
+
+Typical columns:
+
+```text
+z-position      density
+nm              kg/m^3 or comparable density unit
+```
+
+The exact formatting depends on the GROMACS version and XVG output settings.
+
+---
+
+## 8. Optional: Plot the Density Profile
+
+The `.xvg` file can be plotted using Grace:
+
+```bash
+xmgrace density_profile_z.xvg
+```
+
+Or converted/processed using Python.
+
+Example Python plotting script:
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+data = []
+
+with open("density_profile_z.xvg", "r") as f:
+    for line in f:
+        if line.startswith("#") or line.startswith("@"):
+            continue
+        cols = line.split()
+        if len(cols) >= 2:
+            data.append([float(cols[0]), float(cols[1])])
+
+data = np.array(data)
+
+plt.figure()
+plt.plot(data[:, 0], data[:, 1], linewidth=2)
+plt.xlabel("z position (nm)")
+plt.ylabel("Mass density")
+plt.title("Mass density profile of pure water along z")
+plt.tight_layout()
+plt.savefig("density_profile_z.png", dpi=300)
+plt.show()
+```
+
+Expected plot output:
+
+```bash
+density_profile_z.png
+```
+
+---
+
+## 9. Common Possible Errors and Fixes
+
+### Error 1: Missing `md.tpr`
+
+Problem:
+
+```text
+Fatal error: File 'md.tpr' does not exist
+```
+
+Fix:
+
+Run production `grompp` first:
+
+```bash
+gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
+```
+
+---
+
+### Error 2: Missing `md.xtc`
+
+Problem:
+
+```text
+File input/output error: md.xtc not found
+```
+
+Fix:
+
+Run production MD:
+
+```bash
+gmx mdrun -deffnm md
+```
+
+Also check whether your trajectory was saved with a different name.
+
+---
+
+### Error 3: Forgetting z direction
+
+Incorrect:
+
+```bash
+echo System | gmx density -f md.xtc -s md.tpr -o density_profile_z.xvg
+```
+
+Correct:
+
+```bash
+echo System | gmx density -f md.xtc -s md.tpr -o density_profile_z.xvg -d Z -sl 100
+```
+
+The option `-d Z` is essential because the task specifically requires the density profile along the z direction.
+
+---
+
+### Error 4: Wrong group selection
+
+Problem:
+
+Selecting an incorrect group can give an irrelevant density profile.
+
+For pure water:
+
+```bash
+System
+```
+
+is acceptable because the system contains only water.
+
+For mixed systems:
+
+```bash
+System
+```
+
+may include solute, ions, walls, or gas molecules, which would not represent pure water density.
+
+Fix:
+
+Use a water-only group:
+
+```bash
+echo SOL | gmx density -f md.xtc -s md.tpr -n index.ndx -o density_profile_z.xvg -d Z -sl 100
+```
+
+---
+
+### Error 5: Density profile is too noisy
+
+Possible reason:
+
+The trajectory is too short or the number of slabs is too high.
+
+Fix:
+
+Use a longer production trajectory or reduce the number of slabs:
+
+```bash
+echo System | gmx density -f md.xtc -s md.tpr -o density_profile_z.xvg -d Z -sl 50
+```
+
+---
+
+### Error 6: Reporting short-trajectory result as final data
+
+Problem:
+
+A short trajectory, such as 100 ps or 1 ns, may be enough to test the workflow but may not be enough for publication-quality density profiles.
+
+Fix:
+
+Clearly state:
+
+```text
+This short trajectory is used only for workflow validation. A longer equilibrated production trajectory is required for final quantitative density-profile analysis.
+```
+
+---
+
+## 10. Short Validation Note
+
+The workflow is valid if the command:
+
+```bash
+echo System | gmx density -f md.xtc -s md.tpr -o density_profile_z.xvg -d Z -sl 100
+```
+
+successfully produces:
+
+```bash
+density_profile_z.xvg
+```
+
+For a pure bulk water box at 300 K and 1 bar, the density profile along z should be physically reasonable and should not show strong artificial spikes unless the trajectory is too short, the bin size is too small, or the system is poorly equilibrated.
+
+If the production trajectory is short, the resulting density profile should be treated only as **workflow validation**, not as final publication-quality data.
+
+---
+
+## Final Main Command for GSCF_005
+
+```bash
+echo System | gmx density -f md.xtc -s md.tpr -o density_profile_z.xvg -d Z -sl 100
+```
+
+Final expected output:
+
+```bash
+density_profile_z.xvg
+```
+

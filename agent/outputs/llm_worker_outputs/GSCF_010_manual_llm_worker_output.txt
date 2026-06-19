@@ -1,0 +1,502 @@
+## Complete GROMACS Post-processing Workflow: Temperature Time Series of Pure Water at 300 K
+
+### Task
+
+Extract and validate the **temperature time series** of pure water at **300 K** from GROMACS energy files.
+
+Dataset ID: **GSCF_010**
+System: **Pure water**
+Analysis type: **Temperature analysis**
+Pressure condition: **1 bar**
+Target temperature: **300 K**
+
+---
+
+# 1. Required input files
+
+You should have the following files from the simulation workflow:
+
+```bash
+nvt.edr
+npt.edr
+md.edr
+topol.top
+```
+
+Meaning of each file:
+
+| File        | Purpose                                            |
+| ----------- | -------------------------------------------------- |
+| `nvt.edr`   | Energy file from NVT equilibration                 |
+| `npt.edr`   | Energy file from NPT equilibration                 |
+| `md.edr`    | Energy file from production MD                     |
+| `topol.top` | Topology file used to define the pure water system |
+
+The `.edr` files contain thermodynamic properties such as temperature, pressure, energy, density, and volume.
+
+---
+
+# 2. Required MDP files or MDP settings
+
+For this post-processing step, no new `.mdp` file is required because the simulation has already been completed.
+
+However, the original simulations should have used physically reasonable settings.
+
+## Example NVT settings
+
+```ini
+integrator  = md
+dt          = 0.002
+nsteps      = 50000
+tcoupl      = V-rescale
+tc-grps     = System
+tau_t       = 0.1
+ref_t       = 300
+pcoupl      = no
+constraints = h-bonds
+```
+
+## Example NPT settings
+
+For NPT equilibration, use **C-rescale barostat**, not Berendsen for final equilibration.
+
+```ini
+integrator  = md
+dt          = 0.002
+nsteps      = 50000
+
+tcoupl      = V-rescale
+tc-grps     = System
+tau_t       = 0.1
+ref_t       = 300
+
+pcoupl      = C-rescale
+pcoupltype  = isotropic
+tau_p       = 2.0
+ref_p       = 1.0
+compressibility = 4.5e-5
+
+constraints = h-bonds
+```
+
+## Example production MD settings
+
+```ini
+integrator  = md
+dt          = 0.002
+nsteps      = 500000
+
+tcoupl      = V-rescale
+tc-grps     = System
+tau_t       = 0.1
+ref_t       = 300
+
+pcoupl      = C-rescale
+pcoupltype  = isotropic
+tau_p       = 2.0
+ref_p       = 1.0
+compressibility = 4.5e-5
+
+constraints = h-bonds
+```
+
+---
+
+# 3. Topology preparation steps
+
+Even though temperature extraction uses `.edr` files, topology preparation should not be skipped in a reproducible workflow.
+
+For a pure water system, the topology should define the water model and the final number of water molecules.
+
+Example `topol.top` structure:
+
+```text
+#include "oplsaa.ff/forcefield.itp"
+#include "oplsaa.ff/tip3p.itp"
+
+[ system ]
+Pure water system
+
+[ molecules ]
+SOL   1000
+```
+
+Before analysis, check that:
+
+```bash
+ls topol.top
+```
+
+Also inspect the topology:
+
+```bash
+grep -A 5 "\[ molecules \]" topol.top
+```
+
+The number of `SOL` molecules in `topol.top` should match the final solvated system used to generate the `.edr` files.
+
+Important note:
+
+```text
+topol.top is not directly read by gmx energy, but it is required for reproducibility because it documents the molecular system used to generate nvt.edr, npt.edr, and md.edr.
+```
+
+---
+
+# 4. Check that required energy files exist
+
+Run:
+
+```bash
+ls nvt.edr npt.edr md.edr topol.top
+```
+
+Expected result:
+
+```text
+nvt.edr
+npt.edr
+md.edr
+topol.top
+```
+
+If any `.edr` file is missing, the corresponding simulation stage must be rerun.
+
+---
+
+# 5. GROMACS command sequence
+
+## 5.1 Extract temperature from NVT equilibration
+
+The NVT energy file checks whether the thermostat controlled the system around 300 K during constant-volume equilibration.
+
+```bash
+echo Temperature | gmx energy -f nvt.edr -o temperature_nvt.xvg
+```
+
+Expected output:
+
+```bash
+temperature_nvt.xvg
+```
+
+---
+
+## 5.2 Extract temperature from NPT equilibration
+
+The NPT energy file checks whether the system remained near 300 K while pressure coupling adjusted the box size.
+
+```bash
+echo Temperature | gmx energy -f npt.edr -o temperature_npt.xvg
+```
+
+Expected output:
+
+```bash
+temperature_npt.xvg
+```
+
+---
+
+## 5.3 Extract temperature from production MD
+
+The production MD energy file is the most important one for the final temperature validation.
+
+```bash
+echo Temperature | gmx energy -f md.edr -o temperature_md.xvg
+```
+
+Expected output:
+
+```bash
+temperature_md.xvg
+```
+
+---
+
+# 6. Optional: Plot the temperature curves
+
+You can plot the temperature files using `xmgrace`:
+
+```bash
+xmgrace temperature_nvt.xvg
+xmgrace temperature_npt.xvg
+xmgrace temperature_md.xvg
+```
+
+To compare all curves together:
+
+```bash
+xmgrace temperature_nvt.xvg temperature_npt.xvg temperature_md.xvg
+```
+
+---
+
+# 7. Optional: Extract average temperature from XVG files
+
+Remove header lines and calculate the average temperature.
+
+For production MD:
+
+```bash
+grep -v "^[@#]" temperature_md.xvg | awk '{sum+=$2; n++} END {print "Average temperature =", sum/n, "K"}'
+```
+
+For NVT:
+
+```bash
+grep -v "^[@#]" temperature_nvt.xvg | awk '{sum+=$2; n++} END {print "Average NVT temperature =", sum/n, "K"}'
+```
+
+For NPT:
+
+```bash
+grep -v "^[@#]" temperature_npt.xvg | awk '{sum+=$2; n++} END {print "Average NPT temperature =", sum/n, "K"}'
+```
+
+The average value should be close to:
+
+```text
+300 K
+```
+
+Small fluctuations are normal.
+
+---
+
+# 8. Expected output files
+
+After successful execution, the following files should be generated:
+
+```bash
+temperature_nvt.xvg
+temperature_npt.xvg
+temperature_md.xvg
+```
+
+Meaning of each output:
+
+| Output file           | Meaning                              |
+| --------------------- | ------------------------------------ |
+| `temperature_nvt.xvg` | Temperature during NVT equilibration |
+| `temperature_npt.xvg` | Temperature during NPT equilibration |
+| `temperature_md.xvg`  | Temperature during production MD     |
+
+Each `.xvg` file contains two main columns:
+
+```text
+Time    Temperature
+```
+
+Usually, time is in **ps** and temperature is in **K**.
+
+---
+
+# 9. Validation criteria
+
+The workflow is valid if:
+
+```text
+temperature_nvt.xvg
+temperature_npt.xvg
+temperature_md.xvg
+```
+
+are successfully generated and the temperature fluctuates around **300 K** after equilibration.
+
+For a good pure water simulation at 300 K:
+
+```text
+Average temperature ≈ 300 K
+```
+
+Normal temperature behavior:
+
+```text
+Small fluctuations around 300 K are expected.
+The curve does not need to be perfectly flat.
+```
+
+A typical acceptable result may look like:
+
+```text
+Temperature range: about 295–305 K
+Average temperature: close to 300 K
+```
+
+For a very small system, fluctuations may be larger.
+
+---
+
+# 10. Important interpretation note
+
+Temperature stability alone does **not** prove full equilibration.
+
+To fully validate equilibration, also check:
+
+```text
+Density
+Pressure
+Total energy
+Potential energy
+Box volume
+RMSD or structural stability, if relevant
+```
+
+For pure water at 300 K and 1 bar, the temperature should remain near 300 K, but pressure and density must also be checked before claiming complete equilibration.
+
+If the trajectory is very short, the result should be reported only as:
+
+```text
+workflow validation
+```
+
+not as final proof of physical convergence.
+
+---
+
+# 11. Common errors and fixes
+
+## Error 1: Wrong energy file used
+
+Example mistake:
+
+```bash
+echo Temperature | gmx energy -f em.edr -o temperature.xvg
+```
+
+Problem:
+
+```text
+Energy minimization does not represent a temperature-equilibrated MD trajectory.
+```
+
+Fix:
+
+Use NVT, NPT, or production MD energy files:
+
+```bash
+echo Temperature | gmx energy -f nvt.edr -o temperature_nvt.xvg
+echo Temperature | gmx energy -f npt.edr -o temperature_npt.xvg
+echo Temperature | gmx energy -f md.edr -o temperature_md.xvg
+```
+
+---
+
+## Error 2: Interactive selection not handled
+
+If you run:
+
+```bash
+gmx energy -f md.edr -o temperature_md.xvg
+```
+
+GROMACS asks you to select an energy term manually.
+
+Fix:
+
+Use non-interactive echo-based selection:
+
+```bash
+echo Temperature | gmx energy -f md.edr -o temperature_md.xvg
+```
+
+---
+
+## Error 3: Temperature option name not recognized
+
+Some systems may show slightly different energy-term names.
+
+Fix:
+
+First list available energy terms:
+
+```bash
+gmx energy -f md.edr
+```
+
+Then select the correct temperature term manually, or use the displayed number.
+
+Example:
+
+```bash
+echo 16 | gmx energy -f md.edr -o temperature_md.xvg
+```
+
+Only use the number after confirming that it corresponds to **Temperature**.
+
+---
+
+## Error 4: Missing `.edr` file
+
+Example error:
+
+```text
+File input/output error:
+md.edr not found
+```
+
+Fix:
+
+Check files:
+
+```bash
+ls *.edr
+```
+
+If `md.edr` is missing, rerun production MD:
+
+```bash
+gmx mdrun -deffnm md
+```
+
+---
+
+## Error 5: Assuming temperature stability proves equilibration
+
+Incorrect statement:
+
+```text
+The system is fully equilibrated because temperature is stable.
+```
+
+Correct statement:
+
+```text
+The temperature is stable around 300 K, but full equilibration also requires checking density, pressure, total energy, and box volume.
+```
+
+---
+
+# 12. Final complete command block
+
+```bash
+# Check required files
+ls nvt.edr npt.edr md.edr topol.top
+
+# Check topology molecule count
+grep -A 5 "\[ molecules \]" topol.top
+
+# Extract temperature from NVT equilibration
+echo Temperature | gmx energy -f nvt.edr -o temperature_nvt.xvg
+
+# Extract temperature from NPT equilibration
+echo Temperature | gmx energy -f npt.edr -o temperature_npt.xvg
+
+# Extract temperature from production MD
+echo Temperature | gmx energy -f md.edr -o temperature_md.xvg
+
+# Optional: view plots
+xmgrace temperature_nvt.xvg temperature_npt.xvg temperature_md.xvg
+
+# Optional: calculate average production temperature
+grep -v "^[@#]" temperature_md.xvg | awk '{sum+=$2; n++} END {print "Average production temperature =", sum/n, "K"}'
+```
+
+---
+
+# 13. Short validation note
+
+This workflow is valid if `temperature_nvt.xvg`, `temperature_npt.xvg`, and `temperature_md.xvg` are generated successfully and show temperature fluctuations around **300 K** after equilibration. The production MD file `temperature_md.
+
+around 300 K after equilibration. The production MD file temperature_md.xvg is the main file for final temperature checking. However, temperature alone is not sufficient to prove full equilibration; density, pressure, energy, and box volume should also be validated. If the trajectory is very short, the result should be treated only as workflow validation, not final convergence evidence.

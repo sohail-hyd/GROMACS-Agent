@@ -1,0 +1,28 @@
+{
+  "id": "GEQS_005",
+  "task_type": "workflow_evaluation",
+  "task": "Evaluate a GROMACS workflow for oxygen-hydrogen RDF analysis of pure water at 300 K.",
+  "generated_workflow": "\nWorkflow:\n1. Use an equilibrated pure water trajectory at 300 K.\n2. Required files are md.tpr and md.xtc.\n3. Calculate the oxygen-hydrogen RDF using:\n\ngmx rdf -f md.xtc -s md.tpr -o rdf_OH.xvg -ref Water -sel Water\n\n4. Plot rdf_OH.xvg and report the first RDF peak.\n\nExpected output:\nrdf_OH.xvg\n\nValidation:\nIf the RDF file is generated, the workflow is complete.\n",
+  "expert_score": 5,
+  "decision": "revise",
+  "error_type": "wrong_rdf_atom_selection",
+  "detected_errors": [
+    "The RDF command uses Water as both reference and selection, which calculates water-water group RDF rather than oxygen-hydrogen RDF.",
+    "The workflow does not select oxygen atoms as reference and hydrogen atoms as selection.",
+    "The workflow does not warn that water hydrogen atom names may differ between force fields, such as HW, HW1, or HW2.",
+    "The validation note is too weak because output-file generation alone does not prove the RDF is scientifically correct."
+  ],
+  "correction_suggestions": [
+    "Use atom-name selection such as -ref 'name OW' and -sel 'name HW' or force-field-specific hydrogen names.",
+    "Check atom names in md.gro or topology before running the RDF command.",
+    "Explain whether intramolecular O-H correlations are included or whether only intermolecular RDF is intended.",
+    "Validate the RDF by checking whether peak positions are physically reasonable."
+  ],
+  "rubric": {
+    "syntax_correctness": 2,
+    "workflow_sequence": 2,
+    "parameter_rationality": 1,
+    "analysis_correctness": 0,
+    "completeness_reproducibility": 0
+  }
+}

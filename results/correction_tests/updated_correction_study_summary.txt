@@ -1,0 +1,19 @@
+Updated correction-study summary
+
+Tasks tested:
+1. GSCF_001: pure water density at 300 K and 1 bar
+2. GSCF_002: oxygen-oxygen RDF of pure water at 300 K
+3. GSCF_003: water self-diffusion coefficient using MSD analysis
+4. GSCF_005: mass density profile along the z direction
+
+Baseline and correction results:
+- GSCF_001: 9 -> 9
+- GSCF_002: 9 -> 9
+- GSCF_003: 8 -> 9 after second correction
+- GSCF_005: 8 -> 9 after first correction
+
+Interpretation:
+Evaluator-guided correction improved the weaker MSD and density-profile workflows, while already strong density and RDF workflows remained stable. This supports the idea that iterative correction is most useful when the baseline workflow contains moderate but fixable methodological weaknesses.
+
+Status:
+This correction-study set is still prototype-scale but now shows measurable improvement in multiple tasks.

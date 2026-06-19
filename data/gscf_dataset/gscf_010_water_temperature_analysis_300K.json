@@ -1,0 +1,38 @@
+{
+  "id": "GSCF_010",
+  "task_type": "temperature_analysis",
+  "system": "pure water",
+  "temperature_K": 300,
+  "pressure_bar": 1,
+  "user_task": "Generate a GROMACS post-processing workflow to extract and validate the temperature time series of pure water at 300 K from an energy file.",
+  "required_inputs": [
+    "nvt.edr",
+    "npt.edr",
+    "md.edr",
+    "topol.top"
+  ],
+  "expected_gromacs_commands": [
+    "echo Temperature | gmx energy -f nvt.edr -o temperature_nvt.xvg",
+    "echo Temperature | gmx energy -f npt.edr -o temperature_npt.xvg",
+    "echo Temperature | gmx energy -f md.edr -o temperature_md.xvg"
+  ],
+  "important_rules": [
+    "Use non-interactive echo-based gmx energy selection.",
+    "Explain which energy file belongs to NVT, NPT, and production MD.",
+    "Explain that temperature should fluctuate around 300 K after equilibration.",
+    "Do not treat a very short trajectory as final proof of equilibration.",
+    "Mention that temperature stability alone is not sufficient; density, energy, pressure, and volume should also be checked for full equilibration validation."
+  ],
+  "expected_outputs": [
+    "temperature_nvt.xvg",
+    "temperature_npt.xvg",
+    "temperature_md.xvg"
+  ],
+  "common_errors": [
+    "Using the wrong .edr file.",
+    "Not explaining the interactive energy selection.",
+    "Assuming temperature stability alone proves full equilibration.",
+    "Reporting a short trajectory as final convergence evidence."
+  ],
+  "validation_note": "The workflow is valid if temperature time-series files are extracted and show fluctuations around 300 K after equilibration. Temperature alone is not sufficient for full equilibration validation."
+}

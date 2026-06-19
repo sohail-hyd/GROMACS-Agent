@@ -1,0 +1,28 @@
+{
+  "id": "GEQS_004",
+  "task_type": "workflow_evaluation",
+  "task": "Evaluate a GROMACS workflow for oxygen-oxygen RDF analysis of pure water at 300 K.",
+  "generated_workflow": "\nWorkflow:\n1. Prepare a 3 nm pure water box.\n2. Minimize the system.\n3. Run NVT equilibration for 50 ps at 300 K.\n4. Run NPT equilibration for 50 ps at 1 bar.\n5. Run production MD for 100 ps.\n6. Calculate the oxygen-oxygen RDF:\n\ngmx rdf -f md.xtc -s md.tpr -o rdf_OW_OW.xvg -ref \"name OW\" -sel \"name OW\"\n\n7. Report the RDF peak position and peak height as final structural properties of water.\n\nExpected output:\nrdf_OW_OW.xvg\n\nConclusion:\nThe RDF result is ready for publication.\n",
+  "expert_score": 7,
+  "decision": "revise",
+  "error_type": "missing_short_trajectory_warning",
+  "detected_errors": [
+    "The workflow uses only a 100 ps production trajectory but reports the RDF result as publication-ready.",
+    "The workflow does not clearly state that the short trajectory is only suitable for workflow validation.",
+    "The workflow does not mention checking RDF convergence or using a longer trajectory for final analysis.",
+    "The workflow has a valid RDF command, but the validation note is scientifically weak."
+  ],
+  "correction_suggestions": [
+    "Add a clear validation note stating that 100 ps is only for workflow validation.",
+    "Do not call the RDF result publication-ready without longer sampling and convergence checks.",
+    "Recommend longer production MD for final RDF analysis.",
+    "Report RDF peak position only as a preliminary check unless convergence is demonstrated."
+  ],
+  "rubric": {
+    "syntax_correctness": 2,
+    "workflow_sequence": 2,
+    "parameter_rationality": 1,
+    "analysis_correctness": 1,
+    "completeness_reproducibility": 1
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "id": "GSCF_001",
+  "task_type": "density_calculation",
+  "software": "GROMACS",
+  "system": "pure_water",
+  "instruction": "Generate a complete GROMACS workflow to calculate the density of pure water at 300 K and 1 bar.",
+  "input": {
+    "box_size": "3 nm x 3 nm x 3 nm",
+    "temperature": "300 K",
+    "pressure": "1 bar",
+    "ensemble_sequence": ["energy_minimization", "NVT", "NPT", "production_MD"],
+    "analysis": "density extraction from energy file"
+  },
+  "expected_workflow": [
+    "Generate water box using gmx solvate",
+    "Count water molecules and create topology",
+    "Prepare minim.mdp",
+    "Run grompp and mdrun for energy minimization",
+    "Prepare nvt.mdp",
+    "Run NVT equilibration",
+    "Prepare npt.mdp using C-rescale barostat",
+    "Run NPT equilibration",
+    "Prepare md.mdp",
+    "Run production MD",
+    "Extract density using gmx energy",
+    "Calculate average density from density.xvg"
+  ],
+  "validated_result": {
+    "average_density_kg_m3": 968.755,
+    "production_time": "100 ps",
+    "status": "workflow_validated_short_test"
+  },
+  "common_errors_and_fixes": [
+    {
+      "error": "topol.top does not exist when using gmx solvate -p",
+      "fix": "Create topology manually after generating the water box and counting water molecules."
+    },
+    {
+      "error": "Too many warnings due to Berendsen barostat",
+      "fix": "Use C-rescale barostat for NPT equilibration."
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+GROMACS-Agent runnable prototype demonstration
+
+Five natural-language GROMACS workflow-generation tasks were tested using the implemented GROMACS-Agent prototype.
+
+Demo tasks:
+1. O-O radial distribution function of pure water at 300 K
+2. Temperature time-series extraction of pure water at 300 K
+3. Density calculation of pure water at 300 K
+4. MSD/diffusion workflow of pure water at 300 K
+5. PBC trajectory preprocessing workflow for pure water
+
+For each task, the agent performed:
+- task interpretation,
+- planning,
+- retrieval from validated GSCF examples,
+- workflow generation,
+- evaluator scoring,
+- correction-loop checking,
+- saving of final workflow and evaluation files.
+
+Result:
+All five demo workflows were accepted by the evaluator with final score 10/10.
+
+Interpretation:
+This confirms that GROMACS-Agent is implemented as a runnable research prototype rather than only a conceptual framework.

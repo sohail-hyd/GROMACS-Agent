@@ -1,0 +1,15 @@
+Publication result tables summary
+
+GSCF dataset records: 10
+GSCF baseline tasks: 10
+GSCF average score: 8.700
+GSCF minimum score: 8.0
+GSCF maximum score: 9.0
+GEQS evaluator tasks: 10
+GEQS MAE: 0.000
+GEQS MSE: 0.000
+GEQS RMSE: 0.000
+GEQS exact matches: 10/10
+Correction-loop tested tasks: 5
+Average correction improvement: 0.600
+Improved tasks: 3/5

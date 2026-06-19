@@ -1,0 +1,11 @@
+task_id,task_type,system,temperature_K,pressure_bar,task_description
+GSCF_001,density_calculation,pure_water,,,Generate a complete GROMACS workflow to calculate the density of pure water at 300 K and 1 bar.
+GSCF_002,rdf_analysis,pure_water,,,Generate a GROMACS post-processing workflow to calculate the oxygen-oxygen radial distribution function of pure water at 300 K.
+GSCF_003,diffusion_coefficient,pure_water,,,Generate a GROMACS post-processing workflow to calculate the self-diffusion coefficient of pure water at 300 K using mean square displacement analysis.
+GSCF_004,hydrogen_bond_analysis,pure water,300,1,Generate a GROMACS post-processing workflow to calculate the hydrogen-bond number of pure water at 300 K.
+GSCF_005,density_profile_analysis,pure water,300,1,Generate a GROMACS post-processing workflow to calculate the mass density profile of pure water along the z direction at 300 K.
+GSCF_006,rdf_analysis,pure water,300,1,Generate a GROMACS post-processing workflow to calculate the oxygen-hydrogen radial distribution function of pure water at 300 K.
+GSCF_007,coordination_number_analysis,pure water,300,1,Generate a GROMACS post-processing workflow to calculate the oxygen-oxygen coordination number of pure water at 300 K from the radial distribution function.
+GSCF_008,equilibration_validation,pure water,300,1,"Generate a GROMACS post-processing workflow to validate equilibration of pure water at 300 K and 1 bar using temperature, pressure, density, total energy, and box volume time series."
+GSCF_009,trajectory_preprocessing,pure water,300,1,"Generate a GROMACS workflow to preprocess a pure water trajectory at 300 K by correcting periodic boundary conditions, making molecules whole, centering the system, and producing a cleaned trajectory for later analysis."
+GSCF_010,temperature_analysis,pure water,300,1,Generate a GROMACS post-processing workflow to extract and validate the temperature time series of pure water at 300 K from an energy file.

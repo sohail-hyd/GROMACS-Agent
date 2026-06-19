@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="540" viewBox="0 0 1000 540">
+<rect width="100%" height="100%" fill="white"/>
+<text x="500.0" y="35" text-anchor="middle" font-size="22" font-family="Arial">Evaluator Agreement with Expert Scores on GEQS Error Cases</text>
+<rect x="750" y="55" width="18" height="18" fill="#4f81bd"/><text x="775" y="69" font-size="14" font-family="Arial">Expert score</text>
+<rect x="750" y="80" width="18" height="18" fill="#c0504d"/><text x="775" y="94" font-size="14" font-family="Arial">Evaluator score</text>
+<line x1="90" y1="80" x2="90" y2="420" stroke="black"/>
+<line x1="90" y1="420" x2="960" y2="420" stroke="black"/>
+<text x="25" y="250.0" transform="rotate(-90 25,250.0)" text-anchor="middle" font-size="16" font-family="Arial">Score / 10</text>
+<line x1="85" y1="420.0" x2="90" y2="420.0" stroke="black"/>
+<text x="80" y="425.0" text-anchor="end" font-size="13" font-family="Arial">0</text>
+<line x1="85" y1="352.0" x2="90" y2="352.0" stroke="black"/>
+<text x="80" y="357.0" text-anchor="end" font-size="13" font-family="Arial">2</text>
+<line x1="85" y1="284.0" x2="90" y2="284.0" stroke="black"/>
+<text x="80" y="289.0" text-anchor="end" font-size="13" font-family="Arial">4</text>
+<line x1="85" y1="216.0" x2="90" y2="216.0" stroke="black"/>
+<text x="80" y="221.0" text-anchor="end" font-size="13" font-family="Arial">6</text>
+<line x1="85" y1="148.0" x2="90" y2="148.0" stroke="black"/>
+<text x="80" y="153.0" text-anchor="end" font-size="13" font-family="Arial">8</text>
+<line x1="85" y1="80.0" x2="90" y2="80.0" stroke="black"/>
+<text x="80" y="85.0" text-anchor="end" font-size="13" font-family="Arial">10</text>
+<polyline points="90.0,284.0 186.7,216.0 283.3,250.0 380.0,182.0 476.7,250.0 573.3,216.0 670.0,216.0 766.7,216.0 863.3,250.0 960.0,216.0" fill="none" stroke="#4f81bd" stroke-width="3"/>
+<circle cx="90.0" cy="284.0" r="4" fill="#4f81bd"/>
+<circle cx="186.7" cy="216.0" r="4" fill="#4f81bd"/>
+<circle cx="283.3" cy="250.0" r="4" fill="#4f81bd"/>
+<circle cx="380.0" cy="182.0" r="4" fill="#4f81bd"/>
+<circle cx="476.7" cy="250.0" r="4" fill="#4f81bd"/>
+<circle cx="573.3" cy="216.0" r="4" fill="#4f81bd"/>
+<circle cx="670.0" cy="216.0" r="4" fill="#4f81bd"/>
+<circle cx="766.7" cy="216.0" r="4" fill="#4f81bd"/>
+<circle cx="863.3" cy="250.0" r="4" fill="#4f81bd"/>
+<circle cx="960.0" cy="216.0" r="4" fill="#4f81bd"/>
+<polyline points="90.0,284.0 186.7,216.0 283.3,250.0 380.0,182.0 476.7,250.0 573.3,216.0 670.0,216.0 766.7,216.0 863.3,250.0 960.0,216.0" fill="none" stroke="#c0504d" stroke-width="3" stroke-dasharray='6 4'/>
+<circle cx="90.0" cy="284.0" r="4" fill="#c0504d"/>
+<circle cx="186.7" cy="216.0" r="4" fill="#c0504d"/>
+<circle cx="283.3" cy="250.0" r="4" fill="#c0504d"/>
+<circle cx="380.0" cy="182.0" r="4" fill="#c0504d"/>
+<circle cx="476.7" cy="250.0" r="4" fill="#c0504d"/>
+<circle cx="573.3" cy="216.0" r="4" fill="#c0504d"/>
+<circle cx="670.0" cy="216.0" r="4" fill="#c0504d"/>
+<circle cx="766.7" cy="216.0" r="4" fill="#c0504d"/>
+<circle cx="863.3" cy="250.0" r="4" fill="#c0504d"/>
+<circle cx="960.0" cy="216.0" r="4" fill="#c0504d"/>
+<text x="90.0" y="442" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 90.0,442)">GEQS_001</text>
+<text x="186.7" y="442" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 186.7,442)">GEQS_002</text>
+<text x="283.3" y="442" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 283.3,442)">GEQS_003</text>
+<text x="380.0" y="442" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 380.0,442)">GEQS_004</text>
+<text x="476.7" y="442" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 476.7,442)">GEQS_005</text>
+<text x="573.3" y="442" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 573.3,442)">GEQS_006</text>
+<text x="670.0" y="442" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 670.0,442)">GEQS_007</text>
+<text x="766.7" y="442" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 766.7,442)">GEQS_008</text>
+<text x="863.3" y="442" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 863.3,442)">GEQS_009</text>
+<text x="960.0" y="442" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 960.0,442)">GEQS_010</text>
+</svg>

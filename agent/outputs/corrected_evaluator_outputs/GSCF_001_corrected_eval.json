@@ -1,0 +1,22 @@
+{
+"score": 9,
+"decision": "accept_or_revise",
+"detected_errors": [
+"The workflow is generally correct and reproducible, but production uses C-rescale pressure coupling. This is acceptable in modern GROMACS, especially for density, but many publication workflows still prefer Parrinello-Rahman or clearly justify C-rescale for final NPT production.",
+"The gmx energy commands use interactive text selection with printf. This is mostly acceptable, but option names may vary slightly between GROMACS versions; users should verify the printed energy term number if the command does not select correctly.",
+"The workflow gives a reasonable density-analysis procedure, but it does not explicitly instruct the user to report uncertainty from block averaging or repeat simulations for publication-quality density."
+],
+"correction_suggestions": [
+"For final publication-level production, either justify C-rescale pressure coupling or consider a well-equilibrated Parrinello-Rahman NPT production run after C-rescale equilibration.",
+"Add a note that if printf selection fails in gmx energy, the user should run gmx energy interactively once and select the correct numbered term.",
+"Add block averaging or replicate-run guidance for uncertainty reporting in the final density value.",
+"Mention that the reported density should include the analysis window, simulation length, water model, cutoff scheme, barostat, and estimated uncertainty."
+],
+"rubric": {
+"syntax_correctness": 2,
+"workflow_sequence": 2,
+"parameter_rationality": 2,
+"analysis_correctness": 1,
+"completeness_reproducibility": 2
+}
+}

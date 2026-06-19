@@ -1,0 +1,6 @@
+task_id,task,run_folder,retrieved_examples,final_score,decision
+DEMO_001,Generate a GROMACS workflow to calculate O-O RDF of pure water at 300 K,/home/lenovo/gromacs_llm_agent_paper/agent/outputs/agent_runs/20260618_021628_577517,GSCF_002;GSCF_006;GSCF_007,10,accept
+DEMO_002,Generate a GROMACS workflow to extract temperature time series of pure water at 300 K,/home/lenovo/gromacs_llm_agent_paper/agent/outputs/agent_runs/20260618_021628_624530,GSCF_008;GSCF_010;GSCF_001,10,accept
+DEMO_003,Generate a GROMACS workflow to calculate density of pure water at 300 K,/home/lenovo/gromacs_llm_agent_paper/agent/outputs/agent_runs/20260618_021628_669729,GSCF_001;GSCF_005;GSCF_002,10,accept
+DEMO_004,Generate a GROMACS workflow to calculate MSD and diffusion of pure water at 300 K,/home/lenovo/gromacs_llm_agent_paper/agent/outputs/agent_runs/20260618_021628_718573,GSCF_003;GSCF_001;GSCF_002,10,accept
+DEMO_005,Generate a GROMACS workflow to preprocess a pure water trajectory using PBC correction,/home/lenovo/gromacs_llm_agent_paper/agent/outputs/agent_runs/20260618_021628_763289,GSCF_009;GSCF_002;GSCF_003,10,accept

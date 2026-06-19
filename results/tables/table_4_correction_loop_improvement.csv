@@ -1,0 +1,6 @@
+task_id,task_name,baseline_score,corrected_v1_score,corrected_v2_score,best_corrected_score,net_improvement
+GSCF_001,water_density_300K,9,9,NA,9,0
+GSCF_002,water_OO_RDF_300K,9,9,NA,9,0
+GSCF_003,water_MSD_diffusion_300K,8,8,9,9,1
+GSCF_005,water_density_profile_z_300K,8,9,NA,9,1
+GSCF_009,water_PBC_correction_300K,8,9,NA,9,1

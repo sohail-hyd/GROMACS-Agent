@@ -1,0 +1,89 @@
+Reference-style target plan for GROMACS LLM-agent paper
+
+Reference paper:
+Title:
+A fine-tuned large language model based molecular dynamics agent for code generation to obtain material thermodynamic parameters
+
+Our target title:
+A retrieval-augmented large language model agent for automated GROMACS workflow generation and molecular property validation
+
+Target journal style:
+Scientific Reports style
+
+Reference paper structure:
+1. Title
+2. Abstract
+3. Keywords
+4. Introduction
+5. Results
+   5.1 Overview of methodology
+   5.2 Demonstration of molecular dynamics agent in thermodynamic/property calculations
+   5.3 Experimental setup
+   5.4 Discussion
+6. Methods
+   6.1 Dataset construction
+   6.2 Model/fine-tuning or agent design
+   6.3 MDAgent design
+   6.4 Evaluation strategy
+7. Data availability
+8. Code availability
+9. References
+10. Acknowledgements
+11. Author contributions
+12. Competing interests
+
+Our matched manuscript structure:
+1. Title
+2. Abstract
+3. Keywords
+4. Introduction
+5. Results
+   5.1 Overview of GROMACS-Agent methodology
+   5.2 Demonstration of GROMACS workflow generation and validation
+   5.3 Experimental setup and benchmark design
+   5.4 Evaluator-guided correction and discussion
+6. Methods
+   6.1 GSCF dataset construction
+   6.2 GEQS evaluator dataset construction
+   6.3 GROMACS-Agent architecture
+   6.4 Worker prompt and workflow-generation protocol
+   6.5 Evaluator prompt and scoring rubric
+   6.6 Correction-loop protocol
+   6.7 Evaluation metrics
+7. Data availability
+8. Code availability
+9. References
+10. Acknowledgements
+11. Author contributions
+12. Competing interests
+
+Reference paper figure count:
+4 main figures
+
+Our target figure count:
+4 main figures
+
+Figure plan:
+Figure 1:
+Manual GROMACS workflow vs GROMACS-Agent-assisted workflow.
+
+Figure 2:
+GROMACS-Agent architecture and dataset design, including Manager, Planner, Worker, Evaluator, GSCF, and GEQS.
+
+Figure 3:
+Demonstration of representative generated GROMACS workflows and validated outputs, including density, RDF, MSD, and trajectory preprocessing.
+
+Figure 4:
+Benchmark performance, including GSCF baseline scores, GEQS expert-evaluator agreement, and correction-loop improvement.
+
+Reference paper main tables:
+No clear main-body tables detected.
+
+Our table plan:
+Table 1: GSCF dataset summary
+Table 2: Manual LLM baseline scores
+Table 3: GEQS evaluator accuracy
+Table 4: Correction-loop improvement
+
+Decision:
+To be stronger than the reference paper, keep 4 main figures matching the reference-paper storytelling style, and include 4 tables as additional quantitative evidence.

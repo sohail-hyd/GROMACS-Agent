@@ -1,0 +1,35 @@
+{
+  "id": "GSCF_004",
+  "task_type": "hydrogen_bond_analysis",
+  "system": "pure water",
+  "temperature_K": 300,
+  "pressure_bar": 1,
+  "user_task": "Generate a GROMACS post-processing workflow to calculate the hydrogen-bond number of pure water at 300 K.",
+  "required_inputs": [
+    "md.tpr",
+    "md.xtc",
+    "topol.top"
+  ],
+  "expected_gromacs_commands": [
+    "gmx hbond -f md.xtc -s md.tpr -num hbond_water.xvg"
+  ],
+  "important_rules": [
+    "Do not skip topology preparation if a full workflow is requested.",
+    "Use clear command order.",
+    "Use physically reasonable NVT/NPT settings.",
+    "For NPT equilibration, prefer C-rescale barostat.",
+    "Explain interactive donor/acceptor group selection if required.",
+    "If trajectory length is short, state that the result is workflow validation only."
+  ],
+  "expected_outputs": [
+    "hbond_water.xvg",
+    "hbnum.xvg or equivalent hydrogen-bond number output"
+  ],
+  "common_errors": [
+    "Using wrong donor/acceptor groups.",
+    "Not explaining interactive selection.",
+    "Missing trajectory or tpr file.",
+    "Reporting short-trajectory hydrogen-bond statistics as final publication-quality data."
+  ],
+  "validation_note": "The workflow is valid if gmx hbond produces a hydrogen-bond number time series. Short trajectories should be treated as workflow validation only."
+}

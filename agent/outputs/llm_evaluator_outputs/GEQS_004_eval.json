@@ -1,0 +1,25 @@
+{
+"score": 7,
+"decision": "revise",
+"detected_errors": [
+"The workflow uses only a 100 ps production trajectory but reports the RDF result as publication-ready.",
+"The workflow does not clearly state that the short trajectory is only suitable for workflow validation.",
+"The workflow does not mention RDF convergence checking or longer sampling for final analysis.",
+"The validation/conclusion is scientifically weak because it overstates the reliability of the RDF result.",
+"The workflow does not explicitly list required topology, structure, MDP, and output files, which reduces reproducibility."
+],
+"correction_suggestions": [
+"Add a clear validation note stating that 100 ps production MD is only suitable for workflow testing or preliminary validation.",
+"Do not claim the RDF result is publication-ready unless longer simulations and convergence checks are performed.",
+"Recommend longer production MD and block-averaged RDF comparison for final structural analysis.",
+"Report RDF peak position and height as preliminary values unless convergence is demonstrated.",
+"List required input files, topology file, MDP files, and expected outputs more explicitly."
+],
+"rubric": {
+"syntax_correctness": 2,
+"workflow_sequence": 2,
+"parameter_rationality": 1,
+"analysis_correctness": 1,
+"completeness_reproducibility": 1
+}
+}

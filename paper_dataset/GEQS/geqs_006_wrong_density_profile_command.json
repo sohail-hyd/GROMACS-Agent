@@ -1,0 +1,30 @@
+{
+  "id": "GEQS_006",
+  "task_type": "workflow_evaluation",
+  "task": "Evaluate a GROMACS workflow for calculating the mass density profile of pure water along the z direction at 300 K.",
+  "generated_workflow": "\nWorkflow:\n1. Use an equilibrated pure water simulation at 300 K.\n2. Required files are md.edr, md.tpr, and md.xtc.\n3. Extract density using:\n\necho Density | gmx energy -f md.edr -o density_profile_z.xvg\n\n4. Plot density_profile_z.xvg and call it the z-direction mass density profile.\n\nExpected output:\ndensity_profile_z.xvg\n\nValidation:\nIf density_profile_z.xvg is created, the density profile workflow is complete.\n",
+  "expert_score": 6,
+  "decision": "revise",
+  "error_type": "wrong_density_profile_command",
+  "detected_errors": [
+    "The workflow uses gmx energy to extract average density, not a spatial density profile.",
+    "The command does not specify the z direction.",
+    "The command does not use gmx density with -d Z and slab/bin settings.",
+    "The output filename is misleading because it is not actually a z-direction profile.",
+    "The validation note is weak because output generation alone does not confirm correct spatial analysis."
+  ],
+  "correction_suggestions": [
+    "Use gmx density rather than gmx energy for a spatial density profile.",
+    "Use a command such as: echo System | gmx density -f md.xtc -s md.tpr -o density_profile_z.xvg -d Z -sl 100.",
+    "Explain that -d Z means the profile is calculated along the z direction.",
+    "Explain that -sl controls the number of slabs or bins.",
+    "Validate the profile by checking the x-axis coordinate and reasonable density values."
+  ],
+  "rubric": {
+    "syntax_correctness": 2,
+    "workflow_sequence": 2,
+    "parameter_rationality": 1,
+    "analysis_correctness": 0,
+    "completeness_reproducibility": 1
+  }
+}

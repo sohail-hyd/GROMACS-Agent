@@ -1,0 +1,29 @@
+First correction-study summary
+
+Tasks tested:
+1. GSCF_001: pure water density at 300 K and 1 bar
+2. GSCF_002: oxygen-oxygen RDF of pure water at 300 K
+3. GSCF_003: water self-diffusion coefficient using MSD analysis
+
+Baseline scores:
+- GSCF_001: 9/10
+- GSCF_002: 9/10
+- GSCF_003: 8/10
+
+Correction-loop results:
+- GSCF_001 remained 9/10 after correction.
+- GSCF_002 remained 9/10 after correction.
+- GSCF_003 improved from 8/10 to 9/10 after a stricter second correction prompt.
+
+Interpretation:
+The correction loop improved the weaker MSD workflow but did not improve already-strong density and RDF workflows. This suggests that iterative evaluator-guided correction is useful, but its benefit depends on the severity and type of remaining workflow errors.
+
+Main recurring issues:
+1. Need for safe topology preparation.
+2. Need for explicit non-interactive command handling.
+3. Need for clear short-trajectory validation warnings.
+4. Need for correct production ensemble choice for diffusion analysis.
+5. Need for finite-size-effect warnings in small simulation boxes.
+
+Status:
+This completes the first prototype correction-study set. It is useful for the paper, but the dataset is still too small for a full publication.

@@ -1,0 +1,4 @@
+task_id,task_name,stage,score,decision,improvement_from_baseline
+GSCF_003,water_MSD_diffusion_300K,baseline_manual_llm,8,accept_minor_revision,0
+GSCF_003,water_MSD_diffusion_300K,corrected_v1,8,accept_minor_revision,0
+GSCF_003,water_MSD_diffusion_300K,corrected_v2,9,accept_minor_revision,1

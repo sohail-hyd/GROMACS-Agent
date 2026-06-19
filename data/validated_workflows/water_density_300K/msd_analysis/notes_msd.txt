@@ -1,0 +1,27 @@
+Task:
+Pure water diffusion coefficient calculation at 300 K using MSD analysis.
+
+Purpose:
+This workflow is the third validated example for the GROMACS-based LLM agent dataset.
+
+Input files:
+../md.xtc
+../md.tpr
+
+Analysis:
+Mean square displacement was calculated using gmx msd.
+
+Command used:
+gmx msd -f ../md.xtc -s ../md.tpr -o msd_water.xvg
+
+Important correction:
+The option -type no was invalid in GROMACS 2025.4. The command was corrected by removing -type no.
+
+Output:
+msd_water.xvg
+
+Validation note:
+The production trajectory is only 100 ps, so the diffusion coefficient is treated as a workflow-validation result, not a final publication-quality physical value.
+
+Dataset value:
+This case can be used as a validated GSCF-Dataset example for transport-property post-processing and MSD-based diffusion analysis.

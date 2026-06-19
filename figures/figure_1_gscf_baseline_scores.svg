@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520">
+<rect width="100%" height="100%" fill="white"/>
+<text x="500.0" y="35" text-anchor="middle" font-size="22" font-family="Arial">Manual LLM Baseline Performance on GSCF Workflow Tasks</text>
+<line x1="90" y1="70" x2="90" y2="410" stroke="black"/>
+<line x1="90" y1="410" x2="960" y2="410" stroke="black"/>
+<text x="25" y="240.0" transform="rotate(-90 25,240.0)" text-anchor="middle" font-size="16" font-family="Arial">Evaluator score / 10</text>
+<line x1="85" y1="410.0" x2="90" y2="410.0" stroke="black"/>
+<text x="80" y="415.0" text-anchor="end" font-size="13" font-family="Arial">0</text>
+<line x1="85" y1="342.0" x2="90" y2="342.0" stroke="black"/>
+<text x="80" y="347.0" text-anchor="end" font-size="13" font-family="Arial">2</text>
+<line x1="85" y1="274.0" x2="90" y2="274.0" stroke="black"/>
+<text x="80" y="279.0" text-anchor="end" font-size="13" font-family="Arial">4</text>
+<line x1="85" y1="206.0" x2="90" y2="206.0" stroke="black"/>
+<text x="80" y="211.0" text-anchor="end" font-size="13" font-family="Arial">6</text>
+<line x1="85" y1="138.0" x2="90" y2="138.0" stroke="black"/>
+<text x="80" y="143.0" text-anchor="end" font-size="13" font-family="Arial">8</text>
+<line x1="85" y1="70.0" x2="90" y2="70.0" stroke="black"/>
+<text x="80" y="75.0" text-anchor="end" font-size="13" font-family="Arial">10</text>
+<rect x="105.2" y="104.0" width="56.6" height="306.0" fill="#4f81bd"/>
+<text x="133.5" y="98.0" text-anchor="middle" font-size="13" font-family="Arial">9</text>
+<text x="133.5" y="430" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 133.5,430)">GSCF_001</text>
+<rect x="192.2" y="104.0" width="56.6" height="306.0" fill="#4f81bd"/>
+<text x="220.5" y="98.0" text-anchor="middle" font-size="13" font-family="Arial">9</text>
+<text x="220.5" y="430" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 220.5,430)">GSCF_002</text>
+<rect x="279.2" y="138.0" width="56.6" height="272.0" fill="#4f81bd"/>
+<text x="307.5" y="132.0" text-anchor="middle" font-size="13" font-family="Arial">8</text>
+<text x="307.5" y="430" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 307.5,430)">GSCF_003</text>
+<rect x="366.2" y="104.0" width="56.6" height="306.0" fill="#4f81bd"/>
+<text x="394.5" y="98.0" text-anchor="middle" font-size="13" font-family="Arial">9</text>
+<text x="394.5" y="430" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 394.5,430)">GSCF_004</text>
+<rect x="453.2" y="138.0" width="56.6" height="272.0" fill="#4f81bd"/>
+<text x="481.5" y="132.0" text-anchor="middle" font-size="13" font-family="Arial">8</text>
+<text x="481.5" y="430" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 481.5,430)">GSCF_005</text>
+<rect x="540.2" y="104.0" width="56.6" height="306.0" fill="#4f81bd"/>
+<text x="568.5" y="98.0" text-anchor="middle" font-size="13" font-family="Arial">9</text>
+<text x="568.5" y="430" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 568.5,430)">GSCF_006</text>
+<rect x="627.2" y="104.0" width="56.6" height="306.0" fill="#4f81bd"/>
+<text x="655.5" y="98.0" text-anchor="middle" font-size="13" font-family="Arial">9</text>
+<text x="655.5" y="430" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 655.5,430)">GSCF_007</text>
+<rect x="714.2" y="104.0" width="56.6" height="306.0" fill="#4f81bd"/>
+<text x="742.5" y="98.0" text-anchor="middle" font-size="13" font-family="Arial">9</text>
+<text x="742.5" y="430" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 742.5,430)">GSCF_008</text>
+<rect x="801.2" y="138.0" width="56.6" height="272.0" fill="#4f81bd"/>
+<text x="829.5" y="132.0" text-anchor="middle" font-size="13" font-family="Arial">8</text>
+<text x="829.5" y="430" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 829.5,430)">GSCF_009</text>
+<rect x="888.2" y="104.0" width="56.6" height="306.0" fill="#4f81bd"/>
+<text x="916.5" y="98.0" text-anchor="middle" font-size="13" font-family="Arial">9</text>
+<text x="916.5" y="430" text-anchor="end" font-size="12" font-family="Arial" transform="rotate(-45 916.5,430)">GSCF_010</text>
+</svg>

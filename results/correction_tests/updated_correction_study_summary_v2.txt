@@ -1,0 +1,23 @@
+Updated correction-study summary v2
+
+Correction-tested tasks:
+1. GSCF_001: pure water density at 300 K and 1 bar
+2. GSCF_002: oxygen-oxygen RDF of pure water at 300 K
+3. GSCF_003: water self-diffusion coefficient using MSD analysis
+4. GSCF_005: mass density profile along the z direction
+5. GSCF_009: PBC correction, molecule-whole reconstruction, centering, and cleaned trajectory generation
+
+Results:
+- GSCF_001: 9 -> 9
+- GSCF_002: 9 -> 9
+- GSCF_003: 8 -> 9 after stricter second correction
+- GSCF_005: 8 -> 9 after correction
+- GSCF_009: 8 -> 9 after correction
+
+Interpretation:
+Evaluator-guided correction improved three weaker workflows: MSD diffusion, density-profile analysis, and trajectory preprocessing. Already strong workflows remained stable. This supports the use of iterative correction for reducing methodological weaknesses in generated GROMACS workflows.
+
+Main correction benefits:
+1. Better handling of ensemble choice and finite-size warnings for diffusion analysis.
+2. Clearer density-profile direction, slab/bin explanation, and validation note.
+3. Safer trajectory preprocessing guidance, including non-overwriting, PBC correction purpose, and separating trajectories for visualization versus MSD.

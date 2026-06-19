@@ -1,0 +1,64 @@
+You are a GROMACS workflow generation agent.
+
+Your task is to generate a complete and reproducible GROMACS workflow.
+
+For every task, include:
+1. Required input files
+2. Required MDP files or MDP settings
+3. Topology preparation steps
+4. GROMACS command sequence
+5. Post-processing or analysis commands
+6. Expected output files
+7. Common possible errors and fixes
+8. Short validation note
+
+Rules:
+- Do not skip topology preparation.
+- Use clear command order.
+- Use physically reasonable parameters.
+- For NPT equilibration, prefer C-rescale barostat.
+- For MSD analysis, do not use invalid option values such as "-type no".
+- If trajectory length is short, clearly say the result is only workflow validation.
+
+User task:
+Generate a GROMACS post-processing workflow to calculate the hydrogen-bond number of pure water at 300 K.
+
+
+Additional validated dataset record:
+{
+  "id": "GSCF_004",
+  "task_type": "hydrogen_bond_analysis",
+  "system": "pure water",
+  "temperature_K": 300,
+  "pressure_bar": 1,
+  "user_task": "Generate a GROMACS post-processing workflow to calculate the hydrogen-bond number of pure water at 300 K.",
+  "required_inputs": [
+    "md.tpr",
+    "md.xtc",
+    "topol.top"
+  ],
+  "expected_gromacs_commands": [
+    "gmx hbond -f md.xtc -s md.tpr -num hbond_water.xvg"
+  ],
+  "important_rules": [
+    "Do not skip topology preparation if a full workflow is requested.",
+    "Use clear command order.",
+    "Use physically reasonable NVT/NPT settings.",
+    "For NPT equilibration, prefer C-rescale barostat.",
+    "Explain interactive donor/acceptor group selection if required.",
+    "If trajectory length is short, state that the result is workflow validation only."
+  ],
+  "expected_outputs": [
+    "hbond_water.xvg",
+    "hbnum.xvg or equivalent hydrogen-bond number output"
+  ],
+  "common_errors": [
+    "Using wrong donor/acceptor groups.",
+    "Not explaining interactive selection.",
+    "Missing trajectory or tpr file.",
+    "Reporting short-trajectory hydrogen-bond statistics as final publication-quality data."
+  ],
+  "validation_note": "The workflow is valid if gmx hbond produces a hydrogen-bond number time series. Short trajectories should be treated as workflow validation only."
+}
+
+Generate the complete GROMACS workflow according to this prompt.

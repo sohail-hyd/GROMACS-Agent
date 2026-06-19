@@ -1,0 +1,493 @@
+You are a GROMACS workflow evaluator.
+
+Evaluate the generated workflow using a 10-point score.
+
+Scoring rubric:
+1. Syntax correctness: 0-2
+2. Workflow sequence: 0-2
+3. Parameter rationality: 0-2
+4. Analysis correctness: 0-2
+5. Completeness and reproducibility: 0-2
+
+Check for:
+- Missing topology file
+- Wrong command order
+- Invalid GROMACS options
+- Weak or unsafe MDP settings
+- Missing analysis command
+- Missing validation note
+- Use of short trajectory without warning
+- Use of Berendsen barostat where C-rescale is better
+- Incorrect interactive selection handling
+
+Return only JSON in this format:
+{
+  "score": 0,
+  "decision": "accept_or_revise",
+  "detected_errors": [],
+  "correction_suggestions": [],
+  "rubric": {
+    "syntax_correctness": 0,
+    "workflow_sequence": 0,
+    "parameter_rationality": 0,
+    "analysis_correctness": 0,
+    "completeness_reproducibility": 0
+  }
+}
+
+Workflow to evaluate:
+1. Aim
+
+Calculate the average density of pure water at:
+
+Temperature = 300 K
+Pressure    = 1 bar
+Ensemble    = NPT
+Water model = SPC/E
+Box size    = 3.0 × 3.0 × 3.0 nm
+
+This is suitable as a workflow validation run. For publishable density, use a longer production run, for example 5–20 ns after equilibration.
+
+2. Required input files
+
+You need these files in one folder:
+
+topol.top
+minim.mdp
+nvt.mdp
+npt.mdp
+md.mdp
+
+You do not need to manually prepare a water .pdb file, because GROMACS can fill a box using spc216.gro.
+
+3. Topology preparation
+
+Create a file named:
+
+nano topol.top
+
+Paste this:
+
+#include "oplsaa.ff/forcefield.itp"
+#include "oplsaa.ff/spce.itp"
+
+[ system ]
+Pure SPC/E water box
+
+[ molecules ]
+
+Important: at this stage, leave [ molecules ] empty. gmx solvate will automatically add the number of water molecules if -p topol.top is used.
+
+4. Create the water box
+
+Use a 3 nm cubic box:
+
+gmx solvate -cs spc216.gro -box 3.0 3.0 3.0 -o water_box.gro -p topol.top
+
+Expected output:
+
+water_box.gro
+topol.top
+
+After this command, check the bottom of topol.top. It should look like:
+
+[ molecules ]
+SOL    894
+
+The exact number may be slightly different depending on GROMACS version/settings.
+
+5. MDP files
+5.1 Energy minimization: minim.mdp
+
+Create:
+
+nano minim.mdp
+
+Paste:
+
+integrator      = steep
+emtol           = 1000.0
+emstep          = 0.01
+nsteps          = 50000
+
+nstlist         = 10
+cutoff-scheme   = Verlet
+rlist           = 1.0
+coulombtype     = PME
+rcoulomb        = 1.0
+rvdw            = 1.0
+pbc             = xyz
+5.2 NVT equilibration: nvt.mdp
+
+Create:
+
+nano nvt.mdp
+
+Paste:
+
+title           = Pure water NVT equilibration
+define          =
+
+integrator      = md
+dt              = 0.002
+nsteps          = 100000       ; 200 ps
+
+nstxout-compressed = 1000
+nstenergy       = 500
+nstlog          = 500
+
+continuation    = no
+constraint_algorithm = lincs
+constraints     = h-bonds
+lincs_iter      = 1
+lincs_order     = 4
+
+cutoff-scheme   = Verlet
+nstlist         = 20
+rlist           = 1.0
+coulombtype     = PME
+rcoulomb        = 1.0
+rvdw            = 1.0
+
+tcoupl          = V-rescale
+tc-grps         = System
+tau_t           = 0.5
+ref_t           = 300
+
+pcoupl          = no
+
+pbc             = xyz
+DispCorr        = EnerPres
+
+gen_vel         = yes
+gen_temp        = 300
+gen_seed        = -1
+5.3 NPT equilibration: npt.mdp
+
+For NPT, use C-rescale barostat, which is recommended here because it samples pressure with stochastic cell rescaling. The GROMACS manual lists C-rescale as a pressure-coupling option with a stochastic term for correct pressure coupling.
+
+Create:
+
+nano npt.mdp
+
+Paste:
+
+title           = Pure water NPT equilibration
+
+integrator      = md
+dt              = 0.002
+nsteps          = 500000       ; 1 ns
+
+nstxout-compressed = 1000
+nstenergy       = 500
+nstlog          = 500
+
+continuation    = yes
+constraint_algorithm = lincs
+constraints     = h-bonds
+lincs_iter      = 1
+lincs_order     = 4
+
+cutoff-scheme   = Verlet
+nstlist         = 20
+rlist           = 1.0
+coulombtype     = PME
+rcoulomb        = 1.0
+rvdw            = 1.0
+
+tcoupl          = V-rescale
+tc-grps         = System
+tau_t           = 0.5
+ref_t           = 300
+
+pcoupl          = C-rescale
+pcoupltype      = isotropic
+tau_p           = 5.0
+ref_p           = 1.0
+compressibility = 4.5e-5
+
+pbc             = xyz
+DispCorr        = EnerPres
+
+gen_vel         = no
+5.4 Production MD: md.mdp
+
+Create:
+
+nano md.mdp
+
+Paste:
+
+title           = Pure water density production run
+
+integrator      = md
+dt              = 0.002
+nsteps          = 2500000      ; 5 ns
+
+nstxout-compressed = 1000
+nstenergy       = 500
+nstlog          = 500
+
+continuation    = yes
+constraint_algorithm = lincs
+constraints     = h-bonds
+lincs_iter      = 1
+lincs_order     = 4
+
+cutoff-scheme   = Verlet
+nstlist         = 20
+rlist           = 1.0
+coulombtype     = PME
+rcoulomb        = 1.0
+rvdw            = 1.0
+
+tcoupl          = V-rescale
+tc-grps         = System
+tau_t           = 0.5
+ref_t           = 300
+
+pcoupl          = C-rescale
+pcoupltype      = isotropic
+tau_p           = 5.0
+ref_p           = 1.0
+compressibility = 4.5e-5
+
+pbc             = xyz
+DispCorr        = EnerPres
+
+gen_vel         = no
+
+For a quick test, you can reduce production to:
+
+nsteps = 500000 ; 1 ns
+
+But then the result is only workflow validation, not strong final density data.
+
+6. GROMACS command sequence
+6.1 Energy minimization
+gmx grompp -f minim.mdp -c water_box.gro -p topol.top -o em.tpr
+gmx mdrun -deffnm em
+
+Expected output:
+
+em.gro
+em.edr
+em.log
+em.tpr
+
+Check potential energy:
+
+echo "Potential" | gmx energy -f em.edr -o potential.xvg
+6.2 NVT equilibration
+gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
+gmx mdrun -deffnm nvt
+
+Expected output:
+
+nvt.gro
+nvt.edr
+nvt.log
+nvt.xtc
+
+Check temperature:
+
+echo "Temperature" | gmx energy -f nvt.edr -o temperature_nvt.xvg
+
+Expected: temperature should fluctuate around 300 K.
+
+6.3 NPT equilibration
+gmx grompp -f npt.mdp -c nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
+gmx mdrun -deffnm npt
+
+Expected output:
+
+npt.gro
+npt.edr
+npt.log
+npt.xtc
+npt.cpt
+
+Check pressure:
+
+echo "Pressure" | gmx energy -f npt.edr -o pressure_npt.xvg
+
+Check density:
+
+echo "Density" | gmx energy -f npt.edr -o density_npt.xvg
+
+Pressure will fluctuate strongly in a small water box. That is normal. Density should become stable after the box volume equilibrates.
+
+6.4 Production run
+gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
+gmx mdrun -deffnm md
+
+Expected output:
+
+md.gro
+md.edr
+md.log
+
+md.xtc
+md.cpt
+md.tpr
+7. Density analysis
+
+Use gmx energy:
+
+echo "Density" | gmx energy -f md.edr -o density.xvg
+
+The terminal will print something like:
+
+Statistics over 2500001 steps
+Energy                      Average   Err.Est.       RMSD  Tot-Drift
+Density                     995.xxx   ...
+
+The important value is:
+
+Average Density = around 990–1000 kg/m³
+
+For SPC/E water at 300 K and 1 bar, a reasonable value should be close to experimental water density, but the exact value depends on force field, cutoff settings, box size, equilibration length, and production time.
+
+8. Optional: extract only equilibrated part
+
+For better density averaging, ignore early production time. Example: use only the last 4 ns of a 5 ns run.
+
+echo "Density" | gmx energy -f md.edr -b 1000 -o density_last4ns.xvg
+
+Here:
+
+-b 1000
+
+means start analysis after 1000 ps = 1 ns.
+
+9. Optional MSD analysis
+
+MSD is not required for density, but if you want diffusion validation:
+
+echo "System" | gmx msd -s md.tpr -f md.xtc -o msd_water.xvg
+
+Do not use invalid options such as:
+
+-type no
+
+For pure water, selecting System is acceptable because the whole system is water.
+
+10. Expected final files
+
+After the full workflow, you should have:
+
+water_box.gro
+topol.top
+
+em.tpr
+em.gro
+em.edr
+em.log
+
+nvt.tpr
+nvt.gro
+nvt.edr
+nvt.log
+nvt.xtc
+nvt.cpt
+
+npt.tpr
+npt.gro
+npt.edr
+npt.log
+npt.xtc
+npt.cpt
+
+md.tpr
+md.gro
+md.edr
+md.log
+md.xtc
+md.cpt
+
+potential.xvg
+temperature_nvt.xvg
+pressure_npt.xvg
+density_npt.xvg
+density.xvg
+density_last4ns.xvg
+11. Common errors and fixes
+Error 1: Invalid order for directive moleculetype
+
+Cause: topology sections are in the wrong order.
+
+Fix: use this order:
+
+#include forcefield
+#include water model
+
+[ system ]
+
+[ molecules ]
+Error 2: No such moleculetype SOL
+
+Cause: water model .itp file is not included.
+
+Fix: make sure topol.top contains:
+
+#include "oplsaa.ff/spce.itp"
+Error 3: number of coordinates does not match topology
+
+Cause: topol.top water molecule number does not match water_box.gro.
+
+Fix: recreate the box using:
+
+gmx solvate -cs spc216.gro -box 3.0 3.0 3.0 -o water_box.gro -p topol.top
+
+Do not manually change the number of water molecules unless you know the exact count.
+
+Error 4: Unknown left-hand mdp entry pcoupl = C-rescale
+
+Cause: your GROMACS version may be old and does not support C-rescale.
+
+Fix: update GROMACS if possible. If not possible, use:
+
+pcoupl = Parrinello-Rahman
+
+For modern GROMACS versions, C-rescale is preferred here.
+
+Error 5: Density is far from 1000 kg/m³
+
+Possible causes:
+
+Production run too short
+NPT not equilibrated
+Wrong topology/water model
+Too small box
+Wrong pressure coupling
+Analysis included early unstable region
+
+Fix:
+
+echo "Density" | gmx energy -f md.edr -b 1000 -o density_last4ns.xvg
+
+Also increase production time to 10–20 ns for better averaging.
+
+Error 6: Pressure looks very noisy
+
+This is normal for small MD boxes. Pressure fluctuates much more strongly than density. Judge equilibration mainly from:
+
+Stable density
+Stable box volume
+Stable temperature
+No systematic drift
+12. Short validation note
+
+A successful workflow should show:
+
+Temperature ≈ 300 K
+Average pressure ≈ 1 bar, with large fluctuations
+Density ≈ 990–1000 kg/m³ for a reasonable SPC/E water simulation
+No LINCS warnings
+No exploding temperature
+Stable box volume during NPT/production
+
+If the trajectory is only 200 ps to 1 ns, report it as:
+
+This result confirms that the GROMACS workflow is working, but the trajectory is too short for a final quantitative d
+

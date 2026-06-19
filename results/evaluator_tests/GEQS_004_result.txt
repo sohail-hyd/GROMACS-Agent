@@ -1,0 +1,16 @@
+GEQS_004 evaluator test result
+
+Task:
+Evaluate a GROMACS workflow with missing short-trajectory warning for O-O RDF analysis.
+
+Expert score:
+7/10
+
+Manual evaluator score:
+7/10
+
+Main error type:
+missing_short_trajectory_warning
+
+Interpretation:
+The evaluator correctly identified that a 100 ps RDF workflow should not be reported as publication-ready without convergence checks or a short-trajectory validation warning.

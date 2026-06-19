@@ -1,0 +1,476 @@
+Complete GROMACS workflow: Self-diffusion coefficient of pure water at 300 K using MSD analysis
+Task goal
+
+Calculate the self-diffusion coefficient of pure water at 300 K from the slope of the mean square displacement MSD curve:
+
+D=
+6
+1
+	​
+
+dt
+d
+	​
+
+⟨∣r(t)−r(0)∣
+2
+⟩
+
+For 3D diffusion, GROMACS calculates the diffusion coefficient from the linear region of the MSD curve.
+
+1. Required input files
+
+You need these starting files:
+
+water_box.gro      # Initial water box structure
+topol.top          # Topology file
+minim.mdp          # Energy minimization parameters
+nvt.mdp            # NVT equilibration at 300 K
+npt.mdp            # NPT equilibration at 300 K and 1 bar
+md.mdp             # Production MD parameters
+
+If you do not already have a water box, create one using GROMACS.
+
+2. Topology preparation steps
+2.1 Create a pure water box
+
+Use TIP3P water as an example.
+
+gmx solvate -cs spc216.gro -box 3.0 3.0 3.0 -o water_box.gro -p topol.top
+
+If topol.top does not already exist, create it manually:
+
+nano topol.top
+
+Add:
+
+#include "oplsaa.ff/forcefield.itp"
+#include "oplsaa.ff/tip3p.itp"
+
+[ system ]
+Pure water box for self-diffusion calculation
+
+[ molecules ]
+SOL  895
+
+The number after SOL must match the number of water molecules printed by gmx solvate.
+
+Check it using:
+
+grep SOL water_box.gro | wc -l
+
+For TIP3P water, each molecule has 3 atoms, so:
+
+Number of water molecules = total SOL atoms / 3
+3. Required MDP files or MDP settings
+3.1 Energy minimization: minim.mdp
+integrator      = steep
+emtol           = 1000.0
+emstep          = 0.01
+nsteps          = 50000
+
+cutoff-scheme   = Verlet
+nstlist         = 10
+rlist           = 1.0
+coulombtype     = PME
+rcoulomb        = 1.0
+rvdw            = 1.0
+pbc             = xyz
+3.2 NVT equilibration: nvt.mdp
+integrator              = md
+nsteps                  = 50000
+dt                      = 0.002
+
+nstxout                 = 0
+nstvout                 = 0
+nstenergy               = 500
+nstlog                  = 500
+
+continuation            = no
+constraint_algorithm    = lincs
+constraints             = h-bonds
+lincs_iter              = 1
+lincs_order             = 4
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 0.5
+ref_t                   = 300
+
+pcoupl                  = no
+
+pbc                     = xyz
+gen_vel                 = yes
+gen_temp                = 300
+gen_seed                = -1
+
+This gives 100 ps NVT equilibration.
+
+3.3 NPT equilibration: npt.mdp
+integrator              = md
+nsteps                  = 250000
+dt                      = 0.002
+
+nstxout                 = 0
+nstvout                 = 0
+nstenergy               = 500
+nstlog                  = 500
+
+continuation            = yes
+constraint_algorithm    = lincs
+constraints             = h-bonds
+lincs_iter              = 1
+lincs_order             = 4
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 0.5
+ref_t                   = 300
+
+pcoupl                  = C-rescale
+pcoupltype              = isotropic
+tau_p                   = 2.0
+ref_p                   = 1.0
+compressibility         = 4.5e-5
+
+pbc                     = xyz
+gen_vel                 = no
+
+This gives 500 ps NPT equilibration.
+
+3.4 Production MD for MSD: md.mdp
+
+For diffusion coefficient, the production run should be long enough. A very short trajectory is only useful for workflow validation.
+
+integrator              = md
+nsteps                  = 5000000
+dt                      = 0.002
+
+nstxout                 = 0
+nstvout                 = 0
+nstfout                 = 0
+nstenergy               = 1000
+nstlog                  = 1000
+nstxout-compressed      = 500
+
+continuation            = yes
+constraint_algorithm    = lincs
+constraints             = h-bonds
+lincs_iter              = 1
+lincs_order             = 4
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 0.5
+ref_t                   = 300
+
+pcoupl                  = C-rescale
+pcoupltype              = isotropic
+tau_p                   = 2.0
+ref_p                   = 1.0
+compressibility         = 4.5e-5
+
+pbc                     = xyz
+gen_vel                 = no
+
+DispCorr                = EnerPres
+
+This production run is:
+
+5000000 steps × 0.002 ps = 10000 ps = 10 ns
+
+A 10 ns trajectory is much better for diffusion analysis than a very short run.
+
+4. GROMACS command sequence
+4.1 Energy minimization
+gmx grompp -f minim.mdp -c water_box.gro -p topol.top -o em.tpr
+gmx mdrun -deffnm em
+
+Expected files:
+
+em.gro
+em.edr
+em.log
+em.tpr
+
+Check minimization:
+
+grep "Potential Energy" em.log
+4.2 NVT equilibration at 300 K
+gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
+gmx mdrun -deffnm nvt
+
+Expected files:
+
+nvt.gro
+nvt.edr
+nvt.log
+nvt.trr or nvt.xtc
+
+Check temperature:
+
+echo "Temperature" | gmx energy -f nvt.edr -o temperature_nvt.xvg
+4.3 NPT equilibration at 300 K and 1 bar
+gmx grompp -f npt.mdp -c nvt.gro -t nvt.cpt -r nvt.gro -p topol.top -o npt.tpr
+gmx mdrun -deffnm npt
+
+Expected files:
+
+npt.gro
+npt.edr
+npt.log
+npt.cpt
+
+Check temperature, pressure, and density:
+
+echo "Temperature" | gmx energy -f npt.edr -o temperature_npt.xvg
+echo "Pressure" | gmx energy -f npt.edr -o pressure_npt.xvg
+echo "Density" | gmx energy -f npt.edr -o density_npt.xvg
+4.4 Production MD
+gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
+gmx mdrun -deffnm md
+
+Expected files:
+
+md.xtc
+md.gro
+md.edr
+md.log
+md.cpt
+md.tpr
+5. Post-processing and MSD analysis commands
+5.1 Remove periodic boundary condition jumps
+
+For diffusion analysis, molecules must be made whole and continuous across periodic boundaries.
+
+gmx trjconv -s md.tpr -f md.xtc -o md_nojump.xtc -pbc nojump
+
+When asked for group, select:
+
+System
+
+Or use:
+
+echo "System" | gmx trjconv -s md.tpr -f md.xtc -o md_nojump.xtc -pbc nojump
+5.2 Create an index group for water oxygen atoms
+
+For water self-diffusion, it is common to calculate MSD using water oxygen atoms.
+
+gmx make_ndx -f md.gro -o index.ndx
+
+Inside the interactive menu, type:
+
+a OW
+name 3 Water_Oxygen
+q
+
+If your water oxygen atom name is different, check it using:
+
+head water_box.gro
+
+Common names are:
+
+OW
+OH2
+O
+5.3 Calculate MSD and diffusion coefficient
+
+Use gmx msd:
+
+gmx msd -s md.tpr -f md_nojump.xtc -n index.ndx -o msd_water.xvg -beginfit 1000 -endfit 9000
+
+When asked to select group, choose:
+
+Water_Oxygen
+
+Or use a non-interactive command if the group name is recognized:
+
+echo "Water_Oxygen" | gmx msd -s md.tpr -f md_nojump.xtc -n index.ndx -o msd_water.xvg -beginfit 1000 -endfit 9000
+
+Important: do not use invalid options such as:
+
+-type no
+
+The diffusion coefficient will be printed in the terminal and also written in the output comments of msd_water.xvg.
+
+5.4 View the MSD curve
+xmgrace msd_water.xvg
+
+Or save the data for plotting elsewhere:
+
+cp msd_water.xvg water_msd_300K.xvg
+
+The MSD curve should become approximately linear after the initial ballistic and short-time relaxation region.
+
+6. Expected output files
+
+Main output files:
+
+em.gro
+nvt.gro
+npt.gro
+md.gro
+md.xtc
+md_nojump.xtc
+md.edr
+md.tpr
+index.ndx
+msd_water.xvg
+temperature_nvt.xvg
+temperature_npt.xvg
+pressure_npt.xvg
+density_npt.xvg
+
+Important final result:
+
+msd_water.xvg
+
+This file contains MSD versus time.
+
+The terminal output from gmx msd should report something like:
+
+D[Water_Oxygen] = X.XXXX (+/- Y.YYYY) 1e-5 cm^2/s
+
+For liquid water at 300 K, a reasonable experimental self-diffusion coefficient is around:
+
+2.3 × 10^-9 m^2/s
+
+GROMACS may report diffusion in:
+
+10^-5 cm^2/s
+
+Conversion:
+
+1 × 10^-5 cm^2/s = 1 × 10^-9 m^2/s
+
+So:
+
+2.3 × 10^-5 cm^2/s = 2.3 × 10^-9 m^2/s
+
+The exact result depends strongly on water model, box size, trajectory length, thermostat/barostat, and fitting interval.
+
+7. Common possible errors and fixes
+Error 1: topol.top missing
+
+Message:
+
+Fatal error:
+Topology file topol.top not found
+
+Fix:
+
+Make sure topol.top exists in the working folder.
+
+ls
+
+If missing, create it manually or regenerate it using gmx solvate.
+
+Error 2: molecule number mismatch
+
+Message:
+
+Number of coordinates in coordinate file does not match topology
+
+Fix:
+
+Check number of water molecules in water_box.gro and update [ molecules ] in topol.top.
+
+Example:
+
+[ molecules ]
+SOL  895
+Error 3: wrong water atom name in index group
+
+Message:
+
+Atom type OW not found
+
+Fix:
+
+Check atom names:
+
+head water_box.gro
+
+Then create the index using the correct oxygen atom name, for example:
+
+a OW
+
+or
+
+a OH2
+
+or
+
+a O
+Error 4: MSD curve is not linear
+
+Possible causes:
+
+Trajectory is too short
+Fitting range is wrong
+System not equilibrated
+PBC treatment is incorrect
+
+Fix:
+
+Use a longer production run, for example 10 ns or more:
+
+nsteps = 5000000
+dt     = 0.002
+
+Use a fitting range after the early non-linear region:
+
+-beginfit 1000 -endfit 9000
+Error 5: unrealistic diffusion coefficient
+
+Possible causes:
+
+Water model gives different diffusion behavior
+Temperature is not stable at 300 K
+Pressure or density is not equilibrated
+PBC correction was not applied
+Trajectory is too short
+Fit range is poor
+
+Fix:
+
+Check temperature and density:
+
+echo "Temperature" | gmx energy -f md.edr -o temperature_md.xvg
+echo "Density" | gmx energy -f md.edr -o density_md.xvg
+
+Repeat MSD with different fitting windows:
+
+gmx msd -s md.tpr -f md_nojump.xtc -n index.ndx -o msd_water_fit2.xvg -beginfit 2000 -endfit 9000
+Error 6: using invalid MSD option
+
+Wrong:
+
+gmx msd -type no
+
+Fix:
+
+Do not use -type no. Use the standard command:
+
+gmx msd -s md.tpr -f md_nojump.xtc -n index.ndx -o msd_water.xvg -beginfit 1000 -endfit 9000

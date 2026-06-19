@@ -1,0 +1,683 @@
+1. Required input files
+
+You need or will create these files:
+
+topol.top
+water_box.gro
+
+minim.mdp
+nvt.mdp
+npt.mdp
+md_nvt.mdp
+
+GROMACS built-in coordinate source:
+
+spc216.gro
+
+This workflow uses one consistent model:
+
+Water model: SPC/E
+Topology include: spce.itp
+Water residue name: SOL
+Water oxygen atom name: usually OW
+2. Safe topology preparation
+
+Create the topology before solvation so that gmx solvate -p topol.top can update the number of water molecules automatically.
+
+Create topol.top:
+
+nano topol.top
+
+Add:
+
+#include "amber99sb-ildn.ff/forcefield.itp"
+#include "amber99sb-ildn.ff/spce.itp"
+
+[ system ]
+Pure SPC/E water box for self-diffusion at 300 K
+
+[ molecules ]
+
+Now create a 3 nm cubic water box:
+
+gmx solvate -cs spc216.gro -box 3.0 3.0 3.0 -o water_box.gro -p topol.top
+
+Check the end of the topology:
+
+tail topol.top
+
+Expected form:
+
+[ molecules ]
+SOL    895
+
+The exact number can be different. Use the molecule number inserted by gmx solvate.
+
+Important: do not count water molecules using only:
+
+grep SOL water_box.gro | wc -l
+
+because that counts atom lines/residue lines, not necessarily molecule entries in the topology.
+
+3. MDP files
+3.1 Energy minimization: minim.mdp
+integrator      = steep
+emtol           = 1000.0
+emstep          = 0.01
+nsteps          = 50000
+
+cutoff-scheme   = Verlet
+nstlist         = 10
+rlist           = 1.0
+
+coulombtype     = PME
+rcoulomb        = 1.0
+rvdw            = 1.0
+
+pbc             = xyz
+3.2 NVT equilibration at 300 K: nvt.mdp
+
+This gives 100 ps:
+
+50000×0.002 ps=100 ps
+integrator              = md
+nsteps                  = 50000
+dt                      = 0.002
+
+nstxout                 = 0
+nstvout                 = 0
+nstfout                 = 0
+nstenergy               = 500
+nstlog                  = 500
+nstxout-compressed      = 0
+
+continuation            = no
+constraint_algorithm    = lincs
+constraints             = h-bonds
+lincs_iter              = 1
+lincs_order             = 4
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 0.5
+ref_t                   = 300
+
+pcoupl                  = no
+
+pbc                     = xyz
+
+gen_vel                 = yes
+gen_temp                = 300
+gen_seed                = -1
+
+DispCorr                = EnerPres
+3.3 NPT density equilibration at 300 K and 1 bar: npt.mdp
+
+This gives 500 ps:
+
+250000×0.002 ps=500 ps
+
+Use C-rescale for NPT equilibration. In the GROMACS manual, pcoupl = no means fixed box size, while C-rescale is a stochastic cell-rescaling pressure coupling method that can be used for equilibration and production; here it is used only for equilibration before fixed-volume NVT production.
+
+integrator              = md
+nsteps                  = 250000
+dt                      = 0.002
+
+nstxout                 = 0
+nstvout                 = 0
+nstfout                 = 0
+nstenergy               = 500
+nstlog                  = 500
+nstxout-compressed      = 0
+
+continuation            = yes
+constraint_algorithm    = lincs
+constraints             = h-bonds
+lincs_iter              = 1
+lincs_order             = 4
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 0.5
+ref_t                   = 300
+
+pcoupl                  = C-rescale
+pcoupltype              = isotropic
+tau_p                   = 2.0
+ref_p                   = 1.0
+compressibility         = 4.5e-5
+
+pbc                     = xyz
+
+gen_vel                 = no
+
+DispCorr                = EnerPres
+3.4 NVT production for diffusion analysis: md_nvt.mdp
+
+This is the key correction.
+
+After NPT equilibration, run the production simulation in NVT at fixed equilibrated volume, not NPT. This avoids barostat-related artifacts in the diffusion analysis.
+
+This example gives 10 ns:
+
+5000000×0.002 ps=10000 ps=10 ns
+integrator              = md
+nsteps                  = 5000000
+dt                      = 0.002
+
+nstxout                 = 0
+nstvout                 = 0
+nstfout                 = 0
+nstenergy               = 1000
+nstlog                  = 1000
+nstxout-compressed      = 500
+
+continuation            = yes
+constraint_algorithm    = lincs
+constraints             = h-bonds
+lincs_iter              = 1
+lincs_order             = 4
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 1.0
+ref_t                   = 300
+
+pcoupl                  = no
+
+pbc                     = xyz
+
+gen_vel                 = no
+
+DispCorr                = EnerPres
+
+A shorter production run, for example 100–500 ps, is only useful for checking whether the workflow runs. It should not be reported as a final self-diffusion coefficient.
+
+4. GROMACS command sequence
+4.1 Energy minimization
+gmx grompp -f minim.mdp -c water_box.gro -p topol.top -o em.tpr
+gmx mdrun -deffnm em
+
+Expected files:
+
+em.tpr
+em.gro
+em.edr
+em.log
+
+Check minimization:
+
+grep "Potential Energy" em.log
+4.2 NVT equilibration
+gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
+gmx mdrun -deffnm nvt
+
+Expected files:
+
+nvt.tpr
+nvt.gro
+nvt.edr
+nvt.log
+nvt.cpt
+
+Check temperature:
+
+echo -e "Temperature\n0" | gmx energy -f nvt.edr -o temperature_nvt.xvg
+4.3 NPT density equilibration
+gmx grompp -f npt.mdp -c nvt.gro -t nvt.cpt -r nvt.gro -p topol.top -o npt.tpr
+gmx mdrun -deffnm npt
+
+Expected files:
+
+npt.tpr
+npt.gro
+npt.edr
+npt.log
+npt.cpt
+
+Check temperature, pressure, and density:
+
+echo -e "Temperature\n0" | gmx energy -f npt.edr -o temperature_npt.xvg
+echo -e "Pressure\n0"     | gmx energy -f npt.edr -o pressure_npt.xvg
+echo -e "Density\n0"      | gmx energy -f npt.edr -o density_npt.xvg
+
+At the end of this stage, npt.gro contains the equilibrated box volume. This fixed volume will be used for NVT production.
+
+4.4 NVT production MD for diffusion
+gmx grompp -f md_nvt.mdp -c npt.gro -t npt.cpt -p topol.top -o prod_nvt.tpr
+gmx mdrun -deffnm prod_nvt
+
+Expected files:
+
+prod_nvt.tpr
+prod_nvt.gro
+prod_nvt.xtc
+prod_nvt.edr
+prod_nvt.log
+prod_nvt.cpt
+
+Check production temperature and density:
+
+echo -e "Temperature\n0" | gmx energy -f prod_nvt.edr -o temperature_prod_nvt.xvg
+echo -e "Density\n0"     | gmx energy -f prod_nvt.edr -o density_prod_nvt.xvg
+5. MSD post-processing workflow
+5.1 Remove periodic boundary jumps
+
+For diffusion, the trajectory must represent continuous molecular motion. Use -pbc nojump. GROMACS describes nojump as putting atoms back when they jump across the box, producing a continuous trajectory, although molecules may diffuse outside the original box.
+
+echo "System" | gmx trjconv -s prod_nvt.tpr -f prod_nvt.xtc -o prod_nvt_nojump.xtc -pbc nojump
+
+Expected file:
+
+prod_nvt_nojump.xtc
+5.2 Preferred method: molecule/COM MSD, if supported correctly
+
+For water self-diffusion, the preferred quantity is the translational diffusion of water molecules. If your GROMACS version supports molecule center-of-mass selection cleanly, use molecule/COM MSD.
+
+Try:
+
+gmx msd \
+  -s prod_nvt.tpr \
+  -f prod_nvt_nojump.xtc \
+  -o msd_water_com.xvg \
+  -mol diff_water_molecules.xvg \
+  -sel 'resname SOL' \
+  -seltype mol_com \
+  -nopbc \
+  -normpbc \
+  -beginfit 1000 \
+  -endfit 9000
+
+This reports a molecule/center-of-mass water self-diffusion estimate, not merely an atom-tracer estimate. The current GROMACS gmx msd tool supports -sel, -seltype, -beginfit, -endfit, and -mol; with -mol, the selected group is split into molecules and diffusion is computed for molecular centers of mass.
+
+Important: the 1000–9000 ps fitting range is only an initial test range for a 10 ns trajectory. Do not report the diffusion coefficient until you plot the MSD curve and confirm that the chosen interval is clearly linear.
+
+5.3 Reproducible fallback: oxygen-tracer MSD
+
+For rigid three-site water models such as SPC/E, the water oxygen atom tracks the molecule position well. Therefore, oxygen MSD is acceptable as an oxygen-tracer estimate of water self-diffusion, but when a correct molecule/COM method is available, the molecule/COM result is preferred for final reporting.
+
+Use the direct modern selection syntax:
+
+gmx msd \
+  -s prod_nvt.tpr \
+  -f prod_nvt_nojump.xtc \
+  -o msd_water_oxygen_tracer.xvg \
+  -sel 'name OW' \
+  -seltype atom \
+  -nopbc \
+  -normpbc \
+  -beginfit 1000 \
+  -endfit 9000
+
+This result should be described as:
+
+oxygen-tracer MSD estimate of water self-diffusion
+
+Do not describe it as a true molecule/COM MSD unless the COM command was used.
+
+Also do not use invalid options such as:
+
+gmx msd -type no
+
+In current GROMACS, -type is an enum option for directional MSD components, not a place to write no. The modern command uses -sel for selections.
+
+5.4 Index-file fallback if -sel is not available
+
+Only use this if your GROMACS version does not support the direct -sel syntax.
+
+Safer index creation with gmx select
+gmx select -s prod_nvt.tpr -f prod_nvt.gro -on ow_index.ndx -select 'name OW'
+
+Then run:
+
+echo "name_OW" | gmx msd \
+  -s prod_nvt.tpr \
+  -f prod_nvt_nojump.xtc \
+  -n ow_index.ndx \
+  -o msd_water_oxygen_tracer.xvg \
+  -nopbc \
+  -normpbc \
+  -beginfit 1000 \
+  -endfit 9000
+
+If the group name in ow_index.ndx is different, check it using:
+
+cat ow_index.ndx
+
+and select the actual group name printed in the index file.
+
+Manual make_ndx fallback
+gmx make_ndx -f prod_nvt.gro -o index.ndx
+
+Inside the interactive menu:
+
+a OW
+
+GROMACS will print a newly created group number. Use that actual number. For example, if GROMACS prints that the new group is group 4, then type:
+
+name 4 Water_Oxygen
+q
+
+Do not blindly write:
+
+name 3 Water_Oxygen
+
+because group 3 may already belong to another group. Always use the actual group number printed after a OW.
+
+Then run:
+
+echo "Water_Oxygen" | gmx msd \
+  -s prod_nvt.tpr \
+  -f prod_nvt_nojump.xtc \
+  -n index.ndx \
+  -o msd_water_oxygen_tracer.xvg \
+  -nopbc \
+  -normpbc \
+  -beginfit 1000 \
+  -endfit 9000
+5.5 Plot the MSD curve before final fitting
+
+Plot:
+
+xmgrace msd_water_com.xvg
+
+or, for the oxygen-tracer fallback:
+
+xmgrace msd_water_oxygen_tracer.xvg
+
+You can also open the .xvg file in Origin, Excel, or Python.
+
+You must visually identify the diffusive linear region:
+
+Early-time region: usually curved/ballistic and not suitable for fitting
+Middle-time region: should be approximately linear
+Very-late-time region: may become noisy because fewer time origins contribute
+
+The example fitting range:
+
+beginfit = 1000 ps
+endfit   = 9000 ps
+
+is not automatically valid. After plotting, repeat the MSD calculation with the actual linear region. For example:
+
+gmx msd \
+  -s prod_nvt.tpr \
+  -f prod_nvt_nojump.xtc \
+  -o msd_water_com_fit2.xvg \
+  -mol diff_water_molecules_fit2.xvg \
+  -sel 'resname SOL' \
+  -seltype mol_com \
+  -nopbc \
+  -normpbc \
+  -beginfit 2000 \
+  -endfit 8000
+
+If using oxygen tracer:
+
+gmx msd \
+  -s prod_nvt.tpr \
+  -f prod_nvt_nojump.xtc \
+  -o msd_water_oxygen_tracer_fit2.xvg \
+  -sel 'name OW' \
+  -seltype atom \
+  -nopbc \
+  -normpbc \
+  -beginfit 2000 \
+  -endfit 8000
+
+Report the diffusion coefficient only after comparing fitting windows.
+
+6. Expected output files
+
+Main simulation outputs:
+
+em.gro
+em.edr
+em.log
+em.tpr
+
+nvt.gro
+nvt.edr
+nvt.log
+nvt.cpt
+nvt.tpr
+
+npt.gro
+npt.edr
+npt.log
+npt.cpt
+npt.tpr
+
+prod_nvt.gro
+prod_nvt.xtc
+prod_nvt.edr
+prod_nvt.log
+prod_nvt.cpt
+prod_nvt.tpr
+
+Post-processing outputs:
+
+prod_nvt_nojump.xtc
+
+temperature_nvt.xvg
+temperature_npt.xvg
+pressure_npt.xvg
+density_npt.xvg
+temperature_prod_nvt.xvg
+density_prod_nvt.xvg
+
+msd_water_com.xvg
+diff_water_molecules.xvg
+
+msd_water_oxygen_tracer.xvg
+msd_water_com_fit2.xvg
+msd_water_oxygen_tracer_fit2.xvg
+
+Main final files:
+
+msd_water_com.xvg
+diff_water_molecules.xvg
+
+Fallback final file:
+
+msd_water_oxygen_tracer.xvg
+
+Expected terminal output form:
+
+D[selection_name] = X.XXXX (+/- Y.YYYY) 1e-5 cm^2/s
+
+Unit conversion:
+
+1 × 10^-5 cm^2/s = 1 × 10^-9 m^2/s
+
+For liquid water near 300 K, a physically reasonable value is usually around:
+
+~2.0–2.5 × 10^-9 m^2/s
+
+The exact value depends on the water model, box size, thermostat, trajectory length, fitting interval, and finite-size effects.
+
+7. Finite-size-effect warning
+
+A 3 nm water box is acceptable for learning and workflow validation, but it is small for publication-quality diffusion coefficients. Diffusion coefficients from periodic MD simulations can show system-size dependence, and Yeh–Hummer-type finite-size corrections are commonly used for translational diffusion coefficients under periodic boundary conditions.
+
+For publication-quality values, do at least one of the following:
+
+1. Repeat the calculation with larger boxes, for example 4 nm, 5 nm, or 6 nm.
+2. Check whether D changes systematically with box length.
+3. Apply a finite-size correction if viscosity and box length are known.
+4. Clearly report the box size and whether finite-size correction was applied.
+
+A 3 nm box result should be reported carefully, for example:
+
+The reported diffusion coefficient is an uncorrected finite-box estimate from a 3 nm cubic SPC/E water system.
+8. Common possible errors and fixes
+Error 1: topol.top missing
+
+Message:
+
+Fatal error:
+Topology file topol.top not found
+
+Fix:
+
+Create topol.top before running gmx solvate -p topol.top.
+
+Error 2: coordinate-topology mismatch
+
+Message:
+
+Number of coordinates in coordinate file does not match topology
+
+Fix:
+
+Check:
+
+tail topol.top
+
+The number of SOL molecules must match the number inserted by gmx solvate.
+
+Error 3: mixed water models
+
+Problem:
+
+Using spc216.gro while including a different water topology unclearly, such as TIP3P, makes the workflow inconsistent.
+
+Fix:
+
+Use one consistent setup:
+
+Coordinate source: spc216.gro
+Topology include: spce.itp
+Molecule name: SOL
+Oxygen atom name: OW
+Error 4: production accidentally run in NPT
+
+Problem:
+
+Using a barostat during production can affect diffusion analysis.
+
+Fix:
+
+In md_nvt.mdp, use:
+
+pcoupl = no
+
+Run production from the equilibrated NPT structure:
+
+gmx grompp -f md_nvt.mdp -c npt.gro -t npt.cpt -p topol.top -o prod_nvt.tpr
+Error 5: fixed make_ndx group number used incorrectly
+
+Wrong:
+
+a OW
+name 3 Water_Oxygen
+
+Fix:
+
+Use the actual group number printed after a OW:
+
+a OW
+name X Water_Oxygen
+q
+
+where X is the new group number printed by GROMACS.
+
+Error 6: oxygen atom name not found
+
+Message:
+
+Selection 'name OW' does not match any atoms
+
+Fix:
+
+Check atom names:
+
+head water_box.gro
+
+Common oxygen names:
+
+OW
+OH2
+O
+
+Then modify the selection accordingly:
+
+-sel 'name OH2'
+
+or:
+
+-sel 'name O'
+Error 7: MSD curve is not linear
+
+Possible causes:
+
+trajectory too short
+wrong fitting interval
+poor equilibration
+PBC jumps not handled correctly
+late-time MSD is noisy
+temperature or density unstable
+
+Fix:
+
+Plot the MSD curve and choose only the clear linear region. Then rerun gmx msd with a corrected -beginfit and -endfit.
+
+Error 8: unrealistic diffusion coefficient
+
+Possible causes:
+
+short trajectory
+NPT production instead of NVT production
+wrong PBC treatment
+wrong fitting range
+wrong water model
+small finite-size box
+temperature not near 300 K
+density not equilibrated
+
+Fix:
+
+Check:
+
+echo -e "Temperature\n0" | gmx energy -f prod_nvt.edr -o temperature_prod_nvt.xvg
+echo -e "Density\n0"     | gmx energy -f prod_nvt.edr -o density_prod_nvt.xvg
+
+Then repeat MSD with different fitting windows and, if needed, a larger box.
+
+Error 9: invalid MSD option
+
+Wrong:
+
+gmx msd -type no
+
+Correct examples:
+
+gmx msd -s prod_nvt.tpr -f prod_nvt_nojump.xtc -o msd_water_com.xvg -sel 'resname SOL' -seltype mol_com -beginfit 1000 -endfit 9000
+
+or:
+
+gmx msd -s prod_nvt.tpr -f prod_nvt_nojump.xtc -o msd_water_oxygen_tracer.xvg -sel 'name OW' -seltype atom -beginfit 1000 -endfit 9000
+9. Final validation note
+
+Accept the diffusion coefficient only after confirming that NVT and NPT equilibration are stable, the NPT density is equilibrated, the 10 ns production run was performed in NVT with pcoupl = no, the no-jump trajectory was used for MSD, the reported result is clearly labeled as either molecule/COM MSD or oxygen-tracer MSD, the MSD fitting interval was chosen only after visually confirming a linear diffusive region, and the 3 nm box result is reported as a finite-size-affected estimate unless a larger-box test or finite-size correction is applied.

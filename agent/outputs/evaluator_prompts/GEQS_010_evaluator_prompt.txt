@@ -1,0 +1,95 @@
+You are a GROMACS workflow evaluator.
+
+Evaluate the generated workflow using a 10-point score.
+
+Scoring rubric:
+1. Syntax correctness: 0-2
+2. Workflow sequence: 0-2
+3. Parameter rationality: 0-2
+4. Analysis correctness: 0-2
+5. Completeness and reproducibility: 0-2
+
+Check for:
+- Missing topology file
+- Wrong command order
+- Invalid GROMACS options
+- Weak or unsafe MDP settings
+- Missing analysis command
+- Missing validation note
+- Use of short trajectory without warning
+- Use of Berendsen barostat where C-rescale is better
+- Incorrect interactive selection handling
+
+Return only JSON in this format:
+{
+  "score": 0,
+  "decision": "accept_or_revise",
+  "detected_errors": [],
+  "correction_suggestions": [],
+  "rubric": {
+    "syntax_correctness": 0,
+    "workflow_sequence": 0,
+    "parameter_rationality": 0,
+    "analysis_correctness": 0,
+    "completeness_reproducibility": 0
+  }
+}
+
+Workflow to evaluate:
+
+Workflow:
+1. Use md.edr, md.tpr, and md.xtc from a pure water simulation.
+2. Extract temperature:
+
+gmx energy -f md.edr -o temperature.xvg
+
+When GROMACS asks for a term, choose Temperature manually.
+
+3. Calculate hydrogen bonds:
+
+gmx hbond -f md.xtc -s md.tpr -num hbond_water.xvg
+
+When GROMACS asks for groups, choose the water group manually.
+
+4. Plot temperature.xvg and hbond_water.xvg.
+
+Expected outputs:
+temperature.xvg
+hbond_water.xvg
+
+Validation:
+If both files are generated, the analysis workflow is complete.
+
+
+
+Additional evaluator dataset record:
+{
+  "id": "GEQS_010",
+  "task_type": "workflow_evaluation",
+  "task": "Evaluate a GROMACS workflow for extracting temperature and hydrogen-bond number of pure water at 300 K.",
+  "generated_workflow": "\nWorkflow:\n1. Use md.edr, md.tpr, and md.xtc from a pure water simulation.\n2. Extract temperature:\n\ngmx energy -f md.edr -o temperature.xvg\n\nWhen GROMACS asks for a term, choose Temperature manually.\n\n3. Calculate hydrogen bonds:\n\ngmx hbond -f md.xtc -s md.tpr -num hbond_water.xvg\n\nWhen GROMACS asks for groups, choose the water group manually.\n\n4. Plot temperature.xvg and hbond_water.xvg.\n\nExpected outputs:\ntemperature.xvg\nhbond_water.xvg\n\nValidation:\nIf both files are generated, the analysis workflow is complete.\n",
+  "expert_score": 6,
+  "decision": "revise",
+  "error_type": "incorrect_interactive_selection_handling",
+  "detected_errors": [
+    "The workflow relies on manual interactive selections, which reduces reproducibility.",
+    "The gmx energy command should use a non-interactive selection such as echo Temperature.",
+    "The gmx hbond command should specify reproducible water-group selection, either through explicit index groups or documented interactive input.",
+    "The workflow does not explain how to confirm available energy terms or index groups.",
+    "The validation note is weak because output-file generation alone does not confirm correct selections."
+  ],
+  "correction_suggestions": [
+    "Use echo Temperature | gmx energy -f md.edr -o temperature.xvg.",
+    "For hbond, document the exact selected groups or generate/use an index file.",
+    "Check available groups using gmx make_ndx or by inspecting the GROMACS prompt.",
+    "State that water-water hydrogen bonds require donor and acceptor groups corresponding to water.",
+    "Add validation by checking that the hbond time series has physically reasonable values."
+  ],
+  "rubric": {
+    "syntax_correctness": 2,
+    "workflow_sequence": 1,
+    "parameter_rationality": 1,
+    "analysis_correctness": 1,
+    "completeness_reproducibility": 1
+  }
+}

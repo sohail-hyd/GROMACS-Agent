@@ -1,0 +1,30 @@
+{
+  "id": "GEQS_007",
+  "task_type": "workflow_evaluation",
+  "task": "Evaluate a GROMACS workflow for calculating water self-diffusion using MSD after trajectory preprocessing.",
+  "generated_workflow": "\nWorkflow:\n1. Use md.tpr and md.xtc from a pure water simulation.\n2. Center the trajectory:\n\necho System System | gmx trjconv -s md.tpr -f md.xtc -o md_center.xtc -center -pbc mol\n\n3. Calculate MSD using the centered trajectory:\n\necho System | gmx msd -s md.tpr -f md_center.xtc -o msd_water.xvg\n\n4. Fit the MSD curve and report the diffusion coefficient.\n\nExpected output:\nmsd_water.xvg\n\nValidation:\nIf msd_water.xvg is created, the diffusion workflow is complete.\n",
+  "expert_score": 6,
+  "decision": "revise",
+  "error_type": "wrong_trajectory_for_msd",
+  "detected_errors": [
+    "The workflow uses a centered trajectory for MSD analysis, which can distort displacement continuity.",
+    "For diffusion/MSD, a nojump or properly unwrapped trajectory is preferred.",
+    "The workflow does not warn that the MSD fitting region must be visually checked for linearity.",
+    "The workflow does not mention finite-size effects for small water boxes.",
+    "The validation note is weak because output-file creation alone does not prove the diffusion coefficient is valid."
+  ],
+  "correction_suggestions": [
+    "Use gmx trjconv -pbc nojump to generate md_nojump.xtc for MSD analysis.",
+    "Use md_center.xtc mainly for visualization or structural analysis, not as the primary MSD trajectory.",
+    "Do not use invalid MSD options such as -type no.",
+    "Inspect the MSD curve and fit only the linear diffusive region.",
+    "Add a finite-size warning and recommend larger boxes or correction methods for publication-quality diffusion."
+  ],
+  "rubric": {
+    "syntax_correctness": 2,
+    "workflow_sequence": 1,
+    "parameter_rationality": 1,
+    "analysis_correctness": 1,
+    "completeness_reproducibility": 1
+  }
+}

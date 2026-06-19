@@ -1,0 +1,32 @@
+Ten-task GSCF baseline milestone summary
+
+Dataset status:
+The first 10 GROMACS workflow-generation records were created and evaluated.
+
+Completed GSCF tasks:
+1. GSCF_001: pure water density at 300 K and 1 bar
+2. GSCF_002: oxygen-oxygen RDF
+3. GSCF_003: MSD/self-diffusion workflow
+4. GSCF_004: hydrogen-bond number analysis
+5. GSCF_005: z-direction density profile
+6. GSCF_006: oxygen-hydrogen RDF
+7. GSCF_007: oxygen-oxygen coordination number from RDF
+8. GSCF_008: equilibration validation using temperature, pressure, density, energy, and volume
+9. GSCF_009: trajectory preprocessing and PBC correction
+10. GSCF_010: temperature time-series extraction and validation
+
+Main finding:
+The manual LLM baseline generally produced strong GROMACS workflows, with scores mostly between 8 and 9 out of 10.
+
+Important recurring weaknesses:
+1. Some workflows need safer topology-preparation wording.
+2. Some GROMACS commands need clearer non-interactive selection handling.
+3. Short-trajectory limitations must be stated more clearly.
+4. Analysis-specific caveats are often incomplete, such as finite-size effects for diffusion or atom-name checking for RDF.
+5. Final validation notes are sometimes present but not clearly separated.
+
+Correction-loop result so far:
+Evaluator-guided correction improved several weaker workflows, including MSD diffusion, density-profile analysis, and trajectory preprocessing.
+
+Status:
+This completes the first 10-task GSCF prototype milestone. The next stage is to expand GEQS evaluator records and build result tables/figures for the paper.

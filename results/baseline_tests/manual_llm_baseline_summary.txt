@@ -1,0 +1,20 @@
+Manual LLM baseline test summary
+
+Three GROMACS workflow-generation tasks were evaluated:
+1. GSCF_001: pure water density at 300 K and 1 bar
+2. GSCF_002: oxygen-oxygen RDF of pure water at 300 K
+3. GSCF_003: water self-diffusion coefficient using MSD analysis
+
+Scores:
+- GSCF_001: 9/10
+- GSCF_002: 9/10
+- GSCF_003: 8/10
+
+Average score:
+8.67/10
+
+Interpretation:
+The manual LLM baseline generated mostly correct and reproducible GROMACS workflows for the first three tasks. The main recurring weaknesses were topology-preparation robustness, interactive command reproducibility, short-trajectory warnings, water-model consistency, and the need for clearer final validation notes.
+
+Status:
+This completes the first small manual LLM baseline set. It is not yet sufficient for a full publication. The next stage is to build more GSCF/GEQS records and then compare direct LLM, rule-evaluator, corrected-agent, and RAG-agent performance.

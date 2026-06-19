@@ -1,0 +1,76 @@
+You are a GROMACS workflow generation agent.
+
+Your task is to generate a complete and reproducible GROMACS workflow.
+
+For every task, include:
+1. Required input files
+2. Required MDP files or MDP settings
+3. Topology preparation steps
+4. GROMACS command sequence
+5. Post-processing or analysis commands
+6. Expected output files
+7. Common possible errors and fixes
+8. Short validation note
+
+Rules:
+- Do not skip topology preparation.
+- Use clear command order.
+- Use physically reasonable parameters.
+- For NPT equilibration, prefer C-rescale barostat.
+- For MSD analysis, do not use invalid option values such as "-type no".
+- If trajectory length is short, clearly say the result is only workflow validation.
+
+User task:
+Generate a GROMACS post-processing workflow to calculate the self-diffusion coefficient of pure water at 300 K using mean square displacement analysis.
+
+
+Additional validated dataset record:
+{
+  "id": "GSCF_003",
+  "task_type": "diffusion_coefficient",
+  "software": "GROMACS",
+  "system": "pure_water",
+  "instruction": "Generate a GROMACS post-processing workflow to calculate the self-diffusion coefficient of pure water at 300 K using mean square displacement analysis.",
+  "input": {
+    "trajectory": "md.xtc",
+    "structure": "md.tpr",
+    "selection": "System",
+    "analysis": "mean square displacement"
+  },
+  "expected_workflow": [
+    "Use an existing production trajectory",
+    "Run gmx msd using the production trajectory and structure file",
+    "Select the system or water group for MSD analysis",
+    "Save the MSD curve as msd_water.xvg",
+    "Fit the linear region of the MSD curve",
+    "Calculate the diffusion coefficient using D = slope / 6",
+    "State that short trajectories provide only workflow-level validation"
+  ],
+  "expected_command": "gmx msd -f md.xtc -s md.tpr -o msd_water.xvg",
+  "validated_result": {
+    "output_file": "msd_water.xvg",
+    "trajectory_length": "100 ps",
+    "status": "workflow_validated_short_test",
+    "msd_slope_nm2_ps": 0.0242545,
+    "approx_diffusion_coefficient_nm2_ps": 0.00404242,
+    "approx_diffusion_coefficient_m2_s": 4.04242e-09,
+    "fit_range_ps": "20-100 ps",
+    "validation_note": "Approximate short-trajectory workflow-validation value, not final publication-quality diffusion coefficient."
+  },
+  "common_errors_and_fixes": [
+    {
+      "error": "Invalid option: -type no",
+      "fix": "Remove -type no. Use gmx msd -f md.xtc -s md.tpr -o msd_water.xvg for normal 3D MSD."
+    },
+    {
+      "error": "Interactive selection does not finish",
+      "fix": "Select the required group, then press Ctrl-D to end the selection input."
+    },
+    {
+      "error": "Diffusion coefficient is unreliable from short trajectory",
+      "fix": "Use a longer production trajectory and fit the linear MSD region."
+    }
+  ]
+}
+
+Generate the complete GROMACS workflow according to this prompt.

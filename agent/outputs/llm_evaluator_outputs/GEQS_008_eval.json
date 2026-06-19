@@ -1,0 +1,25 @@
+{
+"score": 6,
+"decision": "revise",
+"detected_errors": [
+"The workflow extracts only temperature, but the task requires temperature, pressure, density, total energy, and box volume time series.",
+"The workflow incorrectly concludes full equilibration from temperature stability alone.",
+"Pressure, density, total energy, and box volume analysis commands are missing.",
+"The workflow does not distinguish whether md.edr comes from NVT, NPT, or production MD.",
+"The validation note is incomplete because temperature alone is not sufficient to validate equilibration at 300 K and 1 bar."
+],
+"correction_suggestions": [
+"Use gmx energy to extract temperature, pressure, density, total energy, and volume from the appropriate energy file.",
+"Generate separate output files such as temperature.xvg, pressure.xvg, density.xvg, total_energy.xvg, and volume.xvg.",
+"Validate that temperature fluctuates around 300 K, pressure averages near 1 bar with large expected fluctuations, and density, total energy, and volume reach stable plateaus.",
+"Do not claim full equilibration based only on temperature.",
+"Add a note that short trajectories are useful only for workflow validation, not final proof of equilibration."
+],
+"rubric": {
+"syntax_correctness": 2,
+"workflow_sequence": 1,
+"parameter_rationality": 1,
+"analysis_correctness": 1,
+"completeness_reproducibility": 1
+}
+}

@@ -1,0 +1,30 @@
+{
+  "id": "GEQS_008",
+  "task_type": "workflow_evaluation",
+  "task": "Evaluate a GROMACS workflow for validating equilibration of pure water at 300 K and 1 bar using temperature, pressure, density, total energy, and box volume time series.",
+  "generated_workflow": "\nWorkflow:\n1. Use the production energy file md.edr from a pure water simulation.\n2. Extract only the temperature time series:\n\necho Temperature | gmx energy -f md.edr -o temperature.xvg\n\n3. Plot temperature.xvg.\n4. If the temperature fluctuates around 300 K, conclude that the water system is fully equilibrated.\n\nExpected output:\ntemperature.xvg\n\nValidation:\nThe workflow is complete if temperature.xvg is generated and the average temperature is close to 300 K.\n",
+  "expert_score": 6,
+  "decision": "revise",
+  "error_type": "incomplete_equilibration_validation",
+  "detected_errors": [
+    "The task requires temperature, pressure, density, total energy, and box volume time series, but the workflow extracts only temperature.",
+    "The workflow incorrectly concludes full equilibration from temperature stability alone.",
+    "Pressure, density, total energy, and box volume are missing from the validation workflow.",
+    "The workflow does not distinguish between NVT, NPT, and production MD energy files.",
+    "The validation note is incomplete because temperature alone is not sufficient for full equilibration assessment."
+  ],
+  "correction_suggestions": [
+    "Extract temperature, pressure, density, total energy, and volume using gmx energy.",
+    "Use separate output files such as temperature.xvg, pressure.xvg, density.xvg, total_energy.xvg, and volume.xvg.",
+    "State that temperature should fluctuate around 300 K, pressure around 1 bar with large fluctuations, and density/energy/volume should plateau after equilibration.",
+    "Do not claim full equilibration from temperature alone.",
+    "Mention that short trajectories are only useful for workflow validation, not final equilibration proof."
+  ],
+  "rubric": {
+    "syntax_correctness": 2,
+    "workflow_sequence": 1,
+    "parameter_rationality": 1,
+    "analysis_correctness": 1,
+    "completeness_reproducibility": 1
+  }
+}

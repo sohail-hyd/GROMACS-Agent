@@ -1,0 +1,5 @@
+{
+  "role": "Manager",
+  "interpreted_task": "Generate a GROMACS workflow to preprocess a pure water trajectory using PBC correction",
+  "goal": "Generate a reproducible GROMACS workflow with validation."
+}

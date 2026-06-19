@@ -1,0 +1,598 @@
+## Complete GROMACS workflow: O–O coordination number of pure water at 300 K from RDF
+
+### 1. Required input files
+
+For the **post-processing stage**, the required validated inputs are:
+
+```bash
+md.tpr
+md.xtc
+topol.top
+```
+
+For a **complete reproducible workflow**, also prepare or generate:
+
+```bash
+water_box.gro
+minim.mdp
+nvt.mdp
+npt.mdp
+md.mdp
+```
+
+The final analysis will produce:
+
+```bash
+rdf_OW_OW.xvg
+cn_OW_OW.xvg
+```
+
+---
+
+## 2. Topology preparation
+
+Create a working folder:
+
+```bash
+mkdir water_OO_coordination
+cd water_OO_coordination
+```
+
+Create `topol.top`:
+
+```bash
+cat > topol.top << 'EOF'
+#include "oplsaa.ff/forcefield.itp"
+#include "oplsaa.ff/spce.itp"
+
+[ system ]
+Pure SPC/E water at 300 K
+
+[ molecules ]
+EOF
+```
+
+Create a cubic water box:
+
+```bash
+gmx solvate -cs spc216.gro -box 3.0 3.0 3.0 -o water_box.gro -p topol.top
+```
+
+This updates `topol.top` with the correct number of water molecules.
+
+Check atom names:
+
+```bash
+grep -m 5 "OW" water_box.gro
+```
+
+For SPC/E water in GROMACS, the oxygen atom is commonly named `OW`. The O–O RDF and coordination number should therefore use:
+
+```bash
+-ref "name OW" -sel "name OW"
+```
+
+---
+
+# 3. MDP files or settings
+
+## 3.1 Energy minimization: `minim.mdp`
+
+```bash
+cat > minim.mdp << 'EOF'
+integrator      = steep
+emtol           = 1000.0
+emstep          = 0.01
+nsteps          = 50000
+
+cutoff-scheme   = Verlet
+nstlist         = 20
+rlist           = 1.0
+coulombtype     = PME
+rcoulomb        = 1.0
+vdwtype         = Cut-off
+rvdw            = 1.0
+
+pbc             = xyz
+EOF
+```
+
+---
+
+## 3.2 NVT equilibration at 300 K: `nvt.mdp`
+
+```bash
+cat > nvt.mdp << 'EOF'
+integrator              = md
+dt                      = 0.002
+nsteps                  = 50000      ; 100 ps
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+vdwtype                 = Cut-off
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 1.0
+ref_t                   = 300
+
+pcoupl                  = no
+
+constraints             = h-bonds
+constraint_algorithm    = lincs
+
+nstxout-compressed      = 1000
+nstenergy               = 500
+nstlog                  = 500
+
+pbc                     = xyz
+gen_vel                 = yes
+gen_temp                = 300
+gen_seed                = -1
+EOF
+```
+
+---
+
+## 3.3 NPT equilibration at 300 K and 1 bar: `npt.mdp`
+
+Use the **C-rescale barostat**, as requested.
+
+```bash
+cat > npt.mdp << 'EOF'
+integrator              = md
+dt                      = 0.002
+nsteps                  = 250000     ; 500 ps
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+vdwtype                 = Cut-off
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 1.0
+ref_t                   = 300
+
+pcoupl                  = C-rescale
+pcoupltype              = isotropic
+tau_p                   = 5.0
+ref_p                   = 1.0
+compressibility         = 4.5e-5
+
+constraints             = h-bonds
+constraint_algorithm    = lincs
+
+nstxout-compressed      = 1000
+nstenergy               = 500
+nstlog                  = 500
+
+pbc                     = xyz
+gen_vel                 = no
+continuation            = yes
+EOF
+```
+
+---
+
+## 3.4 Production MD: `md.mdp`
+
+For publication-quality coordination numbers, use a longer trajectory, for example 5–20 ns. The example below uses 1 ns, which is enough for workflow validation but short for final reporting.
+
+```bash
+cat > md.mdp << 'EOF'
+integrator              = md
+dt                      = 0.002
+nsteps                  = 500000     ; 1 ns
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+vdwtype                 = Cut-off
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 1.0
+ref_t                   = 300
+
+pcoupl                  = C-rescale
+pcoupltype              = isotropic
+tau_p                   = 5.0
+ref_p                   = 1.0
+compressibility         = 4.5e-5
+
+constraints             = h-bonds
+constraint_algorithm    = lincs
+
+nstxout-compressed      = 500        ; save trajectory every 1 ps
+nstenergy               = 500
+nstlog                  = 500
+
+pbc                     = xyz
+gen_vel                 = no
+continuation            = yes
+EOF
+```
+
+---
+
+# 4. GROMACS command sequence
+
+## 4.1 Energy minimization
+
+```bash
+gmx grompp -f minim.mdp -c water_box.gro -p topol.top -o em.tpr
+gmx mdrun -deffnm em
+```
+
+Expected outputs:
+
+```bash
+em.gro
+em.edr
+em.log
+em.tpr
+```
+
+---
+
+## 4.2 NVT equilibration
+
+```bash
+gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
+gmx mdrun -deffnm nvt
+```
+
+Expected outputs:
+
+```bash
+nvt.gro
+nvt.xtc
+nvt.edr
+nvt.log
+nvt.tpr
+```
+
+---
+
+## 4.3 NPT equilibration
+
+```bash
+gmx grompp -f npt.mdp -c nvt.gro -t nvt.cpt -r nvt.gro -p topol.top -o npt.tpr
+gmx mdrun -deffnm npt
+```
+
+Expected outputs:
+
+```bash
+npt.gro
+npt.xtc
+npt.edr
+npt.log
+npt.tpr
+npt.cpt
+```
+
+---
+
+## 4.4 Production simulation
+
+```bash
+gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
+gmx mdrun -deffnm md
+```
+
+Expected outputs:
+
+```bash
+md.tpr
+md.xtc
+md.gro
+md.edr
+md.log
+md.cpt
+```
+
+The validated post-processing inputs are now available:
+
+```bash
+md.tpr
+md.xtc
+topol.top
+```
+
+---
+
+# 5. Post-processing: O–O RDF and coordination number
+
+## 5.1 Main validated command
+
+Use `gmx rdf` with both RDF and coordination-number output:
+
+```bash
+gmx rdf \
+  -f md.xtc \
+  -s md.tpr \
+  -o rdf_OW_OW.xvg \
+  -cn cn_OW_OW.xvg \
+  -ref "name OW" \
+  -sel "name OW"
+```
+
+This calculates:
+
+```bash
+rdf_OW_OW.xvg     # oxygen-oxygen radial distribution function g_OO(r)
+cn_OW_OW.xvg      # cumulative O-O coordination number
+```
+
+The `-cn` file gives the integrated coordination number as a function of distance.
+
+---
+
+## 5.2 Optional: remove PBC artifacts before RDF
+
+For a simple pure-water periodic box, `gmx rdf` usually handles periodicity correctly. Still, if the trajectory has visual or molecule-breaking issues, first create a processed trajectory:
+
+```bash
+gmx trjconv -s md.tpr -f md.xtc -o md_pbc.xtc -pbc mol -center
+```
+
+Choose `System` when prompted.
+
+Then run:
+
+```bash
+gmx rdf \
+  -f md_pbc.xtc \
+  -s md.tpr \
+  -o rdf_OW_OW.xvg \
+  -cn cn_OW_OW.xvg \
+  -ref "name OW" \
+  -sel "name OW"
+```
+
+---
+
+# 6. How to read the oxygen-oxygen coordination number
+
+The first-shell O–O coordination number should **not** be read at an arbitrary cutoff.
+
+Use the RDF file:
+
+```bash
+rdf_OW_OW.xvg
+```
+
+Find:
+
+1. The first O–O RDF peak, usually near 0.27–0.29 nm for liquid water.
+2. The first minimum after that peak, commonly around 0.32–0.35 nm depending on model, simulation length, and conditions.
+3. Read the value of `cn_OW_OW.xvg` at that first minimum distance.
+
+That value is the **first-shell O–O coordination number**.
+
+Example interpretation:
+
+```text
+If the first minimum of g_OO(r) is at r = 0.34 nm,
+then read the cumulative coordination number from cn_OW_OW.xvg at r = 0.34 nm.
+```
+
+Do **not** report the coordination number at the RDF peak. The RDF peak gives the most probable O–O separation, not the integrated first-shell coordination number.
+
+---
+
+# 7. Optional command to inspect the first minimum
+
+You can open the RDF file:
+
+```bash
+xmgrace rdf_OW_OW.xvg
+```
+
+Or inspect values manually:
+
+```bash
+grep -v '^[@#]' rdf_OW_OW.xvg | less
+```
+
+To inspect the coordination-number file:
+
+```bash
+grep -v '^[@#]' cn_OW_OW.xvg | less
+```
+
+If the first minimum is around 0.34 nm, extract nearby values:
+
+```bash
+awk '!/^[@#]/ && $1 >= 0.32 && $1 <= 0.36 {print}' cn_OW_OW.xvg
+```
+
+---
+
+# 8. Expected output files
+
+Main simulation outputs:
+
+```bash
+water_box.gro
+topol.top
+em.tpr
+em.gro
+nvt.tpr
+nvt.gro
+npt.tpr
+npt.gro
+md.tpr
+md.xtc
+md.gro
+md.edr
+md.log
+```
+
+Main analysis outputs:
+
+```bash
+rdf_OW_OW.xvg
+cn_OW_OW.xvg
+```
+
+Expected successful result:
+
+```text
+gmx rdf produces both rdf_OW_OW.xvg and cn_OW_OW.xvg.
+```
+
+---
+
+# 9. Common possible errors and fixes
+
+## Error 1: Missing `md.tpr`
+
+Problem:
+
+```text
+Required option -s missing
+```
+
+Fix:
+
+```bash
+gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
+```
+
+---
+
+## Error 2: Missing `md.xtc`
+
+Problem:
+
+```text
+File 'md.xtc' does not exist
+```
+
+Fix:
+
+Run the production simulation:
+
+```bash
+gmx mdrun -deffnm md
+```
+
+Also check that `nstxout-compressed` in `md.mdp` is not zero.
+
+---
+
+## Error 3: Wrong atom selection
+
+Problem:
+
+```text
+Selection 'name OW' does not match any atoms
+```
+
+Fix:
+
+Check oxygen atom names:
+
+```bash
+grep SOL water_box.gro | head
+```
+
+or inspect atom names:
+
+```bash
+gmx dump -s md.tpr | grep -i atomname | head
+```
+
+If your oxygen atom is named `O` instead of `OW`, use:
+
+```bash
+gmx rdf -f md.xtc -s md.tpr -o rdf_O_O.xvg -cn cn_O_O.xvg -ref "name O" -sel "name O"
+```
+
+For the validated SPC/E-style workflow, use:
+
+```bash
+-ref "name OW" -sel "name OW"
+```
+
+---
+
+## Error 4: RDF generated but no coordination number file
+
+Problem:
+
+```text
+rdf_OW_OW.xvg exists but cn_OW_OW.xvg is missing
+```
+
+Cause:
+
+The `-cn` option was not used.
+
+Fix:
+
+```bash
+gmx rdf \
+  -f md.xtc \
+  -s md.tpr \
+  -o rdf_OW_OW.xvg \
+  -cn cn_OW_OW.xvg \
+  -ref "name OW" \
+  -sel "name OW"
+```
+
+---
+
+## Error 5: Coordination number read at wrong cutoff
+
+Problem:
+
+The coordination number is reported at the RDF peak or at a random distance.
+
+Fix:
+
+Read the coordination number at the **first minimum after the first O–O RDF peak**, not at the peak itself.
+
+---
+
+## Error 6: Short trajectory reported as final data
+
+Problem:
+
+A 100 ps or 1 ns trajectory is reported as publication-quality.
+
+Fix:
+
+Use short trajectories only for workflow validation. For final reporting, use a longer equilibrated production trajectory, preferably several nanoseconds or more, and confirm RDF convergence.
+
+---
+
+# 10. Short validation note
+
+This workflow is valid if:
+
+```bash
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_OW.xvg -cn cn_OW_OW.xvg -ref "name OW" -sel "name OW"
+```
+
+successfully produces:
+
+```bash
+rdf_OW_OW.xvg
+cn_OW_OW.xvg
+```
+
+

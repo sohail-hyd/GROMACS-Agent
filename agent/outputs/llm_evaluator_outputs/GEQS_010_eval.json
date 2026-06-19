@@ -1,0 +1,27 @@
+{
+"score": 6,
+"decision": "revise",
+"detected_errors": [
+"The workflow relies on manual interactive selections, which reduces reproducibility.",
+"The gmx energy command should use a non-interactive selection such as echo Temperature.",
+"The gmx hbond command should specify reproducible water-water selection using explicit groups or a documented index file.",
+"The workflow does not explain how to confirm available energy terms or available index groups before analysis.",
+"The validation note is weak because output-file generation alone does not confirm that the correct temperature term or hydrogen-bond groups were selected.",
+"The hydrogen-bond analysis does not clearly state that donor and acceptor groups should correspond to water for water-water hydrogen bonds."
+],
+"correction_suggestions": [
+"Use a reproducible energy extraction command such as: echo Temperature | gmx energy -f md.edr -o temperature.xvg.",
+"For hydrogen bonds, document the exact selected water groups or generate an index file before running gmx hbond.",
+"Check available energy terms from the gmx energy prompt or log and confirm that Temperature corresponds to the desired system temperature.",
+"Check available groups using gmx make_ndx or the GROMACS group prompt before running hydrogen-bond analysis.",
+"Validate temperature by checking that the average is close to 300 K and that fluctuations are physically reasonable.",
+"Validate hydrogen bonds by checking that the time series has physically reasonable values for pure water rather than only checking that the output file exists."
+],
+"rubric": {
+"syntax_correctness": 2,
+"workflow_sequence": 1,
+"parameter_rationality": 1,
+"analysis_correctness": 1,
+"completeness_reproducibility": 1
+}
+}

@@ -1,0 +1,13 @@
+{
+  "role": "Planner",
+  "subtasks": [
+    "Identify required input files.",
+    "Prepare or verify topology and coordinate files.",
+    "Define MDP/settings if simulation is required.",
+    "Generate ordered GROMACS commands.",
+    "Add analysis/post-processing commands.",
+    "Add expected outputs.",
+    "Add common errors and fixes.",
+    "Add validation and short-trajectory warning."
+  ]
+}

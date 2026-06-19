@@ -1,0 +1,5 @@
+MDAgent-style GROMACS-Agent demo
+
+The implemented GROMACS-Agent was tested on five natural-language GROMACS workflow tasks. Each task was processed through ManagerAgent, PlannerAgent, Retriever, GromacsWorkerAgent, GromacsEvaluatorAgent, and CodeExecutorAgent. The final workflow, evaluation JSON, retrieved examples, and MDAgent-style transcript were saved for each run.
+
+All accepted tasks demonstrate that the system is a runnable multi-agent research prototype, not only a manuscript concept.

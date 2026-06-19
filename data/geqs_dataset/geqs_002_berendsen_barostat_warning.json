@@ -1,0 +1,38 @@
+{
+  "id": "GEQS_002",
+  "task_type": "workflow_evaluation",
+  "software": "GROMACS",
+  "task": "Evaluate the NPT equilibration settings for pure water density calculation at 300 K and 1 bar.",
+  "generated_workflow": {
+    "description": "The NPT workflow uses the Berendsen barostat and fails during preprocessing because GROMACS treats the warning as fatal unless -maxwarn is used.",
+    "mdp_section": {
+      "pcoupl": "Berendsen",
+      "pcoupltype": "isotropic",
+      "tau_p": "2.0",
+      "ref_p": "1.0",
+      "compressibility": "4.5e-5"
+    },
+    "command": "gmx grompp -f npt.mdp -c nvt.gro -t nvt.cpt -p topol.top -o npt.tpr"
+  },
+  "expert_score": 6,
+  "score_justification": "The NPT settings are mostly reasonable for equilibration, but the Berendsen barostat produces a warning in GROMACS 2025.4 and is not recommended for new production-quality simulations. The workflow failed because the warning was not handled. A better correction is to use C-rescale for NPT equilibration instead of simply forcing -maxwarn.",
+  "error_type": "barostat_warning",
+  "correction": {
+    "fixed_strategy": "Replace Berendsen with C-rescale for NPT equilibration.",
+    "fixed_mdp_section": {
+      "pcoupl": "C-rescale",
+      "pcoupltype": "isotropic",
+      "tau_p": "2.0",
+      "ref_p": "1.0",
+      "compressibility": "4.5e-5"
+    }
+  },
+  "rubric": {
+    "syntax_correctness": 2,
+    "workflow_sequence": 2,
+    "parameter_rationality": 1,
+    "analysis_correctness": 0,
+    "completeness_reproducibility": 1,
+    "total": 6
+  }
+}

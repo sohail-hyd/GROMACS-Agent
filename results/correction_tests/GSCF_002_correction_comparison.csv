@@ -1,0 +1,3 @@
+task_id,task_name,stage,score,decision,improvement_from_baseline
+GSCF_002,water_OO_RDF_300K,baseline_manual_llm,9,accept_minor_revision,0
+GSCF_002,water_OO_RDF_300K,corrected_v1,9,accept_minor_revision,0

@@ -1,0 +1,25 @@
+Task:
+Pure water oxygen-oxygen radial distribution function analysis at 300 K.
+
+Purpose:
+This workflow is the second validated example for the GROMACS-based LLM agent dataset.
+
+Input files:
+../md.xtc
+../md.tpr
+
+Analysis:
+Oxygen-oxygen RDF was calculated using gmx rdf with reference and selection set to water oxygen atoms.
+
+Command:
+gmx rdf -f ../md.xtc -s ../md.tpr -o rdf_OW_OW.xvg -ref "name OW" -sel "name OW"
+
+Observed result:
+First RDF peak at r = 0.278 nm.
+Peak height g(r) = 2.867877.
+
+Scientific meaning:
+The O-O RDF describes local structural ordering of liquid water. The first peak represents the most probable oxygen-oxygen separation in the first hydration shell.
+
+Dataset value:
+This case can be used as a validated GSCF-Dataset example for post-processing and structural-analysis workflow generation.

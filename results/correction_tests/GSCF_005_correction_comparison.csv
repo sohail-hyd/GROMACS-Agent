@@ -1,0 +1,3 @@
+task_id,task_name,stage,score,decision,improvement_from_baseline
+GSCF_005,water_density_profile_z_300K,baseline_manual_llm,8,accept_minor_revision,0
+GSCF_005,water_density_profile_z_300K,corrected_v1,9,accept_minor_revision,1

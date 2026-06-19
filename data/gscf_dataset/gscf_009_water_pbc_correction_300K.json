@@ -1,0 +1,41 @@
+{
+  "id": "GSCF_009",
+  "task_type": "trajectory_preprocessing",
+  "system": "pure water",
+  "temperature_K": 300,
+  "pressure_bar": 1,
+  "user_task": "Generate a GROMACS workflow to preprocess a pure water trajectory at 300 K by correcting periodic boundary conditions, making molecules whole, centering the system, and producing a cleaned trajectory for later analysis.",
+  "required_inputs": [
+    "md.tpr",
+    "md.xtc",
+    "md.gro",
+    "topol.top"
+  ],
+  "expected_gromacs_commands": [
+    "echo System | gmx trjconv -s md.tpr -f md.xtc -o md_nojump.xtc -pbc nojump",
+    "echo System | gmx trjconv -s md.tpr -f md_nojump.xtc -o md_whole.xtc -pbc mol",
+    "echo System System | gmx trjconv -s md.tpr -f md_whole.xtc -o md_center.xtc -center -pbc mol"
+  ],
+  "important_rules": [
+    "Do not skip topology preparation if a full workflow is requested.",
+    "Use clear command order.",
+    "Explain group selection for gmx trjconv.",
+    "Explain the purpose of -pbc nojump, -pbc mol, and -center.",
+    "Do not overwrite the original trajectory.",
+    "State that PBC correction should be checked visually before analysis.",
+    "If the system is homogeneous water, centering System is acceptable, but for solute systems, center the solute instead."
+  ],
+  "expected_outputs": [
+    "md_nojump.xtc",
+    "md_whole.xtc",
+    "md_center.xtc"
+  ],
+  "common_errors": [
+    "Overwriting md.xtc instead of writing a new cleaned trajectory.",
+    "Using wrong group selections for centering.",
+    "Assuming the same centering command works for solute-water systems.",
+    "Not checking the corrected trajectory visually.",
+    "Using cleaned trajectory without matching md.tpr when required."
+  ],
+  "validation_note": "The workflow is valid if corrected trajectory files are produced without overwriting the original trajectory. The cleaned trajectory should be inspected visually before downstream RDF, MSD, density, or hydrogen-bond analysis."
+}

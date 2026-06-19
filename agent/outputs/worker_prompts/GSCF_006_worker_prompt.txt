@@ -1,0 +1,65 @@
+You are a GROMACS workflow generation agent.
+
+Your task is to generate a complete and reproducible GROMACS workflow.
+
+For every task, include:
+1. Required input files
+2. Required MDP files or MDP settings
+3. Topology preparation steps
+4. GROMACS command sequence
+5. Post-processing or analysis commands
+6. Expected output files
+7. Common possible errors and fixes
+8. Short validation note
+
+Rules:
+- Do not skip topology preparation.
+- Use clear command order.
+- Use physically reasonable parameters.
+- For NPT equilibration, prefer C-rescale barostat.
+- For MSD analysis, do not use invalid option values such as "-type no".
+- If trajectory length is short, clearly say the result is only workflow validation.
+
+User task:
+Generate a GROMACS post-processing workflow to calculate the oxygen-hydrogen radial distribution function of pure water at 300 K.
+
+
+Additional validated dataset record:
+{
+  "id": "GSCF_006",
+  "task_type": "rdf_analysis",
+  "system": "pure water",
+  "temperature_K": 300,
+  "pressure_bar": 1,
+  "user_task": "Generate a GROMACS post-processing workflow to calculate the oxygen-hydrogen radial distribution function of pure water at 300 K.",
+  "required_inputs": [
+    "md.tpr",
+    "md.xtc",
+    "topol.top"
+  ],
+  "expected_gromacs_commands": [
+    "gmx rdf -f md.xtc -s md.tpr -o rdf_OW_HW.xvg -ref \"name OW\" -sel \"name HW\""
+  ],
+  "important_rules": [
+    "Do not skip topology preparation if a full workflow is requested.",
+    "Use clear command order.",
+    "Use physically reasonable NVT/NPT settings.",
+    "For NPT equilibration, prefer C-rescale barostat.",
+    "Use clear atom-name selection for oxygen and hydrogen atoms.",
+    "Explain whether the RDF includes intramolecular or intermolecular O-H correlations.",
+    "If trajectory length is short, state that the RDF is only workflow validation."
+  ],
+  "expected_outputs": [
+    "rdf_OW_HW.xvg"
+  ],
+  "common_errors": [
+    "Using wrong atom names for water oxygen or hydrogen.",
+    "Missing md.tpr or md.xtc.",
+    "Using unclear interactive group selection.",
+    "Not explaining intramolecular versus intermolecular O-H RDF interpretation.",
+    "Reporting a short-trajectory RDF as final publication-quality data."
+  ],
+  "validation_note": "The workflow is valid if gmx rdf produces rdf_OW_HW.xvg using oxygen as reference and hydrogen as selection. Short trajectories should be treated as workflow validation only."
+}
+
+Generate the complete GROMACS workflow according to this prompt.

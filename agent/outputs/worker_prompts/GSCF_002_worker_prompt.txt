@@ -1,0 +1,70 @@
+You are a GROMACS workflow generation agent.
+
+Your task is to generate a complete and reproducible GROMACS workflow.
+
+For every task, include:
+1. Required input files
+2. Required MDP files or MDP settings
+3. Topology preparation steps
+4. GROMACS command sequence
+5. Post-processing or analysis commands
+6. Expected output files
+7. Common possible errors and fixes
+8. Short validation note
+
+Rules:
+- Do not skip topology preparation.
+- Use clear command order.
+- Use physically reasonable parameters.
+- For NPT equilibration, prefer C-rescale barostat.
+- For MSD analysis, do not use invalid option values such as "-type no".
+- If trajectory length is short, clearly say the result is only workflow validation.
+
+User task:
+Generate a GROMACS post-processing workflow to calculate the oxygen-oxygen radial distribution function of pure water at 300 K.
+
+
+Additional validated dataset record:
+{
+  "id": "GSCF_002",
+  "task_type": "rdf_analysis",
+  "software": "GROMACS",
+  "system": "pure_water",
+  "instruction": "Generate a GROMACS post-processing workflow to calculate the oxygen-oxygen radial distribution function of pure water at 300 K.",
+  "input": {
+    "trajectory": "md.xtc",
+    "structure": "md.tpr",
+    "selection": "water oxygen atoms",
+    "analysis": "oxygen-oxygen RDF"
+  },
+  "expected_workflow": [
+    "Use an existing production trajectory",
+    "Select water oxygen atoms using name OW",
+    "Run gmx rdf with OW as both reference and selection",
+    "Save the output as rdf_OW_OW.xvg",
+    "Extract the first RDF peak position and peak height"
+  ],
+  "expected_command": "gmx rdf -f md.xtc -s md.tpr -o rdf_OW_OW.xvg -ref \"name OW\" -sel \"name OW\"",
+  "validated_result": {
+    "first_peak_position_nm": 0.278,
+    "first_peak_height": 2.867877,
+    "output_file": "rdf_OW_OW.xvg",
+    "status": "workflow_validated_short_test"
+  },
+  "common_errors_and_fixes": [
+    {
+      "error": "rdf_OW_OW.xvg not found",
+      "fix": "Run the analysis command inside the folder where rdf_OW_OW.xvg is saved, or provide the full file path."
+    },
+    {
+      "error": "md.xtc not found",
+      "fix": "Ensure production MD was run with nstxout-compressed greater than 0."
+    },
+    {
+      "error": "Selection name OW not recognized",
+      "fix": "Check atom names in the structure file or create an index group for water oxygen atoms."
+    }
+  ]
+}
+
+Generate the complete GROMACS workflow according to this prompt.

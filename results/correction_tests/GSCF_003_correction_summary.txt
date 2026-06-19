@@ -1,0 +1,15 @@
+GSCF_003 correction loop summary
+
+Task:
+Pure water self-diffusion coefficient workflow using MSD analysis.
+
+Scores:
+- Baseline manual LLM workflow: 8/10
+- Corrected workflow v1: 8/10
+- Corrected workflow v2: 9/10
+
+Interpretation:
+The first correction attempt did not improve the evaluator score. A stricter second correction prompt improved the workflow score from 8 to 9 by addressing production-ensemble choice, tracer-definition clarity, fitting-range caution, and finite-size warnings.
+
+Conclusion:
+This demonstrates that iterative correction can improve workflow quality, but single-pass correction may be insufficient.

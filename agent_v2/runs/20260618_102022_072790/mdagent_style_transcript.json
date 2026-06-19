@@ -1,0 +1,46 @@
+[
+  {
+    "agent": "ManagerAgent",
+    "role": "Interpret user task and coordinate the agent team",
+    "task": "Generate a GROMACS workflow to calculate O-O RDF of pure water at 300 K"
+  },
+  {
+    "agent": "PlannerAgent",
+    "role": "Decompose the GROMACS task",
+    "plan": [
+      "identify required GROMACS files",
+      "retrieve related GSCF examples",
+      "generate workflow",
+      "evaluate workflow",
+      "apply correction loop if needed",
+      "save final workflow"
+    ]
+  },
+  {
+    "agent": "Retriever",
+    "role": "Retrieve validated GSCF memory records",
+    "retrieved_examples": [
+      "GSCF_002",
+      "GSCF_006",
+      "GSCF_007"
+    ]
+  },
+  {
+    "agent": "GromacsWorkerAgent",
+    "role": "Generate topology-aware GROMACS workflow",
+    "output_file": "final_workflow.md"
+  },
+  {
+    "agent": "GromacsEvaluatorAgent",
+    "role": "Score the workflow using scientific rubric",
+    "score": 10,
+    "decision": "accept",
+    "detected_errors": []
+  },
+  {
+    "agent": "CodeExecutorAgent",
+    "role": "Execution-aware dry-run checker",
+    "status": "dry_run_only",
+    "note": "Automatic GROMACS execution is disabled in this prototype; selected benchmark tasks can be executed manually."
+  }
+]

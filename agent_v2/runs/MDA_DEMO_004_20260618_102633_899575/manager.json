@@ -1,0 +1,5 @@
+{
+  "role": "Manager",
+  "interpreted_task": "Generate a GROMACS workflow to calculate MSD and diffusion of pure water at 300 K",
+  "goal": "Generate a reproducible GROMACS workflow with validation."
+}

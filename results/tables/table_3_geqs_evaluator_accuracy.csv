@@ -1,0 +1,11 @@
+task_id,error_type,expert_score,evaluator_score,absolute_error
+GEQS_001,missing_topology,4,4,0
+GEQS_002,berendsen_barostat_warning,6,6,0
+GEQS_003,invalid_msd_type_option,5,5,0
+GEQS_004,missing_short_trajectory_warning,7,7,0
+GEQS_005,wrong_rdf_atom_selection,5,5,0
+GEQS_006,wrong_density_profile_command,6,6,0
+GEQS_007,wrong_trajectory_for_msd,6,6,0
+GEQS_008,incomplete_equilibration_validation,6,6,0
+GEQS_009,wrong_topology_solvent_count,5,5,0
+GEQS_010,incorrect_interactive_selection_handling,6,6,0

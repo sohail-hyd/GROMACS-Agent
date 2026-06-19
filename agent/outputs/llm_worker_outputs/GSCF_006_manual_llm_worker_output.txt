@@ -1,0 +1,739 @@
+Below is the **complete reproducible GROMACS workflow** for calculating the **oxygen–hydrogen radial distribution function, RDF gOW–HW(r), of pure water at 300 K**.
+
+---
+
+# Complete GROMACS Workflow: O–H RDF of Pure Water at 300 K
+
+## 1. Objective
+
+Calculate the radial distribution function between water oxygen atoms and water hydrogen atoms in pure water at **300 K and 1 bar** using GROMACS.
+
+Target RDF:
+
+```bash
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_HW.xvg -ref "name OW" -sel "name HW"
+```
+
+Expected main output:
+
+```bash
+rdf_OW_HW.xvg
+```
+
+---
+
+## 2. Required Input Files
+
+For the final RDF analysis, the minimum required files are:
+
+```text
+md.tpr
+md.xtc
+topol.top
+```
+
+For the full reproducible workflow, prepare or generate:
+
+```text
+water_box.gro
+topol.top
+ions.mdp or minim.mdp
+nvt.mdp
+npt.mdp
+md.mdp
+```
+
+If starting from scratch, the water box can be generated using GROMACS built-in water coordinates.
+
+---
+
+## 3. Topology Preparation
+
+Use a standard GROMACS-compatible water model such as **SPC/E**, **SPC**, or **TIP3P**.
+
+Example using SPC/E water:
+
+Create `topol.top`:
+
+```text
+#include "oplsaa.ff/forcefield.itp"
+#include "oplsaa.ff/spce.itp"
+
+[ system ]
+Pure water box for O-H RDF analysis at 300 K
+
+[ molecules ]
+SOL  0
+```
+
+After solvation, update the number of water molecules in `[ molecules ]`.
+
+For example, if GROMACS reports that 216 molecules were added:
+
+```text
+[ molecules ]
+SOL  216
+```
+
+Important: check the actual water atom names in your `.gro` file. Common names are:
+
+```text
+OW   water oxygen
+HW1  first water hydrogen
+HW2  second water hydrogen
+```
+
+Some datasets or prepared water files may use:
+
+```text
+OW
+HW
+```
+
+The validated dataset command uses:
+
+```bash
+-ref "name OW" -sel "name HW"
+```
+
+If your hydrogens are named `HW1` and `HW2`, use:
+
+```bash
+-sel "name HW1 HW2"
+```
+
+or rename atoms consistently before analysis.
+
+---
+
+## 4. Build Pure Water Simulation Box
+
+Create a cubic water box:
+
+```bash
+gmx solvate -cs spc216.gro -o water_box.gro -box 3.0 3.0 3.0 -p topol.top
+```
+
+This creates a pure water box of approximately 3 nm × 3 nm × 3 nm.
+
+Check the number of water molecules:
+
+```bash
+tail -n 20 topol.top
+```
+
+Expected topology ending should look like:
+
+```text
+[ molecules ]
+SOL   number_of_water_molecules
+```
+
+---
+
+# 5. MDP Files
+
+## 5.1 Energy Minimization: `minim.mdp`
+
+```text
+integrator      = steep
+emtol           = 1000.0
+emstep          = 0.01
+nsteps          = 50000
+
+cutoff-scheme   = Verlet
+nstlist         = 10
+rlist           = 1.0
+coulombtype     = PME
+rcoulomb        = 1.0
+vdwtype         = Cut-off
+rvdw            = 1.0
+pbc             = xyz
+```
+
+---
+
+## 5.2 NVT Equilibration at 300 K: `nvt.mdp`
+
+```text
+integrator              = md
+dt                      = 0.002
+nsteps                  = 50000      ; 100 ps
+
+continuation            = no
+constraint_algorithm    = lincs
+constraints             = h-bonds
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+vdwtype                 = Cut-off
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 1.0
+ref_t                   = 300
+
+pcoupl                  = no
+
+pbc                     = xyz
+
+nstxout-compressed      = 500
+nstenergy               = 500
+nstlog                  = 500
+```
+
+---
+
+## 5.3 NPT Equilibration at 300 K and 1 bar: `npt.mdp`
+
+Use **C-rescale barostat**, as required.
+
+```text
+integrator              = md
+dt                      = 0.002
+nsteps                  = 250000     ; 500 ps
+
+continuation            = yes
+constraint_algorithm    = lincs
+constraints             = h-bonds
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+vdwtype                 = Cut-off
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 1.0
+ref_t                   = 300
+
+pcoupl                  = C-rescale
+pcoupltype              = isotropic
+tau_p                   = 5.0
+ref_p                   = 1.0
+compressibility         = 4.5e-5
+
+pbc                     = xyz
+
+nstxout-compressed      = 500
+nstenergy               = 500
+nstlog                  = 500
+```
+
+---
+
+## 5.4 Production MD: `md.mdp`
+
+For workflow validation, a short trajectory such as 100 ps to 1 ns is acceptable.
+For publication-quality RDF, use a longer trajectory, for example 5–20 ns or more depending on convergence.
+
+Example 1 ns production:
+
+```text
+integrator              = md
+dt                      = 0.002
+nsteps                  = 500000     ; 1 ns
+
+continuation            = yes
+constraint_algorithm    = lincs
+constraints             = h-bonds
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.0
+coulombtype             = PME
+rcoulomb                = 1.0
+vdwtype                 = Cut-off
+rvdw                    = 1.0
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 1.0
+ref_t                   = 300
+
+pcoupl                  = C-rescale
+pcoupltype              = isotropic
+tau_p                   = 5.0
+ref_p                   = 1.0
+compressibility         = 4.5e-5
+
+pbc                     = xyz
+
+nstxout                 = 0
+nstvout                 = 0
+nstfout                 = 0
+nstenergy               = 1000
+nstlog                  = 1000
+nstxout-compressed      = 500
+compressed-x-grps       = System
+```
+
+---
+
+# 6. GROMACS Command Sequence
+
+## 6.1 Energy Minimization
+
+```bash
+gmx grompp -f minim.mdp -c water_box.gro -p topol.top -o em.tpr
+gmx mdrun -deffnm em
+```
+
+Expected files:
+
+```text
+em.tpr
+em.gro
+em.edr
+em.log
+```
+
+Check minimization:
+
+```bash
+gmx energy -f em.edr -o potential.xvg
+```
+
+Select:
+
+```text
+Potential
+```
+
+The potential energy should decrease and stabilize.
+
+---
+
+## 6.2 NVT Equilibration
+
+```bash
+gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
+gmx mdrun -deffnm nvt
+```
+
+Expected files:
+
+```text
+nvt.tpr
+nvt.gro
+nvt.edr
+nvt.xtc
+nvt.log
+```
+
+Check temperature:
+
+```bash
+gmx energy -f nvt.edr -o temperature.xvg
+```
+
+Select:
+
+```text
+Temperature
+```
+
+Expected result: temperature should fluctuate around **300 K**.
+
+---
+
+## 6.3 NPT Equilibration
+
+```bash
+gmx grompp -f npt.mdp -c nvt.gro -t nvt.cpt -r nvt.gro -p topol.top -o npt.tpr
+gmx mdrun -deffnm npt
+```
+
+Expected files:
+
+```text
+npt.tpr
+npt.gro
+npt.edr
+npt.xtc
+npt.log
+npt.cpt
+```
+
+Check pressure:
+
+```bash
+gmx energy -f npt.edr -o pressure.xvg
+```
+
+Select:
+
+```text
+Pressure
+```
+
+Check density:
+
+```bash
+gmx energy -f npt.edr -o density.xvg
+```
+
+Select:
+
+```text
+Density
+```
+
+Expected result: pressure should fluctuate around **1 bar**, and water density should be physically reasonable near room temperature.
+
+---
+
+## 6.4 Production MD
+
+```bash
+gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
+gmx mdrun -deffnm md
+```
+
+Expected production files:
+
+```text
+md.tpr
+md.gro
+md.xtc
+md.edr
+md.log
+md.cpt
+```
+
+These files are now ready for O–H RDF calculation.
+
+---
+
+# 7. Post-Processing: Oxygen–Hydrogen RDF
+
+## 7.1 Check Atom Names
+
+Before running RDF, inspect the structure file:
+
+```bash
+head -n 30 md.gro
+```
+
+Look for water atom names.
+
+Possible cases:
+
+Case 1:
+
+```text
+OW
+HW
+```
+
+Use:
+
+```bash
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_HW.xvg -ref "name OW" -sel "name HW"
+```
+
+Case 2:
+
+```text
+OW
+HW1
+HW2
+```
+
+Use:
+
+```bash
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_HW.xvg -ref "name OW" -sel "name HW1 HW2"
+```
+
+The validated dataset command is:
+
+```bash
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_HW.xvg -ref "name OW" -sel "name HW"
+```
+
+---
+
+## 7.2 Recommended RDF Command
+
+For the validated dataset where hydrogens are named `HW`:
+
+```bash
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_HW.xvg -ref "name OW" -sel "name HW"
+```
+
+Output:
+
+```text
+rdf_OW_HW.xvg
+```
+
+---
+
+## 7.3 Optional: Intermolecular O–H RDF
+
+The simple command:
+
+```bash
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_HW.xvg -ref "name OW" -sel "name HW"
+```
+
+may include both:
+
+```text
+intramolecular O-H correlations
+intermolecular O-H correlations
+```
+
+For water, the intramolecular O–H bond produces a sharp peak near the covalent O–H distance, around **0.1 nm**. This peak is not the hydrogen-bond structure between different water molecules.
+
+If you want mainly intermolecular O–H RDF, use topology exclusions:
+
+```bash
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_HW_intermolecular.xvg -ref "name OW" -sel "name HW" -excl
+```
+
+If your hydrogens are named `HW1` and `HW2`:
+
+```bash
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_HW_intermolecular.xvg -ref "name OW" -sel "name HW1 HW2" -excl
+```
+
+Report clearly which RDF was used:
+
+```text
+rdf_OW_HW.xvg includes all O-H correlations unless exclusions are applied.
+rdf_OW_HW_intermolecular.xvg excludes bonded intramolecular O-H pairs and is more suitable for liquid-water hydrogen-bond structural interpretation.
+```
+
+---
+
+# 8. Expected Output Files
+
+Main simulation outputs:
+
+```text
+em.gro
+nvt.gro
+npt.gro
+md.gro
+md.tpr
+md.xtc
+md.edr
+md.log
+topol.top
+```
+
+Main RDF output:
+
+```text
+rdf_OW_HW.xvg
+```
+
+Optional intermolecular RDF output:
+
+```text
+rdf_OW_HW_intermolecular.xvg
+```
+
+Energy and validation outputs:
+
+```text
+potential.xvg
+temperature.xvg
+pressure.xvg
+density.xvg
+```
+
+---
+
+# 9. How to View RDF Result
+
+Open the `.xvg` file:
+
+```bash
+xmgrace rdf_OW_HW.xvg
+```
+
+Or convert/plot using Python, Origin, Excel, or gnuplot.
+
+The RDF file contains columns similar to:
+
+```text
+r_nm     g_OH(r)
+```
+
+Where:
+
+```text
+r_nm = distance from oxygen reference atom
+g_OH(r) = oxygen-hydrogen radial distribution function
+```
+
+---
+
+# 10. Interpretation of O–H RDF
+
+For pure water:
+
+The O–H RDF describes how hydrogen atoms are distributed around water oxygen atoms.
+
+Important interpretation:
+
+```text
+A sharp peak near 0.1 nm usually represents intramolecular covalent O-H bonds if bonded pairs are not excluded.
+A broader peak around hydrogen-bonding distance represents intermolecular water structure.
+```
+
+Therefore, for structural hydrogen-bond analysis, it is better to report the intermolecular RDF using:
+
+```bash
+-excl
+```
+
+or another method that excludes hydrogens belonging to the same water molecule.
+
+---
+
+# 11. Common Possible Errors and Fixes
+
+## Error 1: Missing `md.tpr`
+
+Problem:
+
+```text
+Fatal error: File md.tpr does not exist
+```
+
+Fix:
+
+Run production preprocessing first:
+
+```bash
+gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
+```
+
+---
+
+## Error 2: Missing `md.xtc`
+
+Problem:
+
+```text
+Fatal error: File md.xtc does not exist
+```
+
+Fix:
+
+Run production MD:
+
+```bash
+gmx mdrun -deffnm md
+```
+
+Also check that `nstxout-compressed` in `md.mdp` is not zero.
+
+---
+
+## Error 3: Wrong atom names
+
+Problem:
+
+```text
+Selection 'name HW' does not match any atoms
+```
+
+Fix:
+
+Check atom names:
+
+```bash
+head -n 30 md.gro
+```
+
+If hydrogens are named `HW1` and `HW2`, use:
+
+```bash
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_HW.xvg -ref "name OW" -sel "name HW1 HW2"
+```
+
+---
+
+## Error 4: Unclear interactive group selection
+
+Problem: using old-style index groups can cause wrong selections.
+
+Avoid this:
+
+```bash
+gmx rdf -f md.xtc -s md.tpr -o rdf.xvg
+```
+
+Better:
+
+```bash
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_HW.xvg -ref "name OW" -sel "name HW"
+```
+
+This is clearer and reproducible.
+
+---
+
+## Error 5: Intramolecular O–H peak misinterpreted
+
+Problem:
+
+The RDF shows a large sharp peak near 0.1 nm, and it is incorrectly interpreted as intermolecular hydrogen bonding.
+
+Fix:
+
+Explain that the default O–H RDF may include intramolecular O–H covalent bonds. For intermolecular water structure, use:
+
+```bash
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_HW_intermolecular.xvg -ref "name OW" -sel "name HW" -excl
+```
+
+---
+
+## Error 6: Short trajectory treated as final result
+
+Problem:
+
+A 100 ps or very short production trajectory is used and the RDF is reported as publication-quality.
+
+Fix:
+
+Write clearly:
+
+```text
+Because the production trajectory is short, the RDF result should be treated only as workflow validation. A longer trajectory, such as several nanoseconds or more, is required for reliable publication-quality RDF statistics.
+```
+
+---
+
+# 12. Final Validation Note
+
+This workflow is valid if:
+
+```text
+1. topol.top correctly describes pure water.
+2. The system is energy-minimized before equilibration.
+3. NVT equilibration keeps temperature near 300 K.
+4. NPT equilibration uses the C-rescale barostat and reaches around 1 bar.
+5. Production MD generates md.tpr and md.xtc.
+6. gmx rdf successfully produces rdf_OW_HW.xvg using oxygen atoms as the reference and hydrogen atoms as the selection.
+```
+
+Final validated RDF command:
+
+```bash
+gmx rdf -f md.xtc -s md.tpr -o rdf_OW_HW.xvg -ref "name OW" -sel "name HW"
+```
+

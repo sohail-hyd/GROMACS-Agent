@@ -1,0 +1,9 @@
+Rule Evaluator vs Expert Scores
+======================================================================
+GEQS_001: expert=4, predicted=4, error=0
+GEQS_002: expert=6, predicted=6, error=0
+GEQS_003: expert=5, predicted=5, error=0
+======================================================================
+MAE  = 0.0000
+MSE  = 0.0000
+RMSE = 0.0000

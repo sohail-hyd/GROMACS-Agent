@@ -1,0 +1,35 @@
+Task:
+Pure water density calculation at 300 K using GROMACS.
+
+Purpose:
+This workflow is the first validated example for the GROMACS-based LLM agent dataset.
+
+System:
+Pure water box, 3 nm × 3 nm × 3 nm.
+
+Software:
+GROMACS 2025.4-Ubuntu_2025.4_1.
+
+Workflow:
+1. Water box generation.
+2. Manual topology creation.
+3. Energy minimization.
+4. NVT equilibration at 300 K.
+5. NPT equilibration at 300 K and 1 bar.
+6. Production MD.
+7. Density extraction from md.edr.
+
+Observed result:
+Average density = 968.755 kg/m³.
+
+Validation note:
+The result is reasonable for a short proof-of-workflow production run. For publication-level validation, a longer 1–5 ns production simulation should be performed.
+
+Important error corrected:
+Initial topology update using gmx solvate -p caused preprocessing failure. The workflow was corrected by generating the water box first, counting SOL molecules, and creating a clean topology manually.
+
+Another error corrected:
+NPT preprocessing stopped because Berendsen barostat produced a warning. The barostat was changed to C-rescale.
+
+Dataset value:
+This case can be used as one validated GSCF-Dataset example and one GEQS-Dataset error-correction example.

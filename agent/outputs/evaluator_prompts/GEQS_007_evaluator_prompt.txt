@@ -1,0 +1,90 @@
+You are a GROMACS workflow evaluator.
+
+Evaluate the generated workflow using a 10-point score.
+
+Scoring rubric:
+1. Syntax correctness: 0-2
+2. Workflow sequence: 0-2
+3. Parameter rationality: 0-2
+4. Analysis correctness: 0-2
+5. Completeness and reproducibility: 0-2
+
+Check for:
+- Missing topology file
+- Wrong command order
+- Invalid GROMACS options
+- Weak or unsafe MDP settings
+- Missing analysis command
+- Missing validation note
+- Use of short trajectory without warning
+- Use of Berendsen barostat where C-rescale is better
+- Incorrect interactive selection handling
+
+Return only JSON in this format:
+{
+  "score": 0,
+  "decision": "accept_or_revise",
+  "detected_errors": [],
+  "correction_suggestions": [],
+  "rubric": {
+    "syntax_correctness": 0,
+    "workflow_sequence": 0,
+    "parameter_rationality": 0,
+    "analysis_correctness": 0,
+    "completeness_reproducibility": 0
+  }
+}
+
+Workflow to evaluate:
+
+Workflow:
+1. Use md.tpr and md.xtc from a pure water simulation.
+2. Center the trajectory:
+
+echo System System | gmx trjconv -s md.tpr -f md.xtc -o md_center.xtc -center -pbc mol
+
+3. Calculate MSD using the centered trajectory:
+
+echo System | gmx msd -s md.tpr -f md_center.xtc -o msd_water.xvg
+
+4. Fit the MSD curve and report the diffusion coefficient.
+
+Expected output:
+msd_water.xvg
+
+Validation:
+If msd_water.xvg is created, the diffusion workflow is complete.
+
+
+
+Additional evaluator dataset record:
+{
+  "id": "GEQS_007",
+  "task_type": "workflow_evaluation",
+  "task": "Evaluate a GROMACS workflow for calculating water self-diffusion using MSD after trajectory preprocessing.",
+  "generated_workflow": "\nWorkflow:\n1. Use md.tpr and md.xtc from a pure water simulation.\n2. Center the trajectory:\n\necho System System | gmx trjconv -s md.tpr -f md.xtc -o md_center.xtc -center -pbc mol\n\n3. Calculate MSD using the centered trajectory:\n\necho System | gmx msd -s md.tpr -f md_center.xtc -o msd_water.xvg\n\n4. Fit the MSD curve and report the diffusion coefficient.\n\nExpected output:\nmsd_water.xvg\n\nValidation:\nIf msd_water.xvg is created, the diffusion workflow is complete.\n",
+  "expert_score": 6,
+  "decision": "revise",
+  "error_type": "wrong_trajectory_for_msd",
+  "detected_errors": [
+    "The workflow uses a centered trajectory for MSD analysis, which can distort displacement continuity.",
+    "For diffusion/MSD, a nojump or properly unwrapped trajectory is preferred.",
+    "The workflow does not warn that the MSD fitting region must be visually checked for linearity.",
+    "The workflow does not mention finite-size effects for small water boxes.",
+    "The validation note is weak because output-file creation alone does not prove the diffusion coefficient is valid."
+  ],
+  "correction_suggestions": [
+    "Use gmx trjconv -pbc nojump to generate md_nojump.xtc for MSD analysis.",
+    "Use md_center.xtc mainly for visualization or structural analysis, not as the primary MSD trajectory.",
+    "Do not use invalid MSD options such as -type no.",
+    "Inspect the MSD curve and fit only the linear diffusive region.",
+    "Add a finite-size warning and recommend larger boxes or correction methods for publication-quality diffusion."
+  ],
+  "rubric": {
+    "syntax_correctness": 2,
+    "workflow_sequence": 1,
+    "parameter_rationality": 1,
+    "analysis_correctness": 1,
+    "completeness_reproducibility": 1
+  }
+}

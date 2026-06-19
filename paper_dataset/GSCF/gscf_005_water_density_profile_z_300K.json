@@ -1,0 +1,36 @@
+{
+  "id": "GSCF_005",
+  "task_type": "density_profile_analysis",
+  "system": "pure water",
+  "temperature_K": 300,
+  "pressure_bar": 1,
+  "user_task": "Generate a GROMACS post-processing workflow to calculate the mass density profile of pure water along the z direction at 300 K.",
+  "required_inputs": [
+    "md.tpr",
+    "md.xtc",
+    "topol.top"
+  ],
+  "expected_gromacs_commands": [
+    "echo System | gmx density -f md.xtc -s md.tpr -o density_profile_z.xvg -d Z -sl 100"
+  ],
+  "important_rules": [
+    "Do not skip topology preparation if a full workflow is requested.",
+    "Use clear command order.",
+    "Use physically reasonable NVT/NPT settings.",
+    "For NPT equilibration, prefer C-rescale barostat.",
+    "Explain group selection for gmx density.",
+    "Use the z direction explicitly with -d Z.",
+    "If trajectory length is short, state that the density profile is only workflow validation."
+  ],
+  "expected_outputs": [
+    "density_profile_z.xvg"
+  ],
+  "common_errors": [
+    "Forgetting to specify the z direction.",
+    "Using an incorrect group selection.",
+    "Missing md.tpr or md.xtc.",
+    "Reporting a short-trajectory density profile as final publication-quality data.",
+    "Not explaining bin number or slab resolution."
+  ],
+  "validation_note": "The workflow is valid if gmx density produces density_profile_z.xvg with a reasonable mass-density distribution along the z direction. Short trajectories should be treated as workflow validation only."
+}

@@ -1,0 +1,25 @@
+{
+"score": 5,
+"decision": "revise",
+"detected_errors": [
+"The RDF command uses Water as both reference and selection, so it calculates a water-water group RDF rather than a specific oxygen-hydrogen RDF.",
+"The workflow does not explicitly select oxygen atoms as the reference group and hydrogen atoms as the selection group.",
+"The workflow does not check force-field-specific atom names for water oxygen and hydrogen atoms, such as OW, HW, HW1, or HW2.",
+"The validation note is too weak because generating rdf_OH.xvg alone does not confirm that the RDF is scientifically correct.",
+"The workflow does not state whether intramolecular O-H correlations are included or whether only intermolecular O-H RDF is intended."
+],
+"correction_suggestions": [
+"Use an atom-specific RDF command, for example: gmx rdf -f md.xtc -s md.tpr -o rdf_OH.xvg -ref 'name OW' -sel 'name HW'",
+"Check atom names in md.gro, md.tpr, or the topology before running the RDF command.",
+"If the force field uses separate hydrogen names, select both hydrogens, for example: -sel 'name HW1 HW2'.",
+"Clarify whether the analysis should include intramolecular O-H peaks or focus only on intermolecular O-H RDF.",
+"Validate the RDF by checking whether the first peak position and shape are physically reasonable for liquid water."
+],
+"rubric": {
+"syntax_correctness": 2,
+"workflow_sequence": 2,
+"parameter_rationality": 1,
+"analysis_correctness": 0,
+"completeness_reproducibility": 0
+}
+}

@@ -1,0 +1,29 @@
+{
+  "id": "GEQS_009",
+  "task_type": "workflow_evaluation",
+  "task": "Evaluate a GROMACS workflow for preparing a pure water simulation box and topology before energy minimization.",
+  "generated_workflow": "\nWorkflow:\n1. Create a 3 nm water box:\n\ngmx solvate -cs spc216.gro -o water_box.gro -box 3 3 3\n\n2. Create topol.top manually:\n\n#include \"oplsaa.ff/forcefield.itp\"\n#include \"oplsaa.ff/spc.itp\"\n\n[ system ]\nPure water box\n\n[ molecules ]\nSOL 1000\n\n3. Run energy minimization preprocessing:\n\ngmx grompp -f minim.mdp -c water_box.gro -p topol.top -o em.tpr\n\n4. Run energy minimization:\n\ngmx mdrun -deffnm em\n\nExpected outputs:\nwater_box.gro\ntopol.top\nem.tpr\nem.gro\n\nValidation:\nIf em.gro is generated, the topology preparation is complete.\n",
+  "expert_score": 5,
+  "decision": "revise",
+  "error_type": "wrong_topology_solvent_count",
+  "detected_errors": [
+    "The workflow uses a fixed SOL molecule count of 1000 instead of checking the actual number of water molecules produced by gmx solvate.",
+    "The number of molecules in topol.top may not match water_box.gro, which can cause gmx grompp to fail.",
+    "The workflow does not explain how to count the final solvent molecules after solvation.",
+    "The validation note is incomplete because successful topology preparation requires molecule-count consistency before em.gro is generated."
+  ],
+  "correction_suggestions": [
+    "After gmx solvate, count the final number of water molecules in water_box.gro.",
+    "Write the final SOL count into the [ molecules ] section of topol.top.",
+    "Use a command such as: N=$(grep -c ' OW' water_box.gro), then write SOL $N into topol.top.",
+    "Check gmx grompp output for topology-coordinate atom count consistency.",
+    "State that topol.top must contain the final solvent molecule count after gmx solvate."
+  ],
+  "rubric": {
+    "syntax_correctness": 1,
+    "workflow_sequence": 1,
+    "parameter_rationality": 1,
+    "analysis_correctness": 1,
+    "completeness_reproducibility": 1
+  }
+}

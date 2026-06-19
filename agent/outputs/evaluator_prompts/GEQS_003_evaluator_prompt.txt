@@ -1,0 +1,70 @@
+You are a GROMACS workflow evaluator.
+
+Evaluate the generated workflow using a 10-point score.
+
+Scoring rubric:
+1. Syntax correctness: 0-2
+2. Workflow sequence: 0-2
+3. Parameter rationality: 0-2
+4. Analysis correctness: 0-2
+5. Completeness and reproducibility: 0-2
+
+Check for:
+- Missing topology file
+- Wrong command order
+- Invalid GROMACS options
+- Weak or unsafe MDP settings
+- Missing analysis command
+- Missing validation note
+- Use of short trajectory without warning
+- Use of Berendsen barostat where C-rescale is better
+- Incorrect interactive selection handling
+
+Return only JSON in this format:
+{
+  "score": 0,
+  "decision": "accept_or_revise",
+  "detected_errors": [],
+  "correction_suggestions": [],
+  "rubric": {
+    "syntax_correctness": 0,
+    "workflow_sequence": 0,
+    "parameter_rationality": 0,
+    "analysis_correctness": 0,
+    "completeness_reproducibility": 0
+  }
+}
+
+Workflow to evaluate:
+{
+  "description": "The workflow attempts to run gmx msd using an invalid option value.",
+  "command": "gmx msd -f md.xtc -s md.tpr -o msd_water.xvg -type no"
+}
+
+
+Additional evaluator dataset record:
+{
+  "id": "GEQS_003",
+  "task_type": "workflow_evaluation",
+  "software": "GROMACS",
+  "task": "Evaluate a GROMACS MSD workflow for calculating the diffusion coefficient of pure water.",
+  "generated_workflow": {
+    "description": "The workflow attempts to run gmx msd using an invalid option value.",
+    "command": "gmx msd -f md.xtc -s md.tpr -o msd_water.xvg -type no"
+  },
+  "expert_score": 5,
+  "score_justification": "The workflow correctly identifies gmx msd as the appropriate tool and uses the correct trajectory, structure, and output file options. However, the option -type no is invalid in GROMACS 2025.4 because allowed values are x, y, z, and unused. The command fails before producing the MSD output. The corrected command should remove -type no for normal three-dimensional MSD analysis.",
+  "error_type": "invalid_command_option",
+  "correction": {
+    "fixed_command": "gmx msd -f md.xtc -s md.tpr -o msd_water.xvg",
+    "additional_note": "After selecting the required group, end the interactive selection using Ctrl-D."
+  },
+  "rubric": {
+    "syntax_correctness": 0,
+    "workflow_sequence": 2,
+    "parameter_rationality": 1,
+    "analysis_correctness": 1,
+    "completeness_reproducibility": 1,
+    "total": 5
+  }
+}

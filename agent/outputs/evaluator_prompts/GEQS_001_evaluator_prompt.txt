@@ -1,0 +1,82 @@
+You are a GROMACS workflow evaluator.
+
+Evaluate the generated workflow using a 10-point score.
+
+Scoring rubric:
+1. Syntax correctness: 0-2
+2. Workflow sequence: 0-2
+3. Parameter rationality: 0-2
+4. Analysis correctness: 0-2
+5. Completeness and reproducibility: 0-2
+
+Check for:
+- Missing topology file
+- Wrong command order
+- Invalid GROMACS options
+- Weak or unsafe MDP settings
+- Missing analysis command
+- Missing validation note
+- Use of short trajectory without warning
+- Use of Berendsen barostat where C-rescale is better
+- Incorrect interactive selection handling
+
+Return only JSON in this format:
+{
+  "score": 0,
+  "decision": "accept_or_revise",
+  "detected_errors": [],
+  "correction_suggestions": [],
+  "rubric": {
+    "syntax_correctness": 0,
+    "workflow_sequence": 0,
+    "parameter_rationality": 0,
+    "analysis_correctness": 0,
+    "completeness_reproducibility": 0
+  }
+}
+
+Workflow to evaluate:
+{
+  "description": "The workflow attempts to create a water box using gmx solvate with the -p option before creating topol.top.",
+  "commands": [
+    "gmx solvate -cs spc216.gro -o water_box.gro -p topol.top -box 3 3 3",
+    "gmx grompp -f minim.mdp -c water_box.gro -p topol.top -o em.tpr",
+    "gmx mdrun -s em.tpr -deffnm em"
+  ]
+}
+
+
+Additional evaluator dataset record:
+{
+  "id": "GEQS_001",
+  "task_type": "workflow_evaluation",
+  "software": "GROMACS",
+  "task": "Evaluate a GROMACS workflow for pure water density calculation at 300 K.",
+  "generated_workflow": {
+    "description": "The workflow attempts to create a water box using gmx solvate with the -p option before creating topol.top.",
+    "commands": [
+      "gmx solvate -cs spc216.gro -o water_box.gro -p topol.top -box 3 3 3",
+      "gmx grompp -f minim.mdp -c water_box.gro -p topol.top -o em.tpr",
+      "gmx mdrun -s em.tpr -deffnm em"
+    ]
+  },
+  "expert_score": 4,
+  "score_justification": "The workflow has the correct general goal and uses relevant GROMACS commands, but it fails because topol.top is referenced before it exists. This prevents gmx solvate from updating the topology and stops the workflow at the first step. The correct approach is to create a topology file first or generate the water box, count water molecules, and then create a clean topology manually.",
+  "error_type": "missing_topology_file",
+  "correction": {
+    "fixed_strategy": "Generate the water box without -p, count the number of water oxygen atoms, and create topol.top manually.",
+    "fixed_commands": [
+      "gmx solvate -cs spc216.gro -o water_box.gro -box 3 3 3",
+      "N=$(grep -c \" OW\" water_box.gro)",
+      "Create topol.top with forcefield include, water model include, system name, and SOL $N in [ molecules ]."
+    ]
+  },
+  "rubric": {
+    "syntax_correctness": 1,
+    "workflow_sequence": 1,
+    "parameter_rationality": 1,
+    "analysis_correctness": 0,
+    "completeness_reproducibility": 1,
+    "total": 4
+  }
+}

@@ -1,0 +1,538 @@
+## Complete GROMACS workflow: equilibration validation of pure water at 300 K and 1 bar
+
+This workflow prepares a pure-water system, runs EM → NVT → NPT → production MD, and then validates equilibration using **temperature, pressure, density, total energy, and box volume time series**.
+
+---
+
+# 1. Required input files
+
+For a complete workflow:
+
+```bash
+spc216.gro        # standard GROMACS water coordinate file
+topol.top         # topology file, prepared below
+minim.mdp         # energy minimization settings
+nvt.mdp           # NVT equilibration settings
+npt.mdp           # NPT equilibration settings
+md.mdp            # production MD settings
+```
+
+For the final post-processing validation:
+
+```bash
+nvt.edr
+npt.edr
+md.edr
+md.tpr
+md.xtc
+topol.top
+```
+
+---
+
+# 2. Topology preparation
+
+Create a topology file for pure water using SPC/E water:
+
+```bash
+cat > topol.top << 'EOF'
+#include "oplsaa.ff/forcefield.itp"
+#include "oplsaa.ff/spce.itp"
+
+[ system ]
+Pure water at 300 K and 1 bar
+
+[ molecules ]
+SOL 0
+EOF
+```
+
+Create a cubic water box:
+
+```bash
+gmx solvate -cs spc216.gro -box 3.0 3.0 3.0 -o water_box.gro -p topol.top
+```
+
+This creates:
+
+```bash
+water_box.gro
+topol.top
+```
+
+The `topol.top` file is automatically updated with the correct number of water molecules.
+
+---
+
+# 3. MDP files and settings
+
+## 3.1 Energy minimization: `minim.mdp`
+
+```bash
+cat > minim.mdp << 'EOF'
+integrator      = steep
+emtol           = 1000.0
+emstep          = 0.01
+nsteps          = 50000
+
+cutoff-scheme   = Verlet
+nstlist         = 10
+rcoulomb        = 1.0
+rvdw            = 1.0
+coulombtype     = PME
+pbc             = xyz
+EOF
+```
+
+---
+
+## 3.2 NVT equilibration: `nvt.mdp`
+
+```bash
+cat > nvt.mdp << 'EOF'
+integrator              = md
+dt                      = 0.002
+nsteps                  = 50000      ; 100 ps
+
+continuation            = no
+constraint_algorithm    = lincs
+constraints             = h-bonds
+lincs_iter              = 1
+lincs_order             = 4
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rcoulomb                = 1.0
+rvdw                    = 1.0
+coulombtype             = PME
+pme_order               = 4
+fourierspacing          = 0.12
+pbc                     = xyz
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 0.5
+ref_t                   = 300
+
+pcoupl                  = no
+
+gen_vel                 = yes
+gen_temp                = 300
+gen_seed                = -1
+
+nstenergy               = 500
+nstlog                  = 500
+nstxout-compressed      = 500
+compressed-x-grps       = System
+EOF
+```
+
+---
+
+## 3.3 NPT equilibration: `npt.mdp`
+
+Use **C-rescale barostat**, as requested.
+
+```bash
+cat > npt.mdp << 'EOF'
+integrator              = md
+dt                      = 0.002
+nsteps                  = 250000     ; 500 ps
+
+continuation            = yes
+constraint_algorithm    = lincs
+constraints             = h-bonds
+lincs_iter              = 1
+lincs_order             = 4
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rcoulomb                = 1.0
+rvdw                    = 1.0
+coulombtype             = PME
+pme_order               = 4
+fourierspacing          = 0.12
+pbc                     = xyz
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 0.5
+ref_t                   = 300
+
+pcoupl                  = C-rescale
+pcoupltype              = isotropic
+tau_p                   = 2.0
+ref_p                   = 1.0
+compressibility         = 4.5e-5
+
+gen_vel                 = no
+
+nstenergy               = 500
+nstlog                  = 500
+nstxout-compressed      = 500
+compressed-x-grps       = System
+EOF
+```
+
+---
+
+## 3.4 Production MD: `md.mdp`
+
+```bash
+cat > md.mdp << 'EOF'
+integrator              = md
+dt                      = 0.002
+nsteps                  = 500000     ; 1 ns
+
+continuation            = yes
+constraint_algorithm    = lincs
+constraints             = h-bonds
+lincs_iter              = 1
+lincs_order             = 4
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rcoulomb                = 1.0
+rvdw                    = 1.0
+coulombtype             = PME
+pme_order               = 4
+fourierspacing          = 0.12
+pbc                     = xyz
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 0.5
+ref_t                   = 300
+
+pcoupl                  = C-rescale
+pcoupltype              = isotropic
+tau_p                   = 2.0
+ref_p                   = 1.0
+compressibility         = 4.5e-5
+
+gen_vel                 = no
+
+nstenergy               = 500
+nstlog                  = 500
+nstxout-compressed      = 500
+compressed-x-grps       = System
+EOF
+```
+
+---
+
+# 4. GROMACS command sequence
+
+## 4.1 Energy minimization
+
+```bash
+gmx grompp -f minim.mdp -c water_box.gro -p topol.top -o em.tpr
+gmx mdrun -deffnm em
+```
+
+Expected files:
+
+```bash
+em.gro
+em.edr
+em.log
+em.tpr
+```
+
+---
+
+## 4.2 NVT equilibration
+
+```bash
+gmx grompp -f nvt.mdp -c em.gro -p topol.top -o nvt.tpr
+gmx mdrun -deffnm nvt
+```
+
+Expected files:
+
+```bash
+nvt.gro
+nvt.edr
+nvt.log
+nvt.xtc
+nvt.cpt
+```
+
+---
+
+## 4.3 NPT equilibration
+
+```bash
+gmx grompp -f npt.mdp -c nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
+gmx mdrun -deffnm npt
+```
+
+Expected files:
+
+```bash
+npt.gro
+npt.edr
+npt.log
+npt.xtc
+npt.cpt
+```
+
+---
+
+## 4.4 Production MD
+
+```bash
+gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
+gmx mdrun -deffnm md
+```
+
+Expected files:
+
+```bash
+md.gro
+md.edr
+md.log
+md.xtc
+md.cpt
+md.tpr
+```
+
+---
+
+# 5. Post-processing commands for equilibration validation
+
+Use non-interactive `echo`-based energy extraction.
+
+## 5.1 Temperature from NVT
+
+```bash
+echo Temperature | gmx energy -f nvt.edr -o temperature_nvt.xvg
+```
+
+Output:
+
+```bash
+temperature_nvt.xvg
+```
+
+---
+
+## 5.2 Pressure from NPT
+
+```bash
+echo Pressure | gmx energy -f npt.edr -o pressure_npt.xvg
+```
+
+Output:
+
+```bash
+pressure_npt.xvg
+```
+
+Important: pressure fluctuates strongly in small water boxes. Do **not** judge equilibration only from instantaneous pressure values. Use averages or running averages.
+
+---
+
+## 5.3 Density from NPT
+
+```bash
+echo Density | gmx energy -f npt.edr -o density_npt.xvg
+```
+
+Output:
+
+```bash
+density_npt.xvg
+```
+
+---
+
+## 5.4 Total energy from production MD
+
+```bash
+echo 'Total Energy' | gmx energy -f md.edr -o total_energy_md.xvg
+```
+
+Output:
+
+```bash
+total_energy_md.xvg
+```
+
+---
+
+## 5.5 Box volume from production MD
+
+```bash
+echo Volume | gmx energy -f md.edr -o volume_md.xvg
+```
+
+Output:
+
+```bash
+volume_md.xvg
+```
+
+---
+
+# 6. Optional plotting commands
+
+You can inspect the `.xvg` files using `xmgrace`:
+
+```bash
+xmgrace temperature_nvt.xvg
+xmgrace pressure_npt.xvg
+xmgrace density_npt.xvg
+xmgrace total_energy_md.xvg
+xmgrace volume_md.xvg
+```
+
+Or convert them to simple data files by removing GROMACS metadata:
+
+```bash
+grep -v "^[@#]" temperature_nvt.xvg > temperature_nvt.dat
+grep -v "^[@#]" pressure_npt.xvg > pressure_npt.dat
+grep -v "^[@#]" density_npt.xvg > density_npt.dat
+grep -v "^[@#]" total_energy_md.xvg > total_energy_md.dat
+grep -v "^[@#]" volume_md.xvg > volume_md.dat
+```
+
+---
+
+# 7. Expected output files
+
+Main validation outputs:
+
+```bash
+temperature_nvt.xvg
+pressure_npt.xvg
+density_npt.xvg
+total_energy_md.xvg
+volume_md.xvg
+```
+
+Supporting simulation outputs:
+
+```bash
+nvt.edr
+npt.edr
+md.edr
+md.tpr
+md.xtc
+topol.top
+```
+
+---
+
+# 8. How to judge equilibration
+
+The system is reasonably equilibrated if:
+
+1. **Temperature** fluctuates around 300 K after the initial NVT relaxation.
+2. **Density** reaches a stable plateau during NPT equilibration.
+3. **Pressure** has a running average near 1 bar, but instantaneous values may fluctuate strongly.
+4. **Total energy** during production does not show continuous drift.
+5. **Volume** becomes stable after NPT equilibration and remains stable in production MD.
+
+For small pure-water boxes, pressure may fluctuate by hundreds or even thousands of bar instantaneously. This is normal. Pressure should be interpreted using average or block-average behavior, not single-frame values.
+
+---
+
+# 9. Common possible errors and fixes
+
+## Error 1: Missing `.edr` files
+
+Example:
+
+```bash
+Fatal error:
+File npt.edr does not exist
+```
+
+Fix: make sure each simulation finished correctly:
+
+```bash
+ls nvt.edr npt.edr md.edr
+```
+
+If a file is missing, rerun the corresponding stage.
+
+---
+
+## Error 2: `gmx energy` waits for manual selection
+
+If this command waits:
+
+```bash
+echo Pressure | gmx energy -f npt.edr -o pressure_npt.xvg
+```
+
+Use this more explicit version:
+
+```bash
+printf "Pressure\n0\n" | gmx energy -f npt.edr -o pressure_npt.xvg
+```
+
+Similarly:
+
+```bash
+printf "Temperature\n0\n" | gmx energy -f nvt.edr -o temperature_nvt.xvg
+printf "Density\n0\n" | gmx energy -f npt.edr -o density_npt.xvg
+printf "Total Energy\n0\n" | gmx energy -f md.edr -o total_energy_md.xvg
+printf "Volume\n0\n" | gmx energy -f md.edr -o volume_md.xvg
+```
+
+---
+
+## Error 3: Pressure looks unstable
+
+This is not automatically a failure. Small water boxes show very large instantaneous pressure fluctuations. Check the average, running average, or block average instead of single values.
+
+---
+
+## Error 4: Density does not stabilize
+
+Possible causes:
+
+```bash
+NPT equilibration too short
+wrong pressure coupling
+wrong compressibility
+bad initial box size
+simulation not fully minimized
+```
+
+Fixes:
+
+```bash
+increase npt.mdp nsteps
+check pcoupl = C-rescale
+check ref_p = 1.0
+check compressibility = 4.5e-5
+rerun energy minimization
+```
+
+---
+
+## Error 5: Total energy drifts strongly
+
+Possible causes:
+
+```bash
+time step too large
+bad contacts
+unstable constraints
+poor minimization
+```
+
+Fixes:
+
+```bash
+use dt = 0.001 or 0.002
+rerun minimization
+check LINCS warnings in md.log
+check temperature stability
+```
+
+---
+
