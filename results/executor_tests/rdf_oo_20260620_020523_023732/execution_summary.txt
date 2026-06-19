@@ -1,0 +1,4 @@
+Task: rdf_oo
+Status: success
+Workdir: /home/lenovo/gromacs_llm_agent_paper/data/validated_workflows/water_density_300K
+Generated outputs: ['rdf_OW_OW_executor.xvg']
