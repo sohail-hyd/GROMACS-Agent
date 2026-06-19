@@ -1,6 +1,6 @@
 task_id,task,baseline_model,baseline_score,agent_score,score_improvement,baseline_errors,agent_decision,executor_status
-BASE_001,O-O RDF calculation,pending,pending,10,pending,pending,accept,selected execution supported
-BASE_002,Temperature time series,pending,pending,10,pending,pending,accept,executed successfully
-BASE_003,Density calculation,pending,pending,10,pending,pending,accept,executed successfully
-BASE_004,MSD and diffusion,pending,pending,10,pending,pending,accept,selected execution supported
-BASE_005,PBC trajectory preprocessing,pending,pending,10,pending,pending,accept,selected execution supported
+BASE_001,O-O RDF calculation,baseline_llm,5,10,5,Topology-coordinate mismatch and inconsistent water-box preparation,accept,selected execution supported
+BASE_002,Temperature time series,baseline_llm,8,10,2,Mostly correct but includes weak validation and assumed time offsets,accept,executed successfully
+BASE_003,Density calculation,baseline_llm,6,10,4,Incorrect water molecule counting and inconsistent topology preparation,accept,executed successfully
+BASE_004,MSD and diffusion,baseline_llm,7,10,3,Mixed PBC handling and short/unclear MSD fitting workflow,accept,selected execution supported
+BASE_005,PBC trajectory preprocessing,baseline_llm,7,10,3,Hard-coded index groups and unclear final trajectory purpose,accept,selected execution supported
