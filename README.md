@@ -106,3 +106,23 @@ Supported selected execution tasks include temperature extraction, density extra
 Validated executor tests are stored in results/executor_tests/.
 
 Example validated result: temperature extraction status success, average temperature 299.75 K, generated output temperature_executor.xvg.
+
+## Baseline LLM vs GROMACS-Agent benchmark
+
+Five representative GROMACS workflow tasks were used to compare normal baseline LLM responses with GROMACS-Agent outputs.
+
+| Task | Baseline LLM score | GROMACS-Agent score | Improvement |
+|---|---:|---:|---:|
+| O-O RDF calculation | 5 | 10 | +5 |
+| Temperature time-series extraction | 8 | 10 | +2 |
+| Density calculation | 6 | 10 | +4 |
+| MSD and diffusion workflow | 7 | 10 | +3 |
+| PBC trajectory preprocessing | 7 | 10 | +3 |
+
+Average baseline LLM score: **6.6/10**
+
+Average GROMACS-Agent score: **10/10**
+
+Average evaluator-score improvement: **+3.4 points**
+
+This benchmark reports evaluator-score improvement only. It is not yet a controlled human time-reduction study.
