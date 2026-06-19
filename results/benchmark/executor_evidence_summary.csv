@@ -1,0 +1,4 @@
+task,status,outputs,report_path
+density,success,density_executor.xvg,results/executor_tests/density_20260620_020549_820539/execution_report.json
+rdf_oo,success,rdf_OW_OW_executor.xvg,results/executor_tests/rdf_oo_20260620_020523_023732/execution_report.json
+temperature,success,temperature_executor.xvg,results/executor_tests/temperature_20260620_020606_200269/execution_report.json
