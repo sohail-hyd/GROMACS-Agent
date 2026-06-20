@@ -132,3 +132,11 @@ This benchmark reports evaluator-score improvement only. It is not yet a control
 GROMACS-Agent extends MDAgent-style text-to-code molecular dynamics automation to GROMACS-specific text-to-workflow generation. Instead of producing only a single simulation script, the framework generates topology-aware GROMACS workflows involving required input files, MDP/topology/TPR dependencies, `gmx` command sequences, post-processing steps, expected outputs, validation notes, evaluator feedback, correction suggestions, and selected safe execution.
 
 Core components include ManagerAgent, PlannerAgent, Retriever, GromacsWorkerAgent, GromacsEvaluatorAgent, and CodeExecutorAgent.
+
+## Public project status
+
+GROMACS-Agent is a research prototype inspired by MDAgent-style molecular dynamics automation. It extends text-to-code MD-agent ideas toward GROMACS-specific text-to-workflow generation, where workflows require topology files, MDP files, TPR files, trajectories, energy files, post-processing commands, and validation notes.
+
+The current repository includes a runnable Python prototype, GSCF and GEQS datasets, benchmark results, pilot timing results, safe selected execution tests, manuscript draft files, and manuscript figures.
+
+This project is under active development. Reported timing results should be interpreted as single-user pilot results, not universal productivity claims.
