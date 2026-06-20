@@ -126,3 +126,9 @@ Average GROMACS-Agent score: **10/10**
 Average evaluator-score improvement: **+3.4 points**
 
 This benchmark reports evaluator-score improvement only. It is not yet a controlled human time-reduction study.
+
+## Text-to-workflow generation
+
+GROMACS-Agent extends MDAgent-style text-to-code molecular dynamics automation to GROMACS-specific text-to-workflow generation. Instead of producing only a single simulation script, the framework generates topology-aware GROMACS workflows involving required input files, MDP/topology/TPR dependencies, `gmx` command sequences, post-processing steps, expected outputs, validation notes, evaluator feedback, correction suggestions, and selected safe execution.
+
+Core components include ManagerAgent, PlannerAgent, Retriever, GromacsWorkerAgent, GromacsEvaluatorAgent, and CodeExecutorAgent.
