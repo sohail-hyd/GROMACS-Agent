@@ -1,0 +1,6 @@
+task_id,task,manual_time_seconds,agent_time_seconds,time_reduction_percent,word_count
+TIME_001,O-O RDF calculation,165.20,0.0600,99.96,181
+TIME_002,Temperature time-series extraction,22.84,0.1100,99.52,134
+TIME_003,Density calculation,15.55,0.0400,99.74,158
+TIME_004,MSD and diffusion,16.68,0.0400,99.76,170
+TIME_005,PBC trajectory preprocessing,14.94,0.0400,99.73,152

@@ -1,0 +1,6 @@
+metric,value
+number_of_valid_tasks,5
+average_manual_time_seconds,47.04
+average_agent_time_seconds,0.0580
+average_time_reduction_percent,99.74
+average_manual_workflow_word_count,159.0

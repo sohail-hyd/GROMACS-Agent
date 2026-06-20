@@ -1,0 +1,6 @@
+task_id,task,manual_time_seconds,manual_time_minutes,manual_workflow_file,word_count
+TIME_001,O-O RDF calculation,165.20,2.75,results/time_study/manual_workflows/TIME_001_manual_workflow.md,181
+TIME_002,Temperature time-series extraction,22.84,0.38,results/time_study/manual_workflows/TIME_002_manual_workflow.md,134
+TIME_003,Density calculation,15.55,0.26,results/time_study/manual_workflows/TIME_003_manual_workflow.md,158
+TIME_004,MSD and diffusion,16.68,0.28,results/time_study/manual_workflows/TIME_004_manual_workflow.md,170
+TIME_005,PBC trajectory preprocessing,14.94,0.25,results/time_study/manual_workflows/TIME_005_manual_workflow.md,152
