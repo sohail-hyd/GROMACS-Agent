@@ -1,5 +1,18 @@
 # GROMACS-Agent
 
+**GROMACS-Agent** is an MDAgent-style multi-agent research prototype for GROMACS workflow generation, evaluation, correction, and selected safe execution.
+
+It converts a natural-language molecular dynamics task into a topology-aware GROMACS workflow with required files, command sequence, post-processing steps, validation notes, evaluator score, and correction suggestions.
+
+## Quick start
+
+Clone the repository:
+
+```bash
+git clone https://github.com/sohail-hyd/GROMACS-Agent.git
+cd GROMACS-Agent
+# GROMACS-Agent
+
 GROMACS-Agent is a runnable MDAgent-style multi-agent framework for automated GROMACS workflow generation, evaluation, and correction.
 
 The framework is designed for molecular dynamics workflow generation using GROMACS. It converts natural-language simulation or post-processing tasks into topology-aware, reproducible, and scientifically checked GROMACS workflows.
