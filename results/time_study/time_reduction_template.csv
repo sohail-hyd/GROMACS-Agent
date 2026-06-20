@@ -1,0 +1,11 @@
+task_id,task,manual_time_min,baseline_llm_time_min,gromacs_agent_time_min,manual_errors,baseline_errors,agent_errors,executor_status,time_reduction_percent
+TIME_001,O-O RDF calculation,pending,pending,pending,pending,pending,pending,pending,pending
+TIME_002,Temperature time-series extraction,pending,pending,pending,pending,pending,pending,pending,pending
+TIME_003,Density calculation,pending,pending,pending,pending,pending,pending,pending,pending
+TIME_004,MSD and diffusion workflow,pending,pending,pending,pending,pending,pending,pending,pending
+TIME_005,PBC trajectory preprocessing,pending,pending,pending,pending,pending,pending,pending,pending
+TIME_006,Li-O and Br-O RDF for LiBr solution,pending,pending,pending,pending,pending,pending,pending,pending
+TIME_007,Hydrogen-bond analysis,pending,pending,pending,pending,pending,pending,pending,pending
+TIME_008,Density profile along z direction,pending,pending,pending,pending,pending,pending,pending,pending
+TIME_009,Coordination number calculation,pending,pending,pending,pending,pending,pending,pending,pending
+TIME_010,Equilibration validation,pending,pending,pending,pending,pending,pending,pending,pending
