@@ -59,6 +59,18 @@ The cleaned timing dataset contained 5 valid tasks. The average manual workflow-
 
 This result is reported as a single-user pilot timing result. It measures local workflow preparation only and does not include full GROMACS simulation runtime, model fine-tuning runtime, or broader multi-user productivity testing.
 
+
+## Manuscript figures
+
+![Figure 1. GROMACS-Agent architecture.](figures/figure_1_gromacs_agent_architecture.svg)
+
+![Figure 2. Baseline LLM vs GROMACS-Agent scores.](figures/figure_2_baseline_vs_agent_scores.svg)
+
+![Figure 3. Single-user pilot workflow-preparation time reduction.](figures/figure_3_pilot_time_reduction.svg)
+
+![Figure 4. Dataset and benchmark summary.](figures/figure_4_dataset_benchmark_summary.svg)
+
+
 ## Discussion
 
 The results show that a GROMACS-specific multi-agent workflow can improve reproducibility and correctness compared with unassisted baseline LLM responses. The strongest improvements occurred for workflows where baseline responses produced topology-coordinate mismatches, incorrect molecule counting, unsafe or unclear PBC handling, or weak validation. By combining retrieval, structured workflow generation, rubric-based evaluation, correction, and selected execution, GROMACS-Agent reduces common GROMACS-specific workflow errors.
