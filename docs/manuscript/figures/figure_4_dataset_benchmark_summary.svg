@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+<rect width="100%" height="100%" fill="white"/>
+<defs>
+<marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+<path d="M0,0 L0,6 L9,3 z" fill="black"/>
+</marker>
+</defs>
+<text x="600" y="45" font-family="Arial" font-size="30" font-weight="bold" text-anchor="middle">Figure 4. Dataset and benchmark summary</text>
+<text x="55" y="330" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle">Count</text>
+<line x1="110" y1="100" x2="110" y2="590" stroke="black" stroke-width="2"/>
+<line x1="110" y1="590" x2="1090" y2="590" stroke="black" stroke-width="2"/>
+<line x1="110" y1="590.0" x2="1090" y2="590.0" stroke="#dddddd" stroke-dasharray="5 5"/>
+<text x="98" y="596.0" font-family="Arial" font-size="16" font-weight="normal" text-anchor="end">0</text>
+<line x1="110" y1="492.0" x2="1090" y2="492.0" stroke="#dddddd" stroke-dasharray="5 5"/>
+<text x="98" y="498.0" font-family="Arial" font-size="16" font-weight="normal" text-anchor="end">24</text>
+<line x1="110" y1="394.0" x2="1090" y2="394.0" stroke="#dddddd" stroke-dasharray="5 5"/>
+<text x="98" y="400.0" font-family="Arial" font-size="16" font-weight="normal" text-anchor="end">48</text>
+<line x1="110" y1="296.0" x2="1090" y2="296.0" stroke="#dddddd" stroke-dasharray="5 5"/>
+<text x="98" y="302.0" font-family="Arial" font-size="16" font-weight="normal" text-anchor="end">72</text>
+<line x1="110" y1="198.0" x2="1090" y2="198.0" stroke="#dddddd" stroke-dasharray="5 5"/>
+<text x="98" y="204.0" font-family="Arial" font-size="16" font-weight="normal" text-anchor="end">96</text>
+<line x1="110" y1="100.0" x2="1090" y2="100.0" stroke="#dddddd" stroke-dasharray="5 5"/>
+<text x="98" y="106.0" font-family="Arial" font-size="16" font-weight="normal" text-anchor="end">120</text>
+<rect x="145.93333333333334" y="181.66666666666663" width="89.83333333333334" height="408.33333333333337" fill="#8fbce6" stroke="black"/>
+<text x="190.85000000000002" y="173.66666666666663" font-family="Arial" font-size="15" font-weight="bold" text-anchor="middle">100</text>
+<text x="190.85000000000002" y="622" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">GSCF</text>
+<rect x="309.2666666666667" y="181.66666666666663" width="89.83333333333334" height="408.33333333333337" fill="#8fbce6" stroke="black"/>
+<text x="354.1833333333334" y="173.66666666666663" font-family="Arial" font-size="15" font-weight="bold" text-anchor="middle">100</text>
+<text x="354.1833333333334" y="622" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">GEQS</text>
+<rect x="472.6" y="181.66666666666663" width="89.83333333333334" height="408.33333333333337" fill="#8fbce6" stroke="black"/>
+<text x="517.5166666666667" y="173.66666666666663" font-family="Arial" font-size="15" font-weight="bold" text-anchor="middle">100</text>
+<text x="517.5166666666667" y="622" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">Worker SFT</text>
+<rect x="635.9333333333334" y="181.66666666666663" width="89.83333333333334" height="408.33333333333337" fill="#8fbce6" stroke="black"/>
+<text x="680.85" y="173.66666666666663" font-family="Arial" font-size="15" font-weight="bold" text-anchor="middle">100</text>
+<text x="680.85" y="622" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">Eval. SFT</text>
+<rect x="799.2666666666667" y="569.5833333333334" width="89.83333333333334" height="20.416666666666664" fill="#8fbce6" stroke="black"/>
+<text x="844.1833333333333" y="561.5833333333334" font-family="Arial" font-size="15" font-weight="bold" text-anchor="middle">5</text>
+<text x="844.1833333333333" y="622" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">Demo</text>
+<rect x="962.6000000000001" y="569.5833333333334" width="89.83333333333334" height="20.416666666666664" fill="#8fbce6" stroke="black"/>
+<text x="1007.5166666666668" y="561.5833333333334" font-family="Arial" font-size="15" font-weight="bold" text-anchor="middle">5</text>
+<text x="1007.5166666666668" y="622" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">Accepted</text>
+
+</svg>
