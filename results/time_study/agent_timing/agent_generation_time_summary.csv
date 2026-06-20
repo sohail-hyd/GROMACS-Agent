@@ -1,0 +1,5 @@
+metric,value_seconds
+average_agent_generation_time,0.0490
+minimum_agent_generation_time,0.0400
+maximum_agent_generation_time,0.1100
+number_of_tasks,10
