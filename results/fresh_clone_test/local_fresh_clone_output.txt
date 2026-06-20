@@ -1,0 +1,5 @@
+GROMACS-Agent run complete
+Run folder: /home/lenovo/new_user_local_test_gromacs_agent/GROMACS-Agent/agent/outputs/agent_runs/20260621_003903_803547
+Initial score: 10
+Final score: 10
+Decision: accept
