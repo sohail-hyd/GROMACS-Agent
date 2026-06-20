@@ -1,0 +1,5 @@
+{
+  "role": "Manager",
+  "interpreted_task": "Generate a complete GROMACS workflow to calculate hydrogen-bond number and hydrogen-bond time series of pure water.",
+  "goal": "Generate a reproducible GROMACS workflow with validation."
+}

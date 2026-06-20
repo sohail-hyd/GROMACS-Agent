@@ -1,0 +1,5 @@
+{
+  "role": "Manager",
+  "interpreted_task": "Generate a complete GROMACS workflow to calculate coordination number from RDF.",
+  "goal": "Generate a reproducible GROMACS workflow with validation."
+}

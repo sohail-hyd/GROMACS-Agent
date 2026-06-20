@@ -1,0 +1,5 @@
+{
+  "role": "Manager",
+  "interpreted_task": "Generate a complete GROMACS workflow to validate equilibration using temperature pressure density total energy and box volume.",
+  "goal": "Generate a reproducible GROMACS workflow with validation."
+}

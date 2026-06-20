@@ -1,0 +1,5 @@
+{
+  "role": "Manager",
+  "interpreted_task": "Generate a complete GROMACS workflow to calculate Li-O and Br-O RDFs for aqueous LiBr solution at 300 K.",
+  "goal": "Generate a reproducible GROMACS workflow with validation."
+}

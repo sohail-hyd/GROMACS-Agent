@@ -1,0 +1,120 @@
+[
+  {
+    "id": "GSCF_009",
+    "task_type": "trajectory_preprocessing",
+    "system": "pure water",
+    "temperature_K": 300,
+    "pressure_bar": 1,
+    "user_task": "Generate a GROMACS workflow to preprocess a pure water trajectory at 300 K by correcting periodic boundary conditions, making molecules whole, centering the system, and producing a cleaned trajectory for later analysis.",
+    "required_inputs": [
+      "md.tpr",
+      "md.xtc",
+      "md.gro",
+      "topol.top"
+    ],
+    "expected_gromacs_commands": [
+      "echo System | gmx trjconv -s md.tpr -f md.xtc -o md_nojump.xtc -pbc nojump",
+      "echo System | gmx trjconv -s md.tpr -f md_nojump.xtc -o md_whole.xtc -pbc mol",
+      "echo System System | gmx trjconv -s md.tpr -f md_whole.xtc -o md_center.xtc -center -pbc mol"
+    ],
+    "important_rules": [
+      "Do not skip topology preparation if a full workflow is requested.",
+      "Use clear command order.",
+      "Explain group selection for gmx trjconv.",
+      "Explain the purpose of -pbc nojump, -pbc mol, and -center.",
+      "Do not overwrite the original trajectory.",
+      "State that PBC correction should be checked visually before analysis.",
+      "If the system is homogeneous water, centering System is acceptable, but for solute systems, center the solute instead."
+    ],
+    "expected_outputs": [
+      "md_nojump.xtc",
+      "md_whole.xtc",
+      "md_center.xtc"
+    ],
+    "common_errors": [
+      "Overwriting md.xtc instead of writing a new cleaned trajectory.",
+      "Using wrong group selections for centering.",
+      "Assuming the same centering command works for solute-water systems.",
+      "Not checking the corrected trajectory visually.",
+      "Using cleaned trajectory without matching md.tpr when required."
+    ],
+    "validation_note": "The workflow is valid if corrected trajectory files are produced without overwriting the original trajectory. The cleaned trajectory should be inspected visually before downstream RDF, MSD, density, or hydrogen-bond analysis."
+  },
+  {
+    "id": "GSCF_100",
+    "task_name": "full_basic_water_analysis_package",
+    "dataset": "GSCF",
+    "status": "curated_workflow_template_not_all_executed",
+    "user_task": "Generate a complete GROMACS analysis workflow package for pure water including density temperature RDF MSD and PBC preprocessing.",
+    "required_input_files": [
+      "topol.top",
+      "coordinate file such as .gro",
+      "trajectory file such as .xtc when required",
+      "run input file such as .tpr when required",
+      "energy file such as .edr when required",
+      "index file such as .ndx when custom selections are required"
+    ],
+    "workflow": {
+      "topology_check": "Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.",
+      "command_sequence": "echo Density | gmx energy -f md.edr -o density.xvg\necho Temperature | gmx energy -f md.edr -o temperature.xvg\ngmx rdf -f md.xtc -s md.tpr -o rdf_OW_OW.xvg -ref 'name OW' -sel 'name OW'\necho System | gmx trjconv -s md.tpr -f md.xtc -o md_nojump.xtc -pbc nojump\ngmx msd -f md_nojump.xtc -s md.tpr -o msd_water.xvg",
+      "expected_outputs": "density.xvg; temperature.xvg; rdf_OW_OW.xvg; md_nojump.xtc; msd_water.xvg"
+    },
+    "common_errors": [
+      "missing topology file",
+      "wrong molecule count",
+      "wrong atom or group selection",
+      "invalid GROMACS option",
+      "wrong trajectory preprocessing",
+      "missing short-trajectory warning"
+    ],
+    "validation_note": "Check successful command execution and physical meaning of output. Short trajectories are workflow-validation tests unless production-scale sampling is used."
+  },
+  {
+    "id": "GSCF_001",
+    "task_type": "density_calculation",
+    "software": "GROMACS",
+    "system": "pure_water",
+    "instruction": "Generate a complete GROMACS workflow to calculate the density of pure water at 300 K and 1 bar.",
+    "input": {
+      "box_size": "3 nm x 3 nm x 3 nm",
+      "temperature": "300 K",
+      "pressure": "1 bar",
+      "ensemble_sequence": [
+        "energy_minimization",
+        "NVT",
+        "NPT",
+        "production_MD"
+      ],
+      "analysis": "density extraction from energy file"
+    },
+    "expected_workflow": [
+      "Generate water box using gmx solvate",
+      "Count water molecules and create topology",
+      "Prepare minim.mdp",
+      "Run grompp and mdrun for energy minimization",
+      "Prepare nvt.mdp",
+      "Run NVT equilibration",
+      "Prepare npt.mdp using C-rescale barostat",
+      "Run NPT equilibration",
+      "Prepare md.mdp",
+      "Run production MD",
+      "Extract density using gmx energy",
+      "Calculate average density from density.xvg"
+    ],
+    "validated_result": {
+      "average_density_kg_m3": 968.755,
+      "production_time": "100 ps",
+      "status": "workflow_validated_short_test"
+    },
+    "common_errors_and_fixes": [
+      {
+        "error": "topol.top does not exist when using gmx solvate -p",
+        "fix": "Create topology manually after generating the water box and counting water molecules."
+      },
+      {
+        "error": "Too many warnings due to Berendsen barostat",
+        "fix": "Use C-rescale barostat for NPT equilibration."
+      }
+    ]
+  }
+]

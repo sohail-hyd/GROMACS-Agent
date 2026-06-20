@@ -1,0 +1,1 @@
+Generate a complete GROMACS workflow to calculate water density profile along the z direction.

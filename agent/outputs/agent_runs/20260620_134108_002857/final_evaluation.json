@@ -1,0 +1,12 @@
+{
+  "score": 10,
+  "decision": "accept",
+  "detected_errors": [],
+  "rubric": {
+    "syntax_correctness": 2,
+    "workflow_sequence": 2,
+    "parameter_rationality": 2,
+    "analysis_correctness": 2,
+    "completeness_reproducibility": 2
+  }
+}

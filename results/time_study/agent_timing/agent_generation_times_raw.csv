@@ -1,0 +1,11 @@
+task_id,task,agent_time_seconds
+TIME_001,O-O RDF calculation,0.06
+TIME_002,Temperature time-series extraction,0.11
+TIME_003,Density calculation,0.04
+TIME_004,MSD and diffusion,0.04
+TIME_005,PBC trajectory preprocessing,0.04
+TIME_006,Li-O and Br-O RDF,0.04
+TIME_007,Hydrogen-bond analysis,0.04
+TIME_008,Density profile along z,0.04
+TIME_009,Coordination number,0.04
+TIME_010,Equilibration validation,0.04

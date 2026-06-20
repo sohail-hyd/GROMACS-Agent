@@ -1,0 +1,96 @@
+[
+  {
+    "id": "GSCF_007",
+    "task_type": "coordination_number_analysis",
+    "system": "pure water",
+    "temperature_K": 300,
+    "pressure_bar": 1,
+    "user_task": "Generate a GROMACS post-processing workflow to calculate the oxygen-oxygen coordination number of pure water at 300 K from the radial distribution function.",
+    "required_inputs": [
+      "md.tpr",
+      "md.xtc",
+      "topol.top"
+    ],
+    "expected_gromacs_commands": [
+      "gmx rdf -f md.xtc -s md.tpr -o rdf_OW_OW.xvg -cn cn_OW_OW.xvg -ref \"name OW\" -sel \"name OW\""
+    ],
+    "important_rules": [
+      "Do not skip topology preparation if a full workflow is requested.",
+      "Use clear command order.",
+      "Use physically reasonable NVT/NPT settings.",
+      "For NPT equilibration, prefer C-rescale barostat.",
+      "Use oxygen atom selection clearly.",
+      "Use -cn or explain how coordination number is obtained by integrating the RDF.",
+      "Explain that the first-shell coordination number should be read up to the first minimum of the O-O RDF.",
+      "If trajectory length is short, state that the coordination number is only workflow validation."
+    ],
+    "expected_outputs": [
+      "rdf_OW_OW.xvg",
+      "cn_OW_OW.xvg"
+    ],
+    "common_errors": [
+      "Only generating RDF and forgetting coordination number output.",
+      "Using unclear atom selections.",
+      "Reading coordination number at the wrong cutoff instead of the first RDF minimum.",
+      "Missing md.tpr or md.xtc.",
+      "Reporting short-trajectory coordination number as final publication-quality data."
+    ],
+    "validation_note": "The workflow is valid if gmx rdf produces both rdf_OW_OW.xvg and cn_OW_OW.xvg. The first-shell coordination number should be interpreted at the first minimum of the O-O RDF, and short trajectories should be treated as workflow validation only."
+  },
+  {
+    "id": "GSCF_033",
+    "task_name": "coordination_li_oxygen",
+    "dataset": "GSCF",
+    "status": "curated_workflow_template_not_all_executed",
+    "user_task": "Generate a GROMACS workflow to calculate Li-O coordination number from RDF.",
+    "required_input_files": [
+      "topol.top",
+      "coordinate file such as .gro",
+      "trajectory file such as .xtc when required",
+      "run input file such as .tpr when required",
+      "energy file such as .edr when required"
+    ],
+    "workflow": {
+      "topology_check": "Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.",
+      "command_sequence": "gmx rdf -f md.xtc -s md.tpr -o rdf_Li_OW.xvg -cn cn_Li_OW.xvg -ref \"name LI\" -sel \"name OW\"",
+      "expected_outputs": "rdf_Li_OW.xvg; cn_Li_OW.xvg"
+    },
+    "common_errors": [
+      "missing topology file",
+      "wrong molecule count after solvation",
+      "wrong atom or group selection",
+      "invalid GROMACS option",
+      "missing validation note",
+      "short trajectory used without warning"
+    ],
+    "validation_note": "Generated outputs must be checked for successful execution and physical meaning. Short trajectories should be treated as workflow-validation tests unless production-scale sampling is used."
+  },
+  {
+    "id": "GSCF_034",
+    "task_name": "coordination_br_oxygen",
+    "dataset": "GSCF",
+    "status": "curated_workflow_template_not_all_executed",
+    "user_task": "Generate a GROMACS workflow to calculate Br-O coordination number from RDF.",
+    "required_input_files": [
+      "topol.top",
+      "coordinate file such as .gro",
+      "trajectory file such as .xtc when required",
+      "run input file such as .tpr when required",
+      "energy file such as .edr when required"
+    ],
+    "workflow": {
+      "topology_check": "Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.",
+      "command_sequence": "gmx rdf -f md.xtc -s md.tpr -o rdf_Br_OW.xvg -cn cn_Br_OW.xvg -ref \"name BR\" -sel \"name OW\"",
+      "expected_outputs": "rdf_Br_OW.xvg; cn_Br_OW.xvg"
+    },
+    "common_errors": [
+      "missing topology file",
+      "wrong molecule count after solvation",
+      "wrong atom or group selection",
+      "invalid GROMACS option",
+      "missing validation note",
+      "short trajectory used without warning"
+    ],
+    "validation_note": "Generated outputs must be checked for successful execution and physical meaning. Short trajectories should be treated as workflow-validation tests unless production-scale sampling is used."
+  }
+]

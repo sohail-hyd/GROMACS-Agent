@@ -1,0 +1,5 @@
+{
+  "role": "Manager",
+  "interpreted_task": "Generate a GROMACS workflow to extract and validate the temperature time series of pure water at 300 K from an energy file.",
+  "goal": "Generate a reproducible GROMACS workflow with validation."
+}

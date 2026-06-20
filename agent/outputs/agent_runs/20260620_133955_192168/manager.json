@@ -1,0 +1,5 @@
+{
+  "role": "Manager",
+  "interpreted_task": "Generate a complete GROMACS workflow to calculate O-O RDF of pure water at 300 K.",
+  "goal": "Generate a reproducible GROMACS workflow with validation."
+}

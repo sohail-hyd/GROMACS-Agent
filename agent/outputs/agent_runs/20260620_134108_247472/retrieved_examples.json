@@ -1,0 +1,114 @@
+[
+  {
+    "id": "GSCF_005",
+    "task_type": "density_profile_analysis",
+    "system": "pure water",
+    "temperature_K": 300,
+    "pressure_bar": 1,
+    "user_task": "Generate a GROMACS post-processing workflow to calculate the mass density profile of pure water along the z direction at 300 K.",
+    "required_inputs": [
+      "md.tpr",
+      "md.xtc",
+      "topol.top"
+    ],
+    "expected_gromacs_commands": [
+      "echo System | gmx density -f md.xtc -s md.tpr -o density_profile_z.xvg -d Z -sl 100"
+    ],
+    "important_rules": [
+      "Do not skip topology preparation if a full workflow is requested.",
+      "Use clear command order.",
+      "Use physically reasonable NVT/NPT settings.",
+      "For NPT equilibration, prefer C-rescale barostat.",
+      "Explain group selection for gmx density.",
+      "Use the z direction explicitly with -d Z.",
+      "If trajectory length is short, state that the density profile is only workflow validation."
+    ],
+    "expected_outputs": [
+      "density_profile_z.xvg"
+    ],
+    "common_errors": [
+      "Forgetting to specify the z direction.",
+      "Using an incorrect group selection.",
+      "Missing md.tpr or md.xtc.",
+      "Reporting a short-trajectory density profile as final publication-quality data.",
+      "Not explaining bin number or slab resolution."
+    ],
+    "validation_note": "The workflow is valid if gmx density produces density_profile_z.xvg with a reasonable mass-density distribution along the z direction. Short trajectories should be treated as workflow validation only."
+  },
+  {
+    "id": "GSCF_030",
+    "task_name": "number_density_profile",
+    "dataset": "GSCF",
+    "status": "curated_workflow_template_not_all_executed",
+    "user_task": "Generate a GROMACS workflow to calculate number density profile along z direction.",
+    "required_input_files": [
+      "topol.top",
+      "coordinate file such as .gro",
+      "trajectory file such as .xtc when required",
+      "run input file such as .tpr when required",
+      "energy file such as .edr when required"
+    ],
+    "workflow": {
+      "topology_check": "Verify that topol.top exists and that the [ molecules ] section matches the coordinate file.",
+      "command_sequence": "echo System | gmx density -f md.xtc -s md.tpr -o number_density_z.xvg -d Z -sl 100 -dens number",
+      "expected_outputs": "number_density_z.xvg"
+    },
+    "common_errors": [
+      "missing topology file",
+      "wrong molecule count after solvation",
+      "wrong atom or group selection",
+      "invalid GROMACS option",
+      "missing validation note",
+      "short trajectory used without warning"
+    ],
+    "validation_note": "Generated outputs must be checked for successful execution and physical meaning. Short trajectories should be treated as workflow-validation tests unless production-scale sampling is used."
+  },
+  {
+    "id": "GSCF_001",
+    "task_type": "density_calculation",
+    "software": "GROMACS",
+    "system": "pure_water",
+    "instruction": "Generate a complete GROMACS workflow to calculate the density of pure water at 300 K and 1 bar.",
+    "input": {
+      "box_size": "3 nm x 3 nm x 3 nm",
+      "temperature": "300 K",
+      "pressure": "1 bar",
+      "ensemble_sequence": [
+        "energy_minimization",
+        "NVT",
+        "NPT",
+        "production_MD"
+      ],
+      "analysis": "density extraction from energy file"
+    },
+    "expected_workflow": [
+      "Generate water box using gmx solvate",
+      "Count water molecules and create topology",
+      "Prepare minim.mdp",
+      "Run grompp and mdrun for energy minimization",
+      "Prepare nvt.mdp",
+      "Run NVT equilibration",
+      "Prepare npt.mdp using C-rescale barostat",
+      "Run NPT equilibration",
+      "Prepare md.mdp",
+      "Run production MD",
+      "Extract density using gmx energy",
+      "Calculate average density from density.xvg"
+    ],
+    "validated_result": {
+      "average_density_kg_m3": 968.755,
+      "production_time": "100 ps",
+      "status": "workflow_validated_short_test"
+    },
+    "common_errors_and_fixes": [
+      {
+        "error": "topol.top does not exist when using gmx solvate -p",
+        "fix": "Create topology manually after generating the water box and counting water molecules."
+      },
+      {
+        "error": "Too many warnings due to Berendsen barostat",
+        "fix": "Use C-rescale barostat for NPT equilibration."
+      }
+    ]
+  }
+]
