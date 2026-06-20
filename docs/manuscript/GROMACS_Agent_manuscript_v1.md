@@ -35,7 +35,11 @@ The GROMACS-Agent dataset contains 100 GROMACS Script Construction for Fine-tuni
 GromacsEvaluatorAgent applies a 10-point rubric consisting of syntax correctness, workflow sequence, parameter rationality, analysis correctness, and completeness/reproducibility. Each category contributes up to 2 points.
 
 ## Results
+## Main manuscript figures
 
+![Figure 1. Overall architecture and dataset design of GROMACS-Agent.](figures/figure_1_architecture_dataset.png)
+
+![Figure 2. Manual GROMACS workflow construction versus GROMACS-Agent-assisted workflow construction.](figures/figure_2_manual_vs_agent_workflow.png)
 ### Repository and dataset validation
 
 The repository package check confirmed 12/12 required components. The paper dataset contains 100 GSCF records and 100 GEQS records. The curated records were exported into supervised fine-tuning format, producing 100 Worker instruction-output records and 100 Evaluator instruction-output records.
