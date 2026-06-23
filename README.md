@@ -6,6 +6,8 @@ It converts a natural-language molecular dynamics task into a topology-aware GRO
 
 <img width="1122" height="1402" alt="ChatGPT Image Jun 21, 2026, 01_46_58 AM (1)" src="https://github.com/user-attachments/assets/80c308aa-b0e5-4a3a-8411-1b473cf0fd5d" />
 
+**[👉 Visit the GROMACS-Agent Website](https://sohail-hyd.github.io/GROMACS-Agent/)**
+
 
 ## Why GROMACS-Agent
 
