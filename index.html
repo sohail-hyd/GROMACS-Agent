@@ -1,98 +1,641 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GROMACS-Agent</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GROMACS-Agent - Text-to-Workflow for MD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <style>
+        /* ===== 全局重置 & 基础 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 0 20px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8fafc;
+            color: #0b1a2f;
             line-height: 1.6;
-            color: #1a1a1a;
-            background: #fafafa;
         }
-        h1 { font-size: 2.8rem; margin-bottom: 0; }
-        .subtitle { font-size: 1.3rem; color: #2c6b9e; font-weight: 400; margin-top: 5px; }
-        .institution { font-size: 1.1rem; color: #555; border-bottom: 2px solid #2c6b9e; padding-bottom: 15px; }
-        .feature-box {
-            background: #fff;
-            border-radius: 8px;
-            padding: 20px 25px;
-            margin: 20px 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border-left: 4px solid #2c6b9e;
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
         }
-        .feature-box ul { padding-left: 20px; }
-        .feature-box li { margin: 8px 0; }
-        .paper-badge {
-            background: #e8f0fe;
-            padding: 15px 20px;
-            border-radius: 6px;
-            margin: 20px 0;
+
+        /* ===== 导航栏 ===== */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.25s ease;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
         }
-        a { color: #2c6b9e; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        .badge {
-            display: inline-block;
-            background: #2c6b9e;
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 68px;
+        }
+        .nav-brand h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #0b2b5c, #1a5a9c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            align-items: center;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #1e3a5f;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover {
+            color: #0f3b7a;
+        }
+        .nav-links a.github-nav {
+            background: #0b1a2f;
             color: #fff;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            margin-right: 5px;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: background 0.2s;
         }
-        .footer { margin-top: 40px; font-size: 0.9rem; color: #888; border-top: 1px solid #ddd; padding-top: 20px; }
+        .nav-links a.github-nav:hover {
+            background: #1a3555;
+            color: #fff;
+        }
+
+        /* ===== Hero 区域 ===== */
+        .hero {
+            padding: 70px 0 60px;
+            text-align: center;
+            background: linear-gradient(160deg, #f0f6ff 0%, #ffffff 80%);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+        .hero-title {
+            font-size: 3.2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            line-height: 1.15;
+            background: linear-gradient(145deg, #0b2b5c, #1f6eb0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+        .hero-subtitle {
+            font-size: 1.25rem;
+            font-weight: 400;
+            color: #1e3a5f;
+            max-width: 720px;
+            margin: 0 auto 24px;
+            opacity: 0.85;
+        }
+        .hero-badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 22px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: transform 0.15s, box-shadow 0.15s;
+            background: #fff;
+            color: #0b1a2f;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        .badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 20, 50, 0.10);
+        }
+        .badge-nature {
+            background: #1a3b5d;
+            color: #fff;
+            border-color: #1a3b5d;
+        }
+        .badge-nature:hover {
+            background: #0f2a44;
+        }
+        .badge-github {
+            background: #0b1a2f;
+            color: #fff;
+            border-color: #0b1a2f;
+        }
+        .badge-github:hover {
+            background: #1a2f4a;
+        }
+        .badge-icon {
+            font-size: 1.1rem;
+        }
+        .hero-author {
+            margin-top: 8px;
+            font-size: 1.05rem;
+            color: #1e3a5f;
+        }
+        .hero-author strong {
+            font-weight: 600;
+        }
+
+        /* ===== 通用 Section ===== */
+        .section {
+            padding: 60px 0;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .section-alt {
+            background: #ffffff;
+            border-top: 1px solid rgba(0, 0, 0, 0.04);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+        .section-title {
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-bottom: 32px;
+            color: #0b1a2f;
+        }
+
+        /* ===== Introduction ===== */
+        .intro-text {
+            font-size: 1.1rem;
+            max-width: 820px;
+            margin-bottom: 16px;
+            color: #1e3a5f;
+        }
+        .highlight-box {
+            background: #e9f0fa;
+            border-left: 6px solid #1a5a9c;
+            padding: 22px 30px;
+            border-radius: 12px;
+            margin: 20px 0 8px;
+        }
+        .highlight-box h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #0b2b5c;
+            margin-bottom: 6px;
+        }
+        .highlight-box p {
+            font-size: 1.05rem;
+            color: #1e3a5f;
+        }
+
+        /* ===== Features 网格 ===== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 28px;
+        }
+        .feature-card {
+            background: #fff;
+            padding: 28px 22px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s, box-shadow 0.2s;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            text-align: center;
+        }
+        .feature-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 32px rgba(0, 20, 50, 0.08);
+        }
+        .feature-icon {
+            font-size: 2.4rem;
+            margin-bottom: 10px;
+        }
+        .feature-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #0b1a2f;
+        }
+        .feature-card p {
+            font-size: 0.95rem;
+            color: #2d4a6a;
+        }
+
+        /* ===== Datasets & Models ===== */
+        .datasets-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+        }
+        .dataset-section {
+            flex: 1 1 260px;
+        }
+        .dataset-section h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #0b1a2f;
+        }
+        .dataset-section p {
+            color: #2d4a6a;
+            margin-bottom: 12px;
+        }
+        .badge-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .badge-hf {
+            background: #ffd21e;
+            color: #0b1a2f;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-decoration: none;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            transition: background 0.15s;
+        }
+        .badge-hf:hover {
+            background: #f5c800;
+        }
+        code {
+            background: #eef2f6;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #0b2b5c;
+        }
+
+        /* ===== Methods ===== */
+        .methods-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            justify-content: center;
+        }
+        .method-image {
+            flex: 1 1 300px;
+            text-align: center;
+        }
+        .method-image img {
+            max-width: 100%;
+            border-radius: 14px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+        .image-caption {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #3d5a7a;
+            max-width: 420px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ===== Citation ===== */
+        .citation-box {
+            background: #f1f5f9;
+            padding: 24px 28px;
+            border-radius: 14px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            overflow-x: auto;
+        }
+        .citation-box pre {
+            font-family: 'Inter', monospace;
+            font-size: 0.9rem;
+            color: #0b1a2f;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* ===== Footer ===== */
+        .footer {
+            background: #0b1a2f;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 30px 0;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .footer .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .footer p {
+            font-size: 0.95rem;
+        }
+        .footer-links {
+            display: flex;
+            gap: 28px;
+        }
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .footer-links a:hover {
+            color: #ffffff;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 700px) {
+            .hero-title {
+                font-size: 2.2rem;
+            }
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            .nav-links {
+                gap: 16px;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+            .nav-links a {
+                font-size: 0.85rem;
+            }
+            .section-title {
+                font-size: 1.6rem;
+            }
+            .features-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 480px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero-badges {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <h1>🧪 GROMACS-Agent</h1>
-    <div class="subtitle">Text-to-Workflow Generation for Molecular Dynamics</div>
-    <div class="institution">School of Energy and Environment, Southeast University</div>
+    <!-- ===== 导航栏 ===== -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>⚡ GROMACS‑Agent</h1>
+            </div>
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#introduction">Introduction</a>
+                <a href="#features">Features</a>
+                <a href="#datasets">Datasets</a>
+                <a href="#methods">Methods</a>
+                <a href="https://github.com/sohail-hyd/GROMACS-Agent" target="_blank" class="github-nav">GitHub</a>
+            </div>
+        </div>
+    </nav>
 
-    <div class="feature-box">
-        <h3>📄 A multi-agent framework for topology-aware GROMACS workflow generation, evaluation, correction, and selected safe execution</h3>
-        <ul>
-            <li><strong>Text-to-Workflow</strong> – Convert natural language tasks into complete GROMACS workflows (files, commands, outputs, validation).</li>
-            <li><strong>Multi-Agent Architecture</strong> – Manager, Planner, Retriever, Worker, Evaluator, and Code Executor agents work together.</li>
-            <li><strong>Evaluation & Correction</strong> – A dedicated Evaluator agent scores workflows and suggests fixes in a Reflexion-style loop.</li>
-            <li><strong>Curated Datasets</strong> – Ships with <strong>GSCF</strong> (workflow generation) and <strong>GEQS</strong> (evaluation) datasets.</li>
-            <li><strong>Safe Execution</strong> – Selected safe-execution checks for allow-listed commands (RDF, MSD, density, etc.).</li>
-        </ul>
-    </div>
+    <!-- ===== Hero ===== -->
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">GROMACS‑Agent</h1>
+                <p class="hero-subtitle">
+                    Text‑to‑Workflow Generation for Molecular Dynamics<br />
+                    A multi‑agent framework for topology‑aware GROMACS workflow generation,
+                    evaluation, correction, and selected safe execution.
+                </p>
+                <div class="hero-badges">
+                    <a href="https://chemrxiv.org/engage/chemrxiv/article-details/6879a2c7d7b7f8b5f1e2a3b4" class="badge badge-nature">
+                        <span class="badge-icon">📄</span>
+                        <span>chemRxiv 2026</span>
+                    </a>
+                    <a href="https://github.com/sohail-hyd/GROMACS-Agent" class="badge badge-github">
+                        <span class="badge-icon">⭐</span>
+                        <span>GitHub</span>
+                    </a>
+                </div>
+                <div class="hero-author">
+                    <p>🏛️ <strong>School of Energy and Environment, Southeast University</strong></p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <div class="paper-badge">
-        <strong>📑 Paper:</strong> <em>GROMACS-Agent: Text-to-Workflow Generation for Molecular Dynamics</em> (chemRxiv, 2026)<br>
-        <span class="badge">📊 Baseline</span> Improved evaluator score from 6.6/10 → 10/10 across representative tasks.<br>
-        <span class="badge">⚡ Speed</span> Local workflow generation in ~0.05 s (vs. ~47 s manually in a pilot test).
-    </div>
+    <!-- ===== Introduction ===== -->
+    <section id="introduction" class="section">
+        <div class="container">
+            <h2 class="section-title">🔍 Introduction</h2>
+            <div class="intro-content">
+                <p class="intro-text">
+                    Molecular dynamics (MD) simulation links atomic structure to thermodynamic,
+                    transport, and interfacial properties, but translating a scientific question
+                    into an appropriate <strong>GROMACS workflow</strong> remains a practical barrier.
+                </p>
+                <p class="intro-text">
+                    A complete GROMACS workflow spans structure, topology, MDP, TPR, trajectory,
+                    energy, index, and output files — and many errors are <strong>scientific</strong>
+                    rather than syntactic, surviving execution while quietly invalidating the result.
+                </p>
+                <div class="highlight-box">
+                    <h3>🚀 GROMACS‑Agent</h3>
+                    <p>
+                        A multi‑agent prototype that treats GROMACS automation as
+                        <strong>text‑to‑workflow generation</strong> rather than text‑to‑code generation.
+                        Combines Manager, Planner, Retriever, Worker, Evaluator, and Code Executor agents.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <h3>📦 Datasets & Models</h3>
-    <ul>
-        <li><strong>GSCF</strong> – GROMACS Script Construction for Fine-tuning (workflow generation records).</li>
-        <li><strong>GEQS</strong> – GROMACS Expert Quality Scoring (evaluation records).</li>
-        <li>Available on Hugging Face (coming soon) and in the <a href="https://github.com/sohail-hyd/GROMACS-Agent/tree/main">repository</a>.</li>
-    </ul>
+    <!-- ===== Features ===== -->
+    <section id="features" class="section section-alt">
+        <div class="container">
+            <h2 class="section-title">🧰 Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📦</div>
+                    <h3>Text‑to‑Workflow</h3>
+                    <p>Convert natural language tasks into complete GROMACS workflows: files, commands, outputs, and validation.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <h3>Multi‑Agent System</h3>
+                    <p>Manager, Planner, Retriever, Worker, Evaluator, and Executor agents collaborate seamlessly.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>Curated Datasets</h3>
+                    <p><strong>GSCF</strong> (workflow generation) and <strong>GEQS</strong> (evaluation) datasets with 100 records each.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧑‍🔬</div>
+                    <h3>Expert‑Evaluated</h3>
+                    <p>Improved evaluator‑assessed correctness from 6.6/10 → 10/10 across representative tasks.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⏱️</div>
+                    <h3>Time Efficient</h3>
+                    <p>Local workflow generation in ~0.05 s vs. ~47 s manually in pilot tests — a <strong>~99.9% reduction</strong>.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <h3>🚀 Quick Start</h3>
-    <pre style="background:#eee;padding:12px;border-radius:6px;overflow-x:auto;">
-git clone https://github.com/sohail-hyd/GROMACS-Agent.git
-cd GROMACS-Agent
-python3 agent/gromacs_agent.py --task "Calculate O-O RDF of pure water at 300 K."
-    </pre>
+    <!-- ===== Datasets & Models ===== -->
+    <section id="datasets" class="section">
+        <div class="container">
+            <h2 class="section-title">📂 Datasets &amp; Models</h2>
+            <div class="datasets-content">
+                <div class="dataset-section">
+                    <h3>🤗 Datasets</h3>
+                    <p>Curated datasets for GROMACS workflow generation and evaluation:</p>
+                    <div class="badge-list">
+                        <a href="#" class="badge-hf">GSCF (Generation)</a>
+                        <a href="#" class="badge-hf">GEQS (Evaluation)</a>
+                    </div>
+                    <p style="margin-top:12px; font-size:0.9rem; color:#3d5a7a;">
+                        <em>Coming soon on Hugging Face — stay tuned!</em>
+                    </p>
+                </div>
+                <div class="dataset-section">
+                    <h3>🤗 Fine‑tuned Models</h3>
+                    <p>Supervised fine‑tuned models for GROMACS workflow generation and evaluation:</p>
+                    <div class="badge-list">
+                        <a href="#" class="badge-hf">GROMACS‑Worker (coming soon)</a>
+                        <a href="#" class="badge-hf">GROMACS‑Evaluator (coming soon)</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <h3>🔗 Links</h3>
-    <ul>
-        <li><a href="https://github.com/sohail-hyd/GROMACS-Agent">📂 GitHub Repository</a></li>
-        <li><a href="https://github.com/sohail-hyd/GROMACS-Agent/blob/main/chemrxiv.15005078_v1.pdf">📜 Paper (PDF)</a></li>
-    </ul>
+    <!-- ===== Methods ===== -->
+    <section id="methods" class="section section-alt">
+        <div class="container">
+            <h2 class="section-title">🔬 Methods</h2>
+            <div class="methods-content">
+                <div class="method-image">
+                    <!-- 请将图片放入仓库的 assets/ 文件夹，并取消下面一行的注释 -->
+                    <!-- <img src="assets/architecture.png" alt="GROMACS-Agent Architecture" /> -->
+                    <div style="background:#e9f0fa; border-radius:14px; padding:40px 20px; border:1px dashed #1a5a9c; color:#1a3b5d; font-weight:500;">
+                        📐 Architecture Diagram<br />
+                        <span style="font-weight:400; font-size:0.9rem;">(Add your Figure 1 here: assets/architecture.png)</span>
+                    </div>
+                    <p class="image-caption">
+                        Multi‑agent architecture: Manager, Planner, Retriever, Worker, Evaluator, and Code Executor.
+                    </p>
+                </div>
+                <div class="method-image">
+                    <!-- 请将图片放入仓库的 assets/ 文件夹，并取消下面一行的注释 -->
+                    <!-- <img src="assets/workflow.png" alt="Workflow Comparison" /> -->
+                    <div style="background:#e9f0fa; border-radius:14px; padding:40px 20px; border:1px dashed #1a5a9c; color:#1a3b5d; font-weight:500;">
+                        📊 Workflow Comparison<br />
+                        <span style="font-weight:400; font-size:0.9rem;">(Add your Figure 2 here: assets/workflow.png)</span>
+                    </div>
+                    <p class="image-caption">
+                        Manual GROMACS workflow construction vs. GROMACS‑Agent‑assisted construction.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <div class="footer">
-        ⚡ Human-in-the-loop assistant – expert review and physical validation still required before execution.
-    </div>
+    <!-- ===== Citation ===== -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">📖 Citation</h2>
+            <div class="citation-box">
+                <pre><code>@article{ahmad2026gromacsagent,
+  title={GROMACS-Agent: Text-to-Workflow Generation for Molecular Dynamics},
+  author={Ahmad, Muhammad Sohail},
+  journal={chemRxiv},
+  year={2026},
+  url={https://chemrxiv.org/engage/chemrxiv/article-details/6879a2c7d7b7f8b5f1e2a3b4}
+}</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== Footer ===== -->
+    <footer class="footer">
+        <div class="container">
+            <p>© 2026 School of Energy and Environment, Southeast University. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="https://github.com/sohail-hyd/GROMACS-Agent">GitHub</a>
+                <a href="https://chemrxiv.org/engage/chemrxiv/article-details/6879a2c7d7b7f8b5f1e2a3b4">Paper</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== JavaScript ===== -->
+    <script>
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Navbar shadow on scroll
+        let lastScroll = 0;
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            if (currentScroll > 100) {
+                navbar.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+            } else {
+                navbar.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+            }
+            lastScroll = currentScroll;
+        });
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections and feature cards
+        document.querySelectorAll('.section, .feature-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
 
 </body>
 </html>
